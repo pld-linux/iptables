@@ -1,9 +1,9 @@
-%define		ULOG_version	0.2
+%define		ULOG_version	0.3
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.1.1
-Release:	3
+Version:	1.1.2
+Release:	0.1
 License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
@@ -17,8 +17,9 @@ Source4:	ulogd.init
 Source5:	ulogd.sysconfig
 Source6:	ulogd.logrotate
 Patch0:		%{name}-ulogd.patch
+Patch1:		iptables-ulog_MYSQL.patch
 BuildRequires:	sgml-tools
-#Requires:	kernel >= 2.4.0test4
+#Requires:	kernel >= 2.4.0test9
 Obsoletes:	netfilter
 Obsoletes:	ipchains
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -35,6 +36,7 @@ pakietów.
 %prep
 %setup -q -a1 -a3
 %patch0 -p1
+%patch1 -p1
 
 %build
 %{__make} -C iptables-howtos NAT-HOWTO.html packet-filtering-HOWTO.html \
@@ -61,10 +63,10 @@ install -d $RPM_BUILD_ROOT/var/log
 	LIBDIR=%{_libdir}
 
 install ip6tables $RPM_BUILD_ROOT%{_sbindir}/
+install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}/
 
 install -d $RPM_BUILD_ROOT%{_libdir}/iptables/ulogd
 install netfilter_ULOG-%{ULOG_version}/iptables/libipt_ULOG.so $RPM_BUILD_ROOT%{_libdir}/iptables
-install netfilter_ULOG-%{ULOG_version}/libipulog/ulog_test $RPM_BUILD_ROOT%{_libdir}/iptables/ulogd
 install netfilter_ULOG-%{ULOG_version}/ulogd/ulogd $RPM_BUILD_ROOT%{_sbindir}
 install netfilter_ULOG-%{ULOG_version}/ulogd/extensions/*.so $RPM_BUILD_ROOT%{_libdir}/iptables/ulogd
 
@@ -126,7 +128,6 @@ fi
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/iptables/*.so
 %attr(755,root,root) %{_libdir}/iptables/ulogd/*.so
-%attr(755,root,root) %{_libdir}/iptables/ulogd/ulog_test
 
 %attr(640,root,root) %ghost /var/log/*
 
