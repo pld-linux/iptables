@@ -3,9 +3,9 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap	0
-%define		netfilter_snap	20031009
-%define		iptables_version	1.2.9rc1
+#%define		netfilter_snap	0
+%define		netfilter_snap	20031121
+%define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
@@ -24,10 +24,9 @@ License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-Source0:	http://www.netfilter.org/files/%{name}-%{iptables_version}.tar.bz2
-# Source0-md5:	4eda3f086da423b7fe35802b5b833db0
+Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/%{name}-%{iptables_version}-%{netfilter_snap}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
-# Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
+
 Source2:	%{name}.init
 Patch0:		%{name}-man.patch
 Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
@@ -35,10 +34,10 @@ Patch4:		grsecurity-%{iptables_version}-iptables.patch
 # CVS up-to-date
 #Patch9:		iptables-1.2.8-CVS-20030715.patch
 # patches from netfilter
-Patch10:	ipt_REJECT-fake-source.patch.userspace
-Patch11:	mark-bitwise-ops.patch.userspace
-Patch12:	raw.patch.ipv6.userspace
-Patch13:	iptables-1.2.9rc1-ipt_p2p.patch
+#Patch10:	ipt_REJECT-fake-source.patch.userspace
+#Patch11:	mark-bitwise-ops.patch.userspace
+Patch12:	iptables-1.2.9-ipt_p2p.patch
+
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
@@ -61,7 +60,7 @@ Obsoletes:	ipchains
 %else
 %{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
 %endif
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+BuildRoot:	%{tmpdir}/%{name}-%{version}-%{netfilter_snap}-root-%(id -u -n)
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
@@ -119,16 +118,16 @@ firewall-init sposobu w³±czania i wy³±czania filtrów IP j±dra poprzez
 iptables(8).
 
 %prep
-%setup -q -a1 -n %{name}-%{iptables_version}
+%setup -q -a1 -n %{name}-%{iptables_version}-%{netfilter_snap}
 %patch0 -p1
 %{!?_without_patchedkernel:%patch3 -p1}
 %{!?_without_patchedkernel:patch -p1 < userspace/IMQ.patch.userspace}
 %{!?_without_patchedkernel:%patch4 -p1}
 # % {!?_without_patchedkernel:%patch9 -p1}
-%{!?_without_patchedkernel:%patch10 -p1}
-%{!?_without_patchedkernel:%patch11 -p1}
+#%{!?_without_patchedkernel:%patch10 -p1}
+#%{!?_without_patchedkernel:%patch11 -p1}
 %{!?_without_patchedkernel:%patch12 -p1}
-%{!?_without_patchedkernel:%patch13 -p1}
+
 
 chmod 755 extensions/.*-test*
 %{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
