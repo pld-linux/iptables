@@ -5,7 +5,7 @@
 #
 %define		_snap			20050405
 %define		iptables_version	1.3.1
-%define		llh_version		7:2.6.10.0-1
+%define		llh_version		7:2.6.11.1-1
 %define		name6			ip6tables
 %define		l7_version		1.0
 
