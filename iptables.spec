@@ -1,4 +1,8 @@
 #
+# TODO:
+#		- update ipt_ipp2p to v0.5b
+#		- remove ipt_p2p
+#
 # Conditional build:
 %bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without	howto 		# without documentation (HOWTOS) which needed TeX.
