@@ -19,13 +19,7 @@
 iptables=/usr/sbin/iptables
 ip6tables=/usr/sbin/ip6tables
 
-show "Loading iptables module"
-busy
-/sbin/modprobe -k ip_tables || exit 1
-if [ "$IPV6_NETWORKING" = "yes" ]; then
-	/sbin/modprobe -k ip6_tables || exit 1
-fi
-deltext ; ok
+_modprobe single die -k -a ip_tables "`is_yes "$IPV6_NETWORKING" && echo ip6_tables`"
 
 show "Flush standard tables and deny everything"
 busy
@@ -38,7 +32,7 @@ $iptables --table nat --flush POSTROUTING
 $iptables --policy INPUT   DROP
 $iptables --policy OUTPUT  DROP
 $iptables --policy FORWARD DROP
-if [ "$IPV6_NETWORKING" = "yes" ]; then
+if is_yes "$IPV6_NETWORKING" ; then
 	$ip6tables --flush INPUT
 	$ip6tables --flush OUTPUT
 	$ip6tables --flush FORWARD
@@ -70,7 +64,7 @@ done
 for chain in $CHAINS; do
   $iptables -t nat --delete-chain $chain
 done
-if [ "$IPV6_NETWORKING" = "yes" ]; then
+if is_yes "$IPV6_NETWORKING" ; then
 	CHAINS=`$ip6tables -n -L | awk '($1 ~ /^Chain/) && !($2 ~ /^(INPUT|OUTPUT|FORWARD)$/) {print $2}'`
 	for chain in $CHAINS; do
 	  $ip6tables --flush $chain
@@ -97,17 +91,14 @@ show "Turn off rp_filter for all interfaces"
 busy
 echo 1 > /proc/sys/net/ipv4/ip_forward
 echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
-if [ "$IPV6_NETWORKING" = "yes" ]; then
+if is_yes "$IPV6_NETWORKING" ; then
 	echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
 fi
 deltext ; ok
 
-show "Load modules for masquerading"
+show "Load modules needed by NAT"
 busy
-/sbin/modprobe -k ip_conntrack      || exit 1
-/sbin/modprobe -k ip_conntrack_ftp  || exit 1
-/sbin/modprobe -k ip_nat_ftp        || exit 1
-/sbin/modprobe -k ip_nat_snmp_basic || exit 1
+_modprobe die -k -a ip_conntrack ip_conntrack_ftp ip_nat_ftp # ip_nat_snmp_basic
 deltext ; ok
 
 show "Create a target for logging and dropping packets"
@@ -119,7 +110,7 @@ $iptables -A LDROP --proto icmp -j LOG --log-level info --log-prefix "ICMP Drop 
 $iptables -A LDROP --proto gre -j LOG --log-level info --log-prefix "GRE Drop "
 $iptables -A LDROP -f -j LOG --log-level emerg --log-prefix "FRAG. Drop "
 $iptables -A LDROP -j DROP
-if [ "$IPV6_NETWORKING" = "yes" ]; then
+if is_yes "$IPV6_NETWORKING" ; then
 	$ip6tables --new LDROP 2>/dev/null
 #	$ip6tables -A LDROP --proto tcp -j LOG --log-level info --log-prefix "TCP Drop "
 #	$ip6tables -A LDROP --proto udp -j LOG --log-level info --log-prefix "UDP Drop "
@@ -135,7 +126,7 @@ busy
 $iptables --new WATCH 2>/dev/null
 $iptables -A WATCH -m limit -j LOG --log-level warn --log-prefix "ACCEPT "
 $iptables -A WATCH -j ACCEPT
-if [ "$IPV6_NETWORKING" = "yes" ]; then
+if is_yes "$IPV6_NETWORKING" ; then
 	$ip6tables --new WATCH 2>/dev/null
 #	$ip6tables -A WATCH -m limit -j LOG --log-level warn --log-prefix "ACCEPT "
 	$ip6tables -A WATCH -j ACCEPT
@@ -196,7 +187,7 @@ $iptables --policy OUTPUT ACCEPT
 $iptables --table nat --policy PREROUTING ACCEPT
 $iptables --table nat --policy POSTROUTING ACCEPT
 $iptables --table nat --policy OUTPUT ACCEPT
-if [ "$IPV6_NETWORKING" = "yes" ]; then
+if is_yes "$IPV6_NETWORKING" ; then
 	$ip6tables --policy INPUT ACCEPT
 	$ip6tables --policy OUTPUT ACCEPT
 #	$ip6tables --table nat --policy PREROUTING ACCEPT
