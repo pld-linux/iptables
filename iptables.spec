@@ -6,7 +6,7 @@ Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.2.2
-Release:	2
+Release:	3
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
@@ -15,9 +15,12 @@ URL:		http://netfilter.kernelnotes.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://netfilter.kernelnotes.org/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
-Patch0:		%{name}-ip6libdir.patch
+Patch0:		%{name}-cvs-20010521.patch
 Patch1:		%{name}-ipv6-icmp.patch
 Patch2:		%{name}-man.patch
+Patch3:		%{name}-NETMAP-fix.patch
+Patch4:		%{name}-log.patch
+Patch5:		%{name}-prestate.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
@@ -54,6 +57,9 @@ Libraries and headers for developing iptables extensions.
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
