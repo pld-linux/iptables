@@ -28,6 +28,7 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 # Source0-md5:	cf62ebdabf05ccc5479334cc04fa993c
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
+Source2:	iptables.init
 Patch0:		%{name}-man.patch
 Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
@@ -101,6 +102,22 @@ Libraries and headers for developing iptables extensions.
 Biblioteki i pliki nag³ówkowe niezbêdne do tworzenia rozszerzeñ dla
 iptables.
 
+%package init
+Summary:	Iptables init (RedHat style)
+Summary(pl):	Iptables init (w stylu RedHata)
+Group:		Networking/Admin
+Requires:	%{name}
+Obsoletes:	firewall-init
+
+%description init
+Iptable-init is meant to provide an alternate way than firewall-init
+to start and stop packet filtering through iptables(8).
+
+%description init -l pl
+Iptable-init ma na celu umozliwic alternatywny w stosunku do
+firewall-init sposób startowania i stopowania filtrów IP j±dra
+poprzez iptables(8).
+
 %prep
 %setup -q -a1
 %patch0 -p1
@@ -128,7 +145,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3}
+install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3,%{_initrddir}}
 
 echo ".so iptables-save.8" > ip6tables-save.8
 echo ".so iptables-restore.8" > ip6tables-restore.8
@@ -148,6 +165,8 @@ install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
 %{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
 %{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+
+install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/iptables
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -169,3 +188,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
+
+%files init
+%attr(755,root,root) %{_initrddir}/iptables
