@@ -1,6 +1,6 @@
 #
 # Conditional build:
-# bcond_off_ippool - without ippool (which requires patched 2.4.x kernel)
+# _without_ippool - without ippool (which requires patched 2.4.x kernel)
 #
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
@@ -94,8 +94,8 @@ cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-%{!?bcond_off_ippool:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-%{!?bcond_off_ippool:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+%{!?_without_ippool:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+%{!?_without_ippool:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 gzip -9nf KNOWN_BUGS iptables-howtos/*.{txt,ps}
 
