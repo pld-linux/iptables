@@ -1,6 +1,6 @@
 --- extensions/libipt_mark.c.old	Mon Mar 25 16:15:47 2002
 +++ extensions/libipt_mark.c	Mon Mar 25 16:06:36 2002
-@@ -14,13 +14,17 @@
+@@ -14,7 +14,9 @@
  {
  	printf(
  "MARK match v%s options:\n"
@@ -9,9 +9,9 @@
 +"[!] --markor  value/mask      Match nfmark value, the packets nfmark is ORed with mask before matching.\n"
 +"[!] --markand value/mask      Match nfmark value, the packets nfmark is ORed with mask before matching.\n"
  "\n",
--NETFILTER_VERSION);
-+IPTABLES_VERSION);
+ IPTABLES_VERSION);
  }
+@@ -25,6 +25,8 @@ 
  
  static struct option opts[] = {
  	{ "mark", 1, 0, '1' },
