@@ -97,10 +97,10 @@ Biblioteki i pliki nag³ówkowe niezbêdne do tworzenia rozszerzeñ dla
 iptables.
 
 %prep
-%setup -q -a1
+%setup -q -a1 -n %{name}-%{iptables_version}-%{netfilter_snap}
 %patch1 -p1
 
-%patch10 -p1
+%patch10 -p0
 
 #%%patch2 -p1
 #%%patch3 -p1
