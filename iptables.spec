@@ -101,6 +101,9 @@ iptables.
 #%%patch3 -p1
 #%%patch4 -p1
 
+# removed broken ...
+rm -f extensions/.time-test
+
 chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
