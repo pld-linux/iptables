@@ -17,7 +17,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -96,9 +96,9 @@ iptables.
 %setup -q -a1
 %patch1 -p1
 
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
+#%%patch2 -p1
+#%%patch3 -p1
+#%%patch4 -p1
 
 chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
