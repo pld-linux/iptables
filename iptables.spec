@@ -129,6 +129,7 @@ rm -rf $RPM_BUILD_ROOT
 %{?!_without_tex:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 
 %attr(755,root,root) %{_sbindir}/*
+%dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
 
 %{_mandir}/man8/*
