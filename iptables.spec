@@ -6,7 +6,7 @@
 %define		netfilter_snap		20040907
 %define		iptables_version	1.3.0
 ##%define		kernel_version		3:2.6.7-2
-%define		llh_version		7:2.6.7.0-6
+%define		llh_version		7:2.6.8.1-2
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -21,7 +21,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
