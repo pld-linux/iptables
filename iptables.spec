@@ -4,7 +4,7 @@
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
 #%define		netfilter_snap	0
-%define		netfilter_snap	20031121
+%define		netfilter_snap	20031206
 %define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -18,7 +18,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
