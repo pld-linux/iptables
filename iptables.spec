@@ -9,7 +9,7 @@
 %define		_pomng_snap		20050311
 #
 %define		iptables_version	1.3.1
-%define		llh_version		7:2.6.11.0-4
+%define		llh_version		7:2.6.11.0-5
 %define		name6			ip6tables
 %define		l7_version		1.0
 #
