@@ -1,45 +1,59 @@
 #
-# NOTE: This is 2.5 stuff now.
-#
 # Conditional build:
-# _without_tex - without TeX documentation (HOWTOS)
-# _without_dist_kernel - without distribution kernel
+# _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
+# _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-Summary:	Extensible packet filtering system && extensible NAT system
-Summary(pl):	System filtrowania pakietСw oraz system translacji adresСw (NAT)
-Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
-Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
-Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
-Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
+%define		netfilter_snap	20030616
+%define		iptables_version	1.2.8
+Summary:	extensible packet filtering system && extensible NAT system
+Summary(pl):	system filtrowania pakietСw oraz system translacji adresСw (NAT)
 Name:		iptables
-Version:	1.2.8
+%if %{netfilter_snap} != 0
+Version:	%{iptables_version}_%{netfilter_snap}
+%else
+Version:	%{iptables_version}
+%endif
 %define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-# Source0-md5:	cf62ebdabf05ccc5479334cc04fa993c
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-# Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
-Source1:	http://ep09.kernel.pl/~djrzulf/%{name}-howtos.tar.bz2
-#Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
+Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
-Patch1:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
-%{?!_without_tex:BuildRequires:	sgml-tools}
-%{?!_without_tex:BuildRequires:	sgmls}
-%{?!_without_tex:BuildRequires:	tetex-latex}
-%{?!_without_tex:BuildRequires:	tetex-dvips}
-%{?!_without_tex:BuildRequires:	tetex-format-latex}
-%{?!_without_tex:BuildRequires:	tetex-tex-babel}
-%{?!_without_dist_kernel:BuildRequires: kernel-headers >= 2.3.0}
-BuildRequires:	%{__perl}
-BuildRequires:	groff
+Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
+Patch4:		grsecurity-%{iptables_version}-iptables.patch
+# patches from netfilter
+Patch10:	ipt_REJECT-fake-source.patch.userspace
+Patch11:	mark-bitwise-ops.patch.userspace
+Patch12:	raw.patch.userspace
+Patch13:	raw.patch.ipv6.userspace
+Patch14:	40_nf-log.patch.userspace
+Patch15:	%{name}-IPMARK-fix.patch
+%{?!_without_howto:BuildRequires:	sgml-tools}
+%{?!_without_howto:BuildRequires:	sgmls}
+%{?!_without_howto:BuildRequires:	tetex-latex}
+%{?!_without_howto:BuildRequires:	tetex-dvips}
+BuildRequires:	perl
+%if %{netfilter_snap} != 0
+%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
+%else
+%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
+%endif
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
+%if %{netfilter_snap} != 0
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}-%{netfilter_snap}}
+%else
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
+%endif
+
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_sysconfdir	/etc
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
@@ -48,22 +62,6 @@ Replacement of ipchains in 2.4 kernels.
 %description -l pl
 Wydajny system translacji adresСw (NAT) oraz system filtrowania
 pakietСw. Zamiennik ipchains w j╠drach 2.4
-
-%description -l pt_BR
-Esta И a ferramenta que controla o cСdigo de filtragem de pacotes do
-kernel 2.4, obsoletando ipchains. Com esta ferramenta vocЙ pode
-configurar filtros de pacotes, NAT, mascaramento (masquerading),
-regras dinБmicas (stateful inspection), etc.
-
-%description -l ru
-iptables управляют кодом фильтрации сетевых пакетов в ядре Linux. Они
-позволяют вам устанавливать межсетевые экраны (firewalls) и IP
-маскарадинг, и т.п.
-
-%description -l uk
-iptables управляють кодом ф╕льтрац╕╖ пакет╕в мереж╕ в ядр╕ Linux. Вони
-дозволяють вам встановлювати м╕жмережев╕ екрани (firewalls) та IP
-маскарадинг, тощо.
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
@@ -81,21 +79,27 @@ iptables.
 %prep
 %setup -q -a1
 %patch0 -p1
-%patch1 -p1
+%{!?_without_patchedkernel:%patch3 -p1}
+%{!?_without_patchedkernel:%patch4 -p1}
+%{!?_without_patchedkernel:%patch10 -p1}
+%{!?_without_patchedkernel:%patch11 -p1}
+%{!?_without_patchedkernel:%patch12 -p1}
+%{!?_without_patchedkernel:%patch13 -p1}
+%{!?_without_patchedkernel:%patch14 -p1}
+%{!?_without_patchedkernel:%patch15 -p1}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
-%{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
+perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	LIBDIR="%{_libdir}" \
-	LDLIBS="-ldl" \
 	all experimental
 
-%{?!_without_tex:%{__make} -C iptables-howtos}
+%{?!_without_howto:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -117,8 +121,8 @@ cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-#%%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-#%%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -126,7 +130,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc KNOWN_BUGS
-%{?!_without_tex:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
+%{?!_without_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
@@ -136,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%{?!_without_tex:%doc iptables-howtos/netfilter-hacking-HOWTO*}
+%{?!_without_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
