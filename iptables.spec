@@ -38,6 +38,7 @@ Source2:	%{name}.init
 Patch1:		%{name}-gkh-fix.patch
 Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-1.2.9-ipt_p2p.patch
+Patch4:		%{name}-1.2.9-ipt_imq.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -118,6 +119,7 @@ iptables(8).
 %patch1 -p0
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
