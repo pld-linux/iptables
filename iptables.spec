@@ -2,7 +2,7 @@ Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.2
-Release:	4
+Release:	5
 License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
@@ -10,7 +10,7 @@ URL:		http://netfilter.kernelnotes.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://netfilter.kernelnotes.org/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
-Patch0:		%{name}-CVS-20010216.patch.gz
+Patch0:		%{name}-CVS-20010220.patch.gz
 Patch1:		%{name}-ip6libdir.patch
 Patch2:		%{name}-ipv6-icmp.patch
 BuildRequires:	sgml-tools
