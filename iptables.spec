@@ -32,6 +32,7 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Patch1:		%{name}-1.2.9-ipt_p2p.patch
 Patch2:		%{name}-dstlimit.patch
+Patch3:		%{name}-include_path.patch
 Patch10:	%{name}-gkh-fix.patch
 
 %{?with_howto:BuildRequires:	sgml-tools}
@@ -96,6 +97,7 @@ iptables.
 %setup -q -a1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 %patch10 -p0
 
 #%%patch2 -p1
