@@ -20,7 +20,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -59,6 +59,7 @@ BuildConflicts:	kernel-headers < 2.3.0
 Provides:	firewall-userspace-tool
 Obsoletes:	netfilter
 Obsoletes:	ipchains
+Obsoletes:	iptables24-compat
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -90,6 +91,7 @@ Summary:	Libraries and headers for developing iptables extensions
 Summary(pl):	Biblioteki i nag³ówki do tworzenia rozszerzeñ iptables
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
+Obsoletes:	iptables24-devel
 
 %description devel
 Libraries and headers for developing iptables extensions.
@@ -107,6 +109,7 @@ Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}
 Obsoletes:	firewall-init
 Obsoletes:	firewall-init-ipchains
+Obsoletes:	iptables24-init
 
 %description init
 Iptables-init is meant to provide an alternate way than firewall-init
