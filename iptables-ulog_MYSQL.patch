@@ -233,3 +233,43 @@ diff -urN iptables-1.1.1/netfilter_ULOG-0.3/ulogd/extensions/ulogd_MYSQL.c iptab
 +	register_interpreter(&mysql_ip);
 +	register_output(&mysql_op);
 +}
+diff -urN iptables-1.1.1/netfilter_ULOG-0.3/ulogd_MYSQL.sql iptables-1.1.1.mysql/netfilter_ULOG-0.3/ulogd_MYSQL.sql
+--- iptables-1.1.1/netfilter_ULOG-0.3/ulogd_MYSQL.sql	Thu Jan  1 01:00:00 1970
++++ iptables-1.1.1.mysql/netfilter_ULOG-0.3/ulogd_MYSQL.sql	Wed Aug 16 17:40:46 2000
+@@ -0,0 +1,36 @@
++# INSERT INTO 0123456789ABCDEF VALUES ('123456789ABCDE','0123456789','0123456789ABCDEF0123456789ABCDEF','0123456789ABCDEF','0123456789ABCDEF','0123456789ABCDEF','0123456789ABCDEF','65535','255','255','CE DF MF','65535','255','12345678','65535','65535','URG ACK PSH RST SYN FIN','65535','255','255','0123456789ABCDEF','65535');
++CREATE TABLE firewall (
++tstamp		timestamp,
++tstampu		int unsigned		DEFAULT '0',
++prefix		varchar(32)		DEFAULT '' NOT NULL,
++indev		varchar(16)		DEFAULT '' NOT NULL,
++outdev		varchar(16)		DEFAULT '' NOT NULL,
++source		char(16)		DEFAULT '' NOT NULL,
++dest		char(16)		DEFAULT '' NOT NULL,
++len		int			DEFAULT '0' NOT NULL,
++tos		tinyint unsigned	DEFAULT '0' NOT NULL,
++ttl		tinyint unsigned	DEFAULT '0' NOT NULL,
++ipflags		set('CE','DF','MF')	DEFAULT NULL,
++frag		int			DEFAULT '0' NOT NULL,
++proto		int			DEFAULT '0' NOT NULL,
++protoname	char(8)			DEFAULT NULL,
++
++sport		int			DEFAULT '0' NOT NULL,
++dport		int			DEFAULT '0' NOT NULL,
++tcpflags	set('URG', 'ACK', 'PSH', 'RST', 'SYN', 'FIN')	DEFAULT NULL,
++udplength	int			DEFAULT NULL,
++icmptype	tinyint unsigned	DEFAULT '' NOT NULL,
++icmpcode	tinyint unsigned	DEFAULT NULL,
++icmpgateway	char(16)		DEFAULT NULL,
++icmpmtu		int			DEFAULT NULL,
++
++KEY	prefix		(prefix),
++KEY	indev		(indev),
++KEY	outdev		(outdev),
++KEY	source		(source),
++KEY	dest		(dest),
++KEY	proto		(proto),
++KEY	sport		(sport),
++KEY	dport		(dport),
++KEY	icmptype	(icmptype)
++);
