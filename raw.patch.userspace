@@ -1,24 +1,24 @@
 diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/.NOTRACK-test extensions/.NOTRACK-test
---- extensions.orig/.NOTRACK-test	Thu Jan  1 01:00:00 1970
-+++ extensions/.NOTRACK-test	Fri Jul 19 09:55:47 2002
+--- userspace/extensions.orig/.NOTRACK-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.NOTRACK-test	Fri Jul 19 09:55:47 2002
 @@ -0,0 +1,2 @@
 +#! /bin/sh
 +[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_NOTRACK.c ] && echo NOTRACK
 diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/.TRACE-test extensions/.TRACE-test
---- extensions.orig/.TRACE-test	Thu Jan  1 01:00:00 1970
-+++ extensions/.TRACE-test	Fri Jul 19 09:55:47 2002
+--- userspace/extensions.orig/.TRACE-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.TRACE-test	Fri Jul 19 09:55:47 2002
 @@ -0,0 +1,2 @@
 +#! /bin/sh
 +[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_TRACE.c ] && echo TRACE
 diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/.TRACE-test6 extensions/.TRACE-test6
---- extensions.orig/.TRACE-test6	Thu Jan  1 01:00:00 1970
-+++ extensions/.TRACE-test6	Fri Jul 19 09:55:42 2002
+--- userspace/extensions.orig/.TRACE-test6	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.TRACE-test6	Fri Jul 19 09:55:42 2002
 @@ -0,0 +1,2 @@
 +#! /bin/sh
 +[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_TRACE.c ] && echo TRACE
 diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libip6t_TRACE.c extensions/libip6t_TRACE.c
---- extensions.orig/libip6t_TRACE.c	Thu Jan  1 01:00:00 1970
-+++ extensions/libip6t_TRACE.c	Fri Jul 19 10:01:17 2002
+--- userspace/extensions.orig/libip6t_TRACE.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libip6t_TRACE.c	Fri Jul 19 10:01:17 2002
 @@ -0,0 +1,63 @@
 +/* Shared library add-on to iptables to add TRACE target support. */
 +#include <stdio.h>
@@ -84,8 +84,8 @@ diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libip6t_TRACE
 +	register_target6(&trace);
 +}
 diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_NOTRACK.c extensions/libipt_NOTRACK.c
---- extensions.orig/libipt_NOTRACK.c	Thu Jan  1 01:00:00 1970
-+++ extensions/libipt_NOTRACK.c	Fri Jul 19 10:01:38 2002
+--- userspace/extensions.orig/libipt_NOTRACK.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_NOTRACK.c	Fri Jul 19 10:01:38 2002
 @@ -0,0 +1,63 @@
 +/* Shared library add-on to iptables to add NOTRACK target support. */
 +#include <stdio.h>
@@ -151,8 +151,8 @@ diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_NOTRAC
 +	register_target(&notrack);
 +}
 diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_TRACE.c extensions/libipt_TRACE.c
---- extensions.orig/libipt_TRACE.c	Thu Jan  1 01:00:00 1970
-+++ extensions/libipt_TRACE.c	Fri Jul 19 10:00:57 2002
+--- userspace/extensions.orig/libipt_TRACE.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_TRACE.c	Fri Jul 19 10:00:57 2002
 @@ -0,0 +1,63 @@
 +/* Shared library add-on to iptables to add TRACE target support. */
 +#include <stdio.h>
@@ -218,8 +218,8 @@ diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_TRACE.
 +	register_target(&trace);
 +}
 diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_ULOG.c extensions/libipt_ULOG.c
---- extensions.orig/libipt_ULOG.c	Wed May 29 15:08:16 2002
-+++ extensions/libipt_ULOG.c	Fri Jul 19 09:55:47 2002
+--- userspace/extensions.orig/libipt_ULOG.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libipt_ULOG.c	Fri Jul 19 09:55:47 2002
 @@ -19,10 +19,6 @@
  #include <linux/netfilter_ipv4/ip_tables.h>
  #include <linux/netfilter_ipv4/ipt_ULOG.h>
@@ -232,8 +232,8 @@ diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_ULOG.c
  {
  	int b;
 diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_state.c extensions/libipt_state.c
---- extensions.orig/libipt_state.c	Wed May 29 15:08:16 2002
-+++ extensions/libipt_state.c	Fri Jul 19 09:55:47 2002
+--- userspace/extensions.orig/libipt_state.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libipt_state.c	Fri Jul 19 09:55:47 2002
 @@ -14,7 +14,7 @@
  {
  	printf(
@@ -264,8 +264,8 @@ diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_state.
  	}
  	printf(" ");
 diff -urN --exclude-from=/usr/src/diff.exclude-raw libiptc.orig/libip4tc.c libiptc/libip4tc.c
---- libiptc.orig/libip4tc.c	Wed Jun 12 21:22:29 2002
-+++ libiptc/libip4tc.c	Fri Jul 19 09:55:47 2002
+--- userspace/libiptc.orig/libip4tc.c	Wed Jun 12 21:22:29 2002
++++ userspace/libiptc/libip4tc.c	Fri Jul 19 09:55:47 2002
 @@ -436,6 +436,20 @@
  			user_offset = h->info.hook_entry[NF_IP_POST_ROUTING];
  		}
@@ -288,8 +288,8 @@ diff -urN --exclude-from=/usr/src/diff.exclude-raw libiptc.orig/libip4tc.c libip
  	} else if (strcmp(h->info.name, "drop") == 0) {
  		assert(h->info.valid_hooks == (1 << NF_IP_DROPPING));
 diff -urN --exclude-from=/usr/src/diff.exclude-raw libiptc.orig/libip6tc.c libiptc/libip6tc.c
---- libiptc.orig/libip6tc.c	Thu Feb 14 00:13:23 2002
-+++ libiptc/libip6tc.c	Fri Jul 19 09:55:42 2002
+--- userspace/libiptc.orig/libip6tc.c	Thu Feb 14 00:13:23 2002
++++ userspace/libiptc/libip6tc.c	Fri Jul 19 09:55:42 2002
 @@ -381,6 +381,19 @@
  			assert(h->info.hook_entry[NF_IP6_POST_ROUTING] == n);
  			user_offset = h->info.hook_entry[NF_IP6_POST_ROUTING];
