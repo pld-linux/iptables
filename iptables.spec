@@ -35,6 +35,8 @@ Patch1:		%{name}-1.2.9-ipt_p2p.patch
 #Patch3:		ipt_REJECT-fake-source.patch.userspace
 #Patch4:		mark-bitwise-ops.patch.userspace
 
+Patch10:	%{name}-gkh-fix.patch
+
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-latex}
@@ -96,6 +98,8 @@ iptables.
 %prep
 %setup -q -a1
 %patch1 -p1
+
+%patch10 -p1
 
 #%%patch2 -p1
 #%%patch3 -p1
