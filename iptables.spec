@@ -41,6 +41,7 @@ BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-latex
+BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-tex-babel
 BuildRequires:	sed >= 4.0
 %endif
