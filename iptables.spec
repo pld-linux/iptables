@@ -8,12 +8,12 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-%if %netfilter_snap} != 0
+%if %{netfilter_snap} != 0
 Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	8
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
