@@ -1,7 +1,4 @@
 #
-# TODO:
-#		- update kernel-net-(ipt_)p2p
-#
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
@@ -21,7 +18,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -45,7 +42,7 @@ BuildRequires:	tetex-dvips
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 %endif
-BuildRequires:	perl-base
+BuildRequires:	sed >= 4.0
 %if %{with dist_kernel} && %{netfilter_snap} != 0
 BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}
 Requires:	kernel(netfilter) = %{netfilter_snap}
@@ -121,16 +118,14 @@ iptables(8).
 #%rm -f extensions/.set-test
 
 chmod 755 extensions/.*-test*
-perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
+sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 
 %build
-%{__make} KERNEL_DIR=%{_kernelsrcdir} \
-	depend 2>/dev/null || :
-%{__make} CC="%{__cc}" \
+%{__make} all experimental \
+	CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
-	LIBDIR="%{_libdir}" \
-	KERNEL_DIR=%{_kernelsrcdir} \
-	all experimental
+	KERNEL_DIR="%{_kernelsrcdir}" \
+	LIBDIR="%{_libdir}"
 
 %{?with_doc:%{__make} -C iptables-howtos}
 
