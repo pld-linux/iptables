@@ -41,7 +41,7 @@ if  /sbin/lsmod 2>/dev/null |grep -q ipchains ; then
 fi
 
 iftable() {
-	if fgrep -qsx $1 /proc/net/ip_tables_names; then
+	if fgrep -qsx $1 /proc/net/ip6_tables_names; then
 		ip6tables -t "$@"
 	fi
 }
