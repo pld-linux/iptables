@@ -1,7 +1,7 @@
-diff -ur iptables-1.1.1.orig/Makefile iptables-1.1.1/Makefile
---- iptables-1.1.1.orig/Makefile	Fri Jul 14 09:46:42 2000
-+++ iptables-1.1.1/Makefile	Sat Aug 12 00:30:40 2000
-@@ -64,24 +68,24 @@
+diff -urN iptables-1.1.2/Makefile iptables-1.1.2.new/Makefile
+--- iptables-1.1.2/Makefile	Wed Oct 11 08:07:19 2000
++++ iptables-1.1.2.new/Makefile	Thu Oct 19 19:39:27 2000
+@@ -60,24 +60,24 @@
  	cp $< $@
  
  ip6tables.o: ip6tables.c
@@ -30,20 +30,20 @@ diff -ur iptables-1.1.1.orig/Makefile iptables-1.1.1/Makefile
  
  $(DESTDIR)$(BINDIR)/ip6tables-restore: ip6tables-restore
  	@[ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
-diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/iptables/Makefile iptables-1.1.1/netfilter_ULOG-0.2/iptables/Makefile
---- iptables-1.1.1.orig/netfilter_ULOG-0.2/iptables/Makefile	Sun Jul 30 21:37:59 2000
-+++ iptables-1.1.1/netfilter_ULOG-0.2/iptables/Makefile	Sat Aug 12 00:28:30 2000
+diff -urN iptables-1.1.2/netfilter_ULOG-0.3/iptables/Makefile iptables-1.1.2.new/netfilter_ULOG-0.3/iptables/Makefile
+--- iptables-1.1.2/netfilter_ULOG-0.3/iptables/Makefile	Thu Aug 10 13:48:23 2000
++++ iptables-1.1.2.new/netfilter_ULOG-0.3/iptables/Makefile	Thu Oct 19 19:40:33 2000
 @@ -1,4 +1,6 @@
 -CFLAGS = -DNETFILTER_VERSION=\"1.1.1\" -fPIC
-+CFLAGS = $(COPT_FLAGS) -DNETFILTER_VERSION=\"1.1.1\" -fPIC -I../../include
++CFLAGS = $(COPT_FLAGS) -DNETFILTER_VERSION=\"1.1.2\" -fPIC -I../../include
 +
 +all: libipt_ULOG.so
  
  libipt_ULOG.so: libipt_ULOG_sh.o
  	ld -shared libipt_ULOG_sh.o -o libipt_ULOG.so
-diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/libipulog/Makefile iptables-1.1.1/netfilter_ULOG-0.2/libipulog/Makefile
---- iptables-1.1.1.orig/netfilter_ULOG-0.2/libipulog/Makefile	Wed Aug  2 14:31:18 2000
-+++ iptables-1.1.1/netfilter_ULOG-0.2/libipulog/Makefile	Sat Aug 12 00:28:30 2000
+diff -urN iptables-1.1.2/netfilter_ULOG-0.3/libipulog/Makefile iptables-1.1.2.new/netfilter_ULOG-0.3/libipulog/Makefile
+--- iptables-1.1.2/netfilter_ULOG-0.3/libipulog/Makefile	Thu Aug 10 13:51:58 2000
++++ iptables-1.1.2.new/netfilter_ULOG-0.3/libipulog/Makefile	Thu Oct 19 19:39:27 2000
 @@ -1,5 +1,7 @@
  CC = gcc
 -CFLAGS = -I./include # -g
@@ -53,21 +53,21 @@ diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/libipulog/Makefile iptables-1.1.
  
  ulog_test: ulog_test.c libipulog.a
  	$(CC) $(CFLAGS) -i ulog_test.c libipulog.a -o ulog_test
-diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/Makefile iptables-1.1.1/netfilter_ULOG-0.2/ulogd/Makefile
---- iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/Makefile	Wed Aug  2 14:28:15 2000
-+++ iptables-1.1.1/netfilter_ULOG-0.2/ulogd/Makefile	Sat Aug 12 00:28:30 2000
+diff -urN iptables-1.1.2/netfilter_ULOG-0.3/ulogd/Makefile iptables-1.1.2.new/netfilter_ULOG-0.3/ulogd/Makefile
+--- iptables-1.1.2/netfilter_ULOG-0.3/ulogd/Makefile	Mon Aug 14 10:28:23 2000
++++ iptables-1.1.2.new/netfilter_ULOG-0.3/ulogd/Makefile	Thu Oct 19 19:41:03 2000
 @@ -8,7 +8,7 @@
  #  Normally You should not need to change anything below
  #
  CC = gcc
--CFLAGS = -I. -I$(LIBIPULOG)/include -g -Wall
-+CFLAGS = $(COPT_FLAGS) -I. -I$(LIBIPULOG)/include -Wall
+-CFLAGS = -I. -g -Wall $(INCIPULOG)
++CFLAGS = $(COPT_FLAGS) -I. -Wall $(INCIPULOG)
  SH_CFLAGS:=$(CFLAGS) -fPIC
  
  SHARED_LIBS+=$(foreach T,$(ULOGD_SL),extensions/ulogd_$(T).so)
-diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/extensions/ulogd_OPRINT.c iptables-1.1.1/netfilter_ULOG-0.2/ulogd/extensions/ulogd_OPRINT.c
---- iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/extensions/ulogd_OPRINT.c	Wed Aug  2 14:16:00 2000
-+++ iptables-1.1.1/netfilter_ULOG-0.2/ulogd/extensions/ulogd_OPRINT.c	Sat Aug 12 00:28:30 2000
+diff -urN iptables-1.1.2/netfilter_ULOG-0.3/ulogd/extensions/ulogd_OPRINT.c iptables-1.1.2.new/netfilter_ULOG-0.3/ulogd/extensions/ulogd_OPRINT.c
+--- iptables-1.1.2/netfilter_ULOG-0.3/ulogd/extensions/ulogd_OPRINT.c	Mon Aug 14 10:28:24 2000
++++ iptables-1.1.2.new/netfilter_ULOG-0.3/ulogd/extensions/ulogd_OPRINT.c	Thu Oct 19 19:39:27 2000
 @@ -26,7 +26,7 @@
          ((unsigned char *)&addr)[1], \
          ((unsigned char *)&addr)[0]
@@ -77,10 +77,16 @@ diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/extensions/ulogd_OPRINT.c 
  
  static FILE *of = NULL;
  
-diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/ulogd.c iptables-1.1.1/netfilter_ULOG-0.2/ulogd/ulogd.c
---- iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/ulogd.c	Wed Aug  9 18:26:39 2000
-+++ iptables-1.1.1/netfilter_ULOG-0.2/ulogd/ulogd.c	Sat Aug 12 00:28:30 2000
-@@ -25,11 +25,11 @@
+diff -urN iptables-1.1.2/netfilter_ULOG-0.3/ulogd/ulogd.c iptables-1.1.2.new/netfilter_ULOG-0.3/ulogd/ulogd.c
+--- iptables-1.1.2/netfilter_ULOG-0.3/ulogd/ulogd.c	Mon Aug 14 10:28:24 2000
++++ iptables-1.1.2.new/netfilter_ULOG-0.3/ulogd/ulogd.c	Thu Oct 19 19:39:27 2000
+@@ -19,17 +19,14 @@
+ #include <libipulog/libipulog.h>
+ #include "ulogd.h"
+ 
+-#define MYBUFSIZ 2048
+-
+-
  #define DEBUGP ulogd_error
  
  #ifndef ULOGD_PLUGIN_DIR
@@ -94,18 +100,6 @@ diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/ulogd.c iptables-1.1.1/net
  #endif
  
  #ifndef ULOGD_NLGROUP
---- iptables-1.1.1/netfilter_ULOG-0.2/ulogd/ulogd.c~	Tue Aug 15 23:09:17 2000
-+++ iptables-1.1.1/netfilter_ULOG-0.2/ulogd/ulogd.c	Tue Aug 15 23:17:51 2000
-@@ -19,9 +19,6 @@
- #include <libipulog/libipulog.h>
- #include "ulogd.h"
- 
--#define MYBUFSIZ 2048
--
--
- #define DEBUGP ulogd_error
- 
- #ifndef ULOGD_PLUGIN_DIR
 @@ -213,7 +210,7 @@
  	load_plugins();	
  	
@@ -115,3 +109,12 @@ diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/ulogd.c iptables-1.1.1/net
  	
  	/* create ipulog handle */
  	h = ipulog_create_handle(ipulog_group2gmask(ULOGD_NLGROUP));
+@@ -233,7 +233,7 @@
+ 		 * handle_packet */
+ 		while(1)
+ 		{
+-			len = ipulog_read(h, buf, MYBUFSIZ, 1);
++			len = ipulog_read(h, buf, BUFSIZ, 1);
+ 			upkt = ipulog_get_packet(buf);	
+ 			DEBUGP("==> packet received\n");
+ 			handle_packet(upkt);
