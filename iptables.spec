@@ -3,7 +3,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		netfilter_snap		20040322
+%define		netfilter_snap		20040402
 %define		iptables_version	1.2.9
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -26,6 +26,7 @@ URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{netfilter_snap} != 0
 Source0:	%{name}-%{iptables_version}_%{netfilter_snap}.tar.bz2
+# Source0-md5:	f4e24a7286a37014441b835cd8c5189b
 %else
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 %endif
