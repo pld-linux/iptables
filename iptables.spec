@@ -1,6 +1,4 @@
 #
-# NOTE: This is 2.5 stuff now.
-#
 # Conditional build:
 # _without_tex - without TeX documentation (HOWTOS)
 # _without_dist_kernel - without distribution kernel
@@ -35,9 +33,10 @@ Patch1:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
 %{?!_without_dist_kernel:BuildRequires: kernel-headers >= 2.3.0}
 BuildRequires:	%{__perl}
 BuildRequires:	groff
-BuildConflicts:	kernel-headers < 2.3.0
+BuildConflicts:	kernel-headers < 2.5.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
+BuildConflicts:	kernel < 2.5.0
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
