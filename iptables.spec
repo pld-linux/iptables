@@ -3,7 +3,7 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_tex - without TeX documentation (HOWTOS)
 #
-%define		netfilter_snap	20030418
+%define		netfilter_snap	20030518
 %define		iptables_version	1.2.8
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
@@ -13,7 +13,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2
+%define		_rel	3
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -23,7 +23,7 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
 Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
-Patch4:		grsecurity-1.2.7a-iptables.patch
+Patch4:		grsecurity-%{iptables_version}-iptables.patch
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
