@@ -5,7 +5,7 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.3
+Version:	1.2.4
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
@@ -61,7 +61,7 @@ iptables.
 %patch1 -p1
 %{!?_without_patchedkernel:%patch2 -p1}
 %{!?_without_patchedkernel:%patch3 -p1}
-%patch4 -p1
+#%patch4 -p1
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
@@ -94,8 +94,8 @@ cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+#%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+#%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 gzip -9nf KNOWN_BUGS iptables-howtos/*.{txt,ps}
 
