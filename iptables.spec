@@ -24,7 +24,7 @@ License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+Source0:	http://www.netfilter.org/files/%{name}-%{iptables_version}.tar.bz2
 # Source0-md5:	4eda3f086da423b7fe35802b5b833db0
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
@@ -33,7 +33,7 @@ Patch0:		%{name}-man.patch
 Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
 # CVS up-to-date
-Patch9:		iptables-1.2.8-CVS-20030715.patch
+#Patch9:		iptables-1.2.8-CVS-20030715.patch
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
@@ -118,12 +118,12 @@ firewall-init sposobu w³±czania i wy³±czania filtrów IP j±dra poprzez
 iptables(8).
 
 %prep
-%setup -q -a1
+%setup -q -a1 -n %{name}-%{iptables_version}
 %patch0 -p1
 %{!?_without_patchedkernel:%patch3 -p1}
 %{!?_without_patchedkernel:patch -p1 < userspace/IMQ.patch.userspace}
 %{!?_without_patchedkernel:%patch4 -p1}
-%{!?_without_patchedkernel:%patch9 -p1}
+# % {!?_without_patchedkernel:%patch9 -p1}
 %{!?_without_patchedkernel:%patch10 -p1}
 %{!?_without_patchedkernel:%patch11 -p1}
 %{!?_without_patchedkernel:%patch12 -p1}
