@@ -39,13 +39,13 @@ diff -ur iptables-1.2.2/ip6tables.c iptables-1.2.2.icmp6/ip6tables.c
  	}
  
  	if (!ptr && tryload != DONT_LOAD) {
- 		char path[sizeof(IPT_LIB_DIR) + sizeof("/libip6t_.so")
+ 		char path[sizeof(IP6T_LIB_DIR) + sizeof("/libip6t_.so")
  			 + strlen(name)];
--		sprintf(path, IPT_LIB_DIR "/libip6t_%s.so", name);
+-		sprintf(path, IP6T_LIB_DIR "/libip6t_%s.so", name);
 +		if (strstr(name, "icmp"))
-+			sprintf(path, IPT_LIB_DIR "/libip6t_icmp.so");
++			sprintf(path, IP6T_LIB_DIR "/libip6t_icmp.so");
 +		else
-+			sprintf(path, IPT_LIB_DIR "/libip6t_%s.so", name);
++			sprintf(path, IP6T_LIB_DIR "/libip6t_%s.so", name);
  		if (dlopen(path, RTLD_NOW)) {
  			/* Found library.  If it didn't register itself,
  			   maybe they specified target as match. */
