@@ -3,9 +3,9 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		netfilter_snap		20040415
+%define		netfilter_snap		20040429
 %define		iptables_version	1.2.10
-%define		llh_version		7:2.6.4.0-5
+%define		llh_version		7:2.6.5.0-2
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
