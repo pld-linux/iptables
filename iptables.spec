@@ -6,7 +6,7 @@
 %bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20040308
+%define		netfilter_snap		20040316
 %define		iptables_version	1.2.9
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -35,7 +35,6 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
-Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-gkh-fix.patch
 Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-1.2.9-ipt_p2p.patch
@@ -116,7 +115,6 @@ iptables(8).
 
 %prep
 %setup -q -a1
-#%%patch0 -p1
 %patch1 -p0
 %patch2 -p1
 %patch3 -p1
