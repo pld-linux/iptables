@@ -1,6 +1,6 @@
 --- userspace/iptables.c.orig	Sun Mar 25 21:55:04 2001
 +++ userspace/iptables.c	Thu May 10 23:28:04 2001
-@@ -97,9 +97,10 @@
+@@ -96,9 +96,10 @@
  #define OPT_FRAGMENT    0x00200U
  #define OPT_LINENUMBERS 0x00400U
  #define OPT_COUNTERS	0x00800U
@@ -106,30 +106,30 @@
  			break;
  
  		case 'M':
---- userspace/ip6tables.c.orig	Thu Mar 14 12:02:26 2002
-+++ userspace/ip6tables.c	Wed May  8 15:26:28 2002
-@@ -98,9 +98,10 @@
+--- userspace/ip6tables.c.orig	Mon May  7 12:22:35 2001
++++ userspace/ip6tables.c	Thu May 10 23:28:45 2001
+@@ -97,9 +97,10 @@
+ #define OPT_VIANAMEIN	0x00080U
  #define OPT_VIANAMEOUT	0x00100U
  #define OPT_LINENUMBERS 0x00200U
- #define OPT_COUNTERS	0x00400U
--#define NUMBER_OF_OPT	11
-+#define OPT_LOG	0x01000U
-+#define NUMBER_OF_OPT	12
+-#define NUMBER_OF_OPT	10
++#define OPT_LOG         0x00400U
++#define NUMBER_OF_OPT	11
  static const char optflags[NUMBER_OF_OPT]
--= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', '3', 'c'};
-+= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', '3', 'c', 'l'};
+-= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', '3'};
++= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', '3', 'l'};
  
  static struct option original_opts[] = {
  	{ "append", 1, 0, 'A' },
-@@ -133,6 +133,7 @@
+@@ -130,6 +131,7 @@
+ 	{ "version", 0, 0, 'V' },
+ 	{ "help", 2, 0, 'h' },
  	{ "line-numbers", 0, 0, '0' },
- 	{ "modprobe", 1, 0, 'M' },
- 	{ "set-counters", 1, 0, 'c' },
 +	{ "log", 0, 0, 'l' },
  	{ 0 }
  };
  
-@@ -159,20 +160,20 @@
+@@ -156,20 +158,20 @@
  static char commands_v_options[NUMBER_OF_CMD][NUMBER_OF_OPT] =
  /* Well, it's better than "Re: Linux vs FreeBSD" */
  {
@@ -145,7 +145,7 @@
 -/*NEW_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x'},
 -/*DEL_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x'},
 -/*SET_POLICY*/{'x','x','x','x','x',' ','x','x','x','x'},
--/*CHECK*/     {'x','+','+','+','x',' ','x',' ',' ','x'},
+-/*CHECK*/     {'x','+','+','+','x',' ','x','+','+','x'},
 -/*RENAME*/    {'x','x','x','x','x',' ','x','x','x','x'}
 +	/*     -n  -s  -d  -p  -j  -v  -x  -i  -o  --line -l */
 +/*INSERT*/    {'x',' ',' ',' ',' ',' ','x',' ',' ','x',   ' '},
@@ -159,12 +159,12 @@
 +/*NEW_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x',   'x'},
 +/*DEL_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x',   'x'},
 +/*SET_POLICY*/{'x','x','x','x','x',' ','x','x','x','x',   'x'},
-+/*CHECK*/     {'x','+','+','+','x',' ','x',' ',' ','x',   'x'},
++/*CHECK*/     {'x','+','+','+','x',' ','x','+','+','x',   'x'},
 +/*RENAME*/    {'x','x','x','x','x',' ','x','x','x','x',   'x'}
  };
  
  static int inverse_for_options[NUMBER_OF_OPT] =
-@@ -186,7 +187,8 @@
+@@ -183,7 +185,8 @@
  /* -x */ 0,
  /* -i */ IP6T_INV_VIA_IN,
  /* -o */ IP6T_INV_VIA_OUT,
@@ -174,46 +174,47 @@
  };
  
  const char *program_version;
-@@ -338,6 +340,8 @@
+@@ -331,6 +334,9 @@
+ "				network interface name ([+] for wildcard)\n"
  "  --table	-t table	table to manipulate (default: `filter')\n"
  "  --verbose	-v		verbose mode\n"
- "  --line-numbers		print line numbers when listing\n"
++"  --line-numbers		print line numbers when listing\n"
 +"  --log		-l		turn on kernel logging of matching packets\n"
 +"				for rule-debugging purposes\n"
  "  --exact	-x		expand numbers (display exact values)\n"
- /*"[!] --fragment	-f		match second or further fragments only\n"*/
- "  --modprobe=<command>		try to insert modules using this command\n"
-@@ -1187,7 +1191,7 @@
+ "[!] --fragment	-f		match second or further fragments only\n"
+ "[!] --version	-V		print package version.\n");
+@@ -1092,7 +1098,7 @@
  	if (format & FMT_OPTIONS) {
  		if (format & FMT_NOTABLE)
  			fputs("opt ", stdout);
--		fputc(' ', stdout); /* Invert flag of FRAG */
+-		fputc(' ', stdout);
 +		fputc(flags & IP6T_F_LOG ? 'l' : '-', stdout);
- 		fputc(' ', stdout); /* -f */
+ 		fputc(' ', stdout);
  		fputc(' ', stdout);
  	}
-@@ -1709,7 +1713,7 @@
+@@ -1625,7 +1631,7 @@
  	opterr = 0;
  
  	while ((c = getopt_long(argc, argv,
--	   "-A:C:D:R:I:L::F::Z::N:X::E:P:Vh::o:p:s:d:j:i:bvnt:m:xc:",
-+	   "-A:C:D:R:I:L::F::Z::N:X::E:P:Vh::o:p:s:d:j:i:bvnt:m:xcl:",
+-	   "-A:C:D:R:I:L::F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:x",
++	   "-A:C:D:R:I:L::F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xl",
  					   opts, NULL)) != -1) {
  		switch (c) {
  			/*
-@@ -1978,6 +1982,12 @@
+@@ -1894,6 +1900,12 @@
+ 		case '0':
+ 			set_option(&options, OPT_LINENUMBERS, &fw.ipv6.invflags,
  				   invert);
- 			break;
- 
++			break;
++
 +		case 'l':
 +			set_option(&options, OPT_LOG, &fw.ipv6.invflags,
 +				   invert);
 +			fw.ipv6.flags |= IP6T_F_LOG;
-+			break;
-+
- 		case 'M':
- 			modprobe = optarg;
  			break;
+ 
+ 		case 1: /* non option */
 --- userspace/iptables.8.orig	Fri Feb 23 10:08:13 2001
 +++ userspace/iptables.8	Thu May 10 23:24:42 2001
 @@ -312,6 +312,23 @@

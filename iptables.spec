@@ -3,11 +3,12 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_tex - without TeX documentation (HOWTOS)
 #
+%define		netfilter_snap	20030326
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.7a
-%define		_rel	6
+Version:	1.2.7a_%{netfilter_snap}
+%define		_rel	8
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -27,11 +28,11 @@ Patch12:	raw.patch.userspace
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel(netfilter) = 1.2.7a}
+%{!?_without_patchedkernel:BuildRequires:	kernel(netfilter) = 1.2.7a-%{netfilter_snap}}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.7a}
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.7a-%{netfilter_snap}}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -100,8 +101,8 @@ cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-#%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-#%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT

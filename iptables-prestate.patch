@@ -1,18 +1,18 @@
---- userspace/iptables.8.orig	Wed May  8 15:28:35 2002
-+++ userspace/iptables.8	Wed May  8 15:31:54 2002
-@@ -104,6 +104,11 @@
- (for altering packets as soon as they come in), OUTPUT (for altering
- locally-generated packets before routing), and POSTROUTING (for
- altering packets as they are about to go out).
+--- userspace/iptables.8.orig	Fri Feb 23 10:08:13 2001
++++ userspace/iptables.8	Thu May 10 22:00:44 2001
+@@ -101,6 +101,11 @@
+ built-in chains: PREROUTING (for altering incoming packets before
+ routing) and OUTPUT (for altering locally-generated packets before
+ routing).
 +.BR "prestate"
 +This table is consulted first as a packet enters the netfilter framework. 
 +It contains two built-in chains: PREROUTING (for selecting incoming
 +packets) and OUTPUT (for selecting locally-generated packets). It can
 +be used to force conntrack/NAT to ignore the selected packets.
- .TP
- .B "mangle"
- This table is used for specialized packet alteration.  Until kernel
-@@ -556,6 +561,13 @@
+ .SH OPTIONS
+ The options that are recognized by
+ .B iptables
+@@ -500,6 +505,13 @@
  meaning that the packet is starting a new connection, but is
  associated with an existing connection, such as an FTP data transfer,
  or an ICMP error.
@@ -23,13 +23,13 @@
 +target of the
 +.B prestate
 +table and thus there is no state information available.
- .SS tos
- This module matches the 8 bits of Type of Service field in the IP
- header (ie. including the precedence bits). 
-@@ -812,6 +824,23 @@
+ .SS unclean
+ This module takes no options, but attempts to match packets which seem
+ malformed or unusual.  This is regarded as experimental.
+@@ -736,6 +748,23 @@
  accumulates ten packets inside the kernel and transmits them as one
- netlink multipart message to userspace.  Default is 1 (for backwards
- compatibility).
+ netlink multpart message to userspace.  Default is 1 (for backwards 
+ compatibility)
 +.SS NOTRACK
 +This target extension is built into the
 +.B prestate
@@ -47,9 +47,9 @@
 +(!) instead of
 +.B
 +RELATED.
- .SS TCPMSS
- This target allows to alter the MSS value of TCP SYN packets, to control
- the maximum size for that connection (usually limiting it to your
+ .SH DIAGNOSTICS
+ Various error messages are printed to standard error.  The exit code
+ is 0 for correct functioning.  Errors which appear to be caused by
 diff -urN --exclude-from=diff.exclude userspace/extensions.orig/.NOTRACK-test userspace/extensions/.NOTRACK-test
 --- userspace/extensions.orig/.NOTRACK-test	Thu Jan  1 01:00:00 1970
 +++ userspace/extensions/.NOTRACK-test	Wed May  9 22:05:17 2001
@@ -94,7 +94,7 @@ diff -urN --exclude-from=diff.exclude userspace/extensions.orig/libipt_NOTRACK.c
 +		exit_error(PARAMETER_PROBLEM, 
 +				"NOTRACK: You must not speficy an option");
 +
-+	if (check_inverse(optarg, &invert, NULL, 0))
++	if (check_inverse(optarg, &invert))
 +		exit_error(PARAMETER_PROBLEM,
 +				"NOTRACK: unexpected `!'");
 +	
