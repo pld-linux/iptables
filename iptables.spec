@@ -1,3 +1,7 @@
+#
+# Conditional build:
+# bcond_off_ippool - without ippool (which requires patched 2.4.x kernel)
+#
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
@@ -79,12 +83,13 @@ echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/ip6tables.8
 
 # Devel stuff
 cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
-install {ippool,lib*}/lib*.a $RPM_BUILD_ROOT%{_libdir}
+install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}/
+%{!?bcond_off_ippool:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+%{!?bcond_off_ippool:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
-gzip -9 KNOWN_BUGS iptables-howtos/*.{txt,ps}
+gzip -9nf KNOWN_BUGS iptables-howtos/*.{txt,ps}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
