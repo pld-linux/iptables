@@ -3,9 +3,9 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		netfilter_snap		20040629
-%define		iptables_version	1.2.11
-%define		llh_version		7:2.6.7.0-4
+%define		_snap			20041118
+%define		iptables_version	1.3.0
+%define		llh_version		7:2.6.9.1-1
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -15,29 +15,22 @@ Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
 Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
-%if %{netfilter_snap} != 0
-Version:	%{iptables_version}_%{netfilter_snap}
-%else
 Version:	%{iptables_version}
-%endif
-%define		_rel	3
-Release:	%{_rel}@%{_kernel_ver_str}
+%define		_rel	0.1
+Release:	0.%{_snap}.%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
-%if %{netfilter_snap} != 0
-Source0:	%{name}-%{iptables_version}_%{netfilter_snap}.tar.bz2
-%else
-Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-%endif
+Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/iptables-%{version}-%{_snap}.tar.bz2
+# Source0-md5:	f366007c32e887d163ae25f0dc3a7dc5
+#Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-Patch0:		%{name}-netfilter.patch
-Patch1:		%{name}-Makefile.patch
+Patch0:		%{name}-Makefile.patch
+Patch1:		%{name}-pom-ng-%{_snap}.patch
 Patch2:		%{name}-1.2.9-ipt_imq.patch
-Patch3:		%{name}-libipt_time.patch
-Patch4:		%{name}-debug.patch
+Patch3:		%{name}-debug.patch
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -49,10 +42,10 @@ BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 BuildRequires:	sed >= 4.0
 %endif
-%if %{with dist_kernel} && %{netfilter_snap} != 0
-BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}
+%if %{with dist_kernel} && %{_snap} != 0
+BuildRequires:	kernel-headers(netfilter) = %{_snap}
 BuildRequires:	kernel-source
-Requires:	kernel(netfilter) = %{netfilter_snap}
+Requires:	kernel(netfilter) = %{_snap}
 %endif
 BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
@@ -121,12 +114,11 @@ firewall-init sposobu wЁ╠czania i wyЁ╠czania filtrСw IP j╠dra poprzez
 iptables(8).
 
 %prep
-%setup -q -a1
+%setup -q -n %{name}-%{version}-%{_snap} -a1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
