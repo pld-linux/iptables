@@ -49,6 +49,7 @@ BuildRequires:	perl
 %else
 %{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
 %endif
+%{!?_without_patchedkernel:BuildRequires:       kernel-source}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
