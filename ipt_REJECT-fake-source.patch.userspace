@@ -1,6 +1,6 @@
---- extensions/libipt_REJECT.c Thu Nov 15 18:08:42 2001
-+++ extensions/libipt_REJECT.c Thu Nov 15 17:28:03 2001
-@@ -6,10 +6,17 @@
+--- userspace/extensions/libipt_REJECT.c.original	2002-06-24 13:34:59.000000000 +0800
++++ userspace/extensions/libipt_REJECT.c	2002-06-21 18:16:29.000000000 +0800
+@@ -6,6 +6,7 @@
  #include <string.h>
  #include <stdlib.h>
  #include <getopt.h>
@@ -8,17 +8,7 @@
  #include <iptables.h>
  #include <linux/netfilter_ipv4/ip_tables.h>
  #include <linux/netfilter_ipv4/ipt_REJECT.h>
- 
-+#define NIPQUAD(addr) \
-+        ((unsigned char *)&addr)[0], \
-+        ((unsigned char *)&addr)[1], \
-+        ((unsigned char *)&addr)[2], \
-+        ((unsigned char *)&addr)[3]
-+
- struct reject_names {
- 	const char *name;
- 	const char *alias;
-@@ -52,7 +59,7 @@
+@@ -52,7 +53,7 @@
  	printf("\n");
  }
  
@@ -27,28 +17,25 @@
  
  /* Function which prints out usage message. */
  static void
-@@ -62,12 +69,19 @@
+@@ -62,12 +63,16 @@
  "REJECT options:\n"
  "--reject-with type              drop input packet and send back\n"
  "                                a reply packet according to type:\n");
 -
  	print_reject_types();
 +	printf(
-+"--fake-source ip_address        fake the source address of the packet to\n"
-+"                                be ip_address (do not use with tcp-reset!)\n"
-+"--fake-source-with-dest         fake the source address with the destination\n"
++"--fake-source                   fake the source address with the destination\n"
 +"                                address of the matched packet (useful for\n"
-+"                                port unreachable ICMP message)\n");
++"                                port unreachable ICMP message).\n");
  }
  
  static struct option opts[] = {
  	{ "reject-with", 1, 0, '1' },
-+	{ "fake-source", 1, 0, '2' },
-+        { "fake-source-with-dest", 0, 0, '3' },
++	{ "fake-source", 0, 0, '2' },
  	{ 0 }
  };
  
-@@ -79,6 +93,7 @@
+@@ -79,6 +84,7 @@
  
  	/* default */
  	reject->with = IPT_ICMP_PORT_UNREACHABLE;
@@ -56,15 +43,7 @@
  
  	/* Can't cache this */
  	*nfcache |= NFC_UNKNOWN;
-@@ -94,6 +109,7 @@
- 	struct ipt_reject_info *reject = (struct ipt_reject_info *)(*target)->data;
- 	unsigned int limit = sizeof(reject_table)/sizeof(struct reject_names);
- 	unsigned int i;
-+	struct in_addr *ip;
- 
- 	switch(c) {
- 	case '1':
-@@ -113,6 +129,38 @@
+@@ -113,6 +119,21 @@
  			fprintf(stderr, "--reject-with echo-reply no longer"
  				" supported\n");
  		exit_error(PARAMETER_PROBLEM, "unknown reject type `%s'",optarg);
@@ -74,62 +53,33 @@
 +
 +		break;
 +	case '2':
-+                if (reject->fake_source_address == IPT_REJECT_FAKE_TO_DESTINATION) {
-+                        exit_error(PARAMETER_PROBLEM,
-+                                        "Cannot use --fake-source-with-dest and "
-+                                        "--fake-source together");
-+                }
 +		if (invert)
 +			exit_error(PARAMETER_PROBLEM,
 +				"unexpected '!' with --fake-source");
 +		if (reject->with == IPT_TCP_RESET)
 +                        exit_error(PARAMETER_PROBLEM,
 +                                "Cannot use fake source address with TCP_RESET for REJECT");
-+		ip = dotted_to_addr(optarg);
-+		if (!ip)
-+			exit_error(PARAMETER_PROBLEM, "Bad IP address `%s'\n", optarg);
-+		reject->fake_source_address = ip->s_addr;
++		reject->fake_source_address = 1;
 +		return 1;
 +		break;
-+        case '3':
-+                if (reject->fake_source_address) {
-+                        exit_error(PARAMETER_PROBLEM,
-+                                        "Cannot use --fake-source-with-dest and "
-+                                        "--fake-source together");
-+                }
-+                reject->fake_source_address = IPT_REJECT_FAKE_TO_DESTINATION;
-+                return 1;
-+                break;
  	default:
  		/* Fall through */
  		break;
-@@ -140,6 +188,14 @@
+@@ -140,6 +161,8 @@
  			break;
  	}
  	printf("reject-with %s ", reject_table[i].name);
-+	if (reject->fake_source_address != 0) {
-+                if (reject->fake_source_address == IPT_REJECT_FAKE_TO_DESTINATION) 
-+                        printf("faked from packet destination address");
-+                else {
-+                        u_int32_t fake_addr = reject->fake_source_address;
-+		        printf("faked from %d.%d.%d.%d ", NIPQUAD(fake_addr));
-+                }
-+        }
++	if (reject->fake_source_address != 0)
++                        printf("faked-source ");
  }
  
  /* Saves ipt_reject in parsable form to stdout. */
-@@ -154,6 +210,14 @@
+@@ -154,6 +177,8 @@
  			break;
  
  	printf("--reject-with %s ", reject_table[i].name);
-+	if (reject->fake_source_address != 0) {
-+                if (reject->fake_source_address == IPT_REJECT_FAKE_TO_DESTINATION) 
-+                        printf("--fake-source-with-dest ");
-+                else {
-+                        u_int32_t fake_addr = reject->fake_source_address;
-+		        printf("--fake-source %u.%u.%u.%u ", NIPQUAD(fake_addr));
-+                }
-+        }
++	if (reject->fake_source_address != 0)
++	        printf("--fake-source ");
  }
  
  static
