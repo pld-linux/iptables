@@ -28,7 +28,7 @@ Patch12:	raw.patch.userspace
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel(netfilter) = 1.2.7a-%{netfilter_snap}}
+%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = 1.2.7a-%{netfilter_snap}}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
