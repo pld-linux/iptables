@@ -3,7 +3,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_snap			20041118
+%define		_snap			20050313
 %define		iptables_version	1.3.1
 %define		llh_version		7:2.6.10.0-1
 %define		name6			ip6tables
@@ -29,7 +29,7 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
-#Patch1:		%{name}-pom-ng-%{_snap}.patch
+Patch1:		%{name}-pom-ng-%{_snap}.patch
 Patch2:		%{name}-1.2.9-imq1.diff
 Patch3:		%{name}-debug.patch
 Patch4:		%{name}-layer7-%{l7_version}.patch
@@ -119,7 +119,7 @@ iptables(8).
 %prep
 %setup -q -n %{name}-%{version} -a1
 %patch0 -p1
-##%patch1 -p1
+%patch1 -p1
 ##%patch2 -p1
 ##%patch3 -p1
 ##%patch4 -p1
