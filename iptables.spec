@@ -15,6 +15,7 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
 Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
+Patch4:		grsecurity-1.2.7a-iptables.patch
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
@@ -59,6 +60,7 @@ iptables.
 %setup -q -a1
 %patch0 -p1
 %{!?_without_patchedkernel:%patch3 -p1}
+%{!?_without_patchedkernel:%patch4 -p1}
 %{!?_without_patchedkernel:%patch10 -p1}
 %{!?_without_patchedkernel:%patch11 -p1}
 %{!?_without_patchedkernel:%patch12 -p1}
