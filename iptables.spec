@@ -14,8 +14,6 @@ Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
-Patch1:		%{name}-log.patch
-Patch2:		%{name}-prestate.patch
 Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
@@ -59,8 +57,6 @@ iptables.
 %prep
 %setup -q -a1
 %patch0 -p1
-%{!?_without_patchedkernel:%patch1 -p1}
-#%{!?_without_patchedkernel:%patch2 -p1}
 %{!?_without_patchedkernel:%patch3 -p1}
 %{!?_without_patchedkernel:%patch10 -p0}
 %{!?_without_patchedkernel:%patch11 -p0}
