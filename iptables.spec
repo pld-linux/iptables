@@ -28,7 +28,7 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 # Source0-md5:	cf62ebdabf05ccc5479334cc04fa993c
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
-Source2:	iptables.init
+Source2:	%{name}.init
 Patch0:		%{name}-man.patch
 Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
