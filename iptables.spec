@@ -6,7 +6,7 @@
 %bcond_without	dist_kernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20040415
+%define		netfilter_snap		20040419
 %define		iptables_version	1.2.10
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -36,7 +36,7 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Patch1:		%{name}-gkh-fix.patch
-Patch2:		%{name}-dstlimit.patch
+#Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-1.2.9-ipt_p2p.patch
 Patch4:		%{name}-1.2.9-ipt_imq.patch
 Patch5:		%{name}-pom-ng.patch
@@ -119,12 +119,10 @@ iptables(8).
 %prep
 %setup -q -a1
 %patch1 -p0
-# in this moment included in source file.
 #%patch2 -p1
 %patch3 -p1
 %patch4 -p1
-# in this moment included in source file.
-#%patch5 -p1
+%patch5 -p1
 %patch6 -p1
 
 chmod 755 extensions/.*-test*
