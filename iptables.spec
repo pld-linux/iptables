@@ -8,6 +8,10 @@
 %define		llh_version		7:2.6.10.0-1
 %define		name6			ip6tables
 %define		l7_version		1.0
+
+# don't build doc
+%undefine with_doc
+
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakiet體 oraz system translacji adres體 (NAT)
@@ -18,7 +22,7 @@ Summary(zh_CN):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	%{iptables_version}
 %define		_rel	1
-Release:	0.%{_snap}.%{_rel}@%{_kernel_ver_str}
+Release:	%{_snap}.%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 #Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/iptables-%{version}-%{_snap}.tar.bz2
@@ -30,7 +34,7 @@ Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-pom-ng-%{_snap}.patch
-Patch2:		%{name}-1.2.9-imq1.diff
+Patch2:		%{name}-1.3.0-imq1.diff
 Patch3:		%{name}-debug.patch
 Patch4:		%{name}-layer7-%{l7_version}.patch
 Patch5:		grsecurity-1.2.11-iptables.patch
@@ -120,14 +124,14 @@ iptables(8).
 %setup -q -n %{name}-%{version} -a1
 %patch0 -p1
 %patch1 -p1
-##%patch2 -p1
+%patch2 -p1
 ##%patch3 -p1
 ##%patch4 -p1
 ##%patch5 -p1
 
 # removed broken ...
-rm -f extensions/.set-test
-rm -f extensions/.quota-test
+#rm -f extensions/.{set,quota,geoip}-test
+#rm -f extensions/.quota-test
 
 chmod 755 extensions/.*-test*
 
