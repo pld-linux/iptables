@@ -140,8 +140,8 @@ cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
 #install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-##%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-##%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+##%{?with_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+##%{?with_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -159,7 +159,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%{?_with_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
+%{?with_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 #%%{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
