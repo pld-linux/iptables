@@ -29,7 +29,7 @@ Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-pom-ng-%{_snap}.patch
-Patch2:		%{name}-1.2.9-ipt_imq.patch
+Patch2:		%{name}-1.2.9-imq1.diff
 Patch3:		%{name}-debug.patch
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
