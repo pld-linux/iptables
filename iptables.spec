@@ -41,8 +41,8 @@ BuildRequires:	sgmls
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
-%endif
 BuildRequires:	sed >= 4.0
+%endif
 %if %{with dist_kernel} && %{netfilter_snap} != 0
 BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}
 BuildRequires:	kernel-source
@@ -120,7 +120,6 @@ iptables(8).
 #%rm -f extensions/.set-test
 
 chmod 755 extensions/.*-test*
-sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 
 %build
 %{__make} all experimental \
@@ -129,7 +128,10 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 	KERNEL_DIR="%{_kernelsrcdir}" \
 	LIBDIR="%{_libdir}"
 
-%{?with_doc:%{__make} -C iptables-howtos}
+%if %{with doc}
+%{__make} -C iptables-howtos
+sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
