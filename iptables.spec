@@ -15,6 +15,7 @@ Patch1:		%{name}-ipv6-icmp.patch
 Patch2:		%{name}-man.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
+BuildRequires:	tetex-latex
 #Requires:	kernel >= 2.4.2-2
 Obsoletes:	netfilter
 Obsoletes:	ipchains
