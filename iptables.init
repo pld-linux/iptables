@@ -51,29 +51,25 @@ start() {
 	if [ -f $IPTABLES_CONFIG ]; then
 	    # If we don't clear these first, we might be adding to
 	    #  pre-existing rules.
-	    chains=`cat /proc/net/ip_tables_names 2>/dev/null`
+	    tables=`cat /proc/net/ip_tables_names 2>/dev/null`
 	    show "Flushing all current rules and user defined chains:"
 	    let ret=0
-            for i in $chains; do iptables -t $i -F; let ret+=$?; done
-            iptables -F
-            let ret+=$?
+            for i in $tables; do iptables -t $i -F; let ret+=$?; done
             if [ $ret -eq 0 ]; then
-              ok
+        	ok
             else
-              fail
+        	fail
             fi
             show "Clearing all current rules and user defined chains:"
             let ret=0
-            for i in $chains; do iptables -t $i -X; let ret+=$?; done
-            iptables -X
-            let ret+=$?
+            for i in $tables; do iptables -t $i -X; let ret+=$?; done
             if [ $ret -eq 0 ]; then
-              ok
+        	ok
             else
-              fail
+        	fail
             fi
 
-            for i in $chains; do iptables -t $i -Z; done
+            for i in $tables; do iptables -t $i -Z; done
 
 	    show "Applying iptables firewall rules:"
 		grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /usr/sbin/iptables-restore -c && \
@@ -84,25 +80,23 @@ start() {
 }
 
 stop() {
-	chains=`cat /proc/net/ip_tables_names 2>/dev/null`
+	tables=`cat /proc/net/ip_tables_names 2>/dev/null`
         show "Flushing all chains:"
         let ret=0
-        for i in $chains; do iptables -t $i -F; let ret+=$?; done
-        iptables -F; let ret+=$?
+        for i in $tables; do iptables -t $i -F; let ret+=$?; done
         if [ $ret -eq 0 ]; then
-                ok
+            ok
         else
-                fail
+            fail
         fi
 
         show "Removing user defined chains:"
         let ret=0
-        for i in $chains; do iptables -t $i -X; let ret+=$?; done
-        iptables -X; let ret+=$?
+        for i in $tables; do iptables -t $i -X; let ret+=$?; done
         if [ $ret -eq 0 ]; then
-                ok
+            ok
         else
-                fail
+            fail
         fi
         show "Resetting built-in chains to the default ACCEPT policy:"
 	iftable filter -P INPUT ACCEPT && \
