@@ -4,7 +4,7 @@
 %bcond_without howto		# without documentation (HOWTOS) which needed TeX.
 #
 #%define		netfilter_snap	0
-%define		netfilter_snap	20031210
+%define		netfilter_snap	20031209
 %define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -25,7 +25,7 @@ Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/%{name}-%{iptables_version}-%{netfilter_snap}.tar.bz2
-# Source0-md5:	2c3f34dd81ee73e5727db73f848b8343
+# Source0-md5:	41e8e71bedd2b5fc4073a97a89a49fd3
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 
 Source2:	%{name}.init
