@@ -15,7 +15,7 @@ BuildRequires:	sgml-tools
 #Requires:	kernel >= 2.3.99
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-BuildRoot:	/tmp/%{name}-%{version}-root
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %define		_sysconfdir	/etc
 
