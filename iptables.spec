@@ -21,7 +21,7 @@ URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	%{name}-%{version}.tar.bz2
 # Source0-md5	d2cb6d4f7a5886f64f9274b4b415d529
-%{?!_without_howto:Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2}
+Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2}
 Patch0:		%{name}-man.patch
 Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
@@ -43,6 +43,7 @@ BuildRequires:	perl
 %else
 %{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
 %endif
+%{!?_without_patchedkernel:BuildRequires:       kernel-source >= 2.4}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
