@@ -37,6 +37,7 @@ Patch16:	%{name}-1.2.8-ipt_p2p.patch
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-latex}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
+%{?!_without_howto:BuildRequires:	/usr/bin/groff}
 BuildRequires:	perl
 %if %{netfilter_snap} != 0
 %{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
