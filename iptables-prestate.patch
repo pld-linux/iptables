@@ -1,0 +1,183 @@
+--- userspace/iptables.8.orig	Fri Feb 23 10:08:13 2001
++++ userspace/iptables.8	Thu May 10 22:00:44 2001
+@@ -101,6 +101,11 @@
+ built-in chains: PREROUTING (for altering incoming packets before
+ routing) and OUTPUT (for altering locally-generated packets before
+ routing).
++.BR "prestate"
++This table is consulted first as a packet enters the netfilter framework. 
++It contains two built-in chains: PREROUTING (for selecting incoming
++packets) and OUTPUT (for selecting locally-generated packets). It can
++be used to force conntrack/NAT to ignore the selected packets.
+ .SH OPTIONS
+ The options that are recognized by
+ .B iptables
+@@ -500,6 +505,13 @@
+ meaning that the packet is starting a new connection, but is
+ associated with an existing connection, such as an FTP data transfer,
+ or an ICMP error.
++.B NONE
++meaning that the connection tracking code was forced to ignore the
++packet by the
++.B NOTRACK
++target of the
++.B prestate
++table and thus there is no state information available.
+ .SS unclean
+ This module takes no options, but attempts to match packets which seem
+ malformed or unusual.  This is regarded as experimental.
+@@ -736,6 +748,23 @@
+ accumulates ten packets inside the kernel and transmits them as one
+ netlink multpart message to userspace.  Default is 1 (for backwards 
+ compatibility)
++.SS NOTRACK
++This target extension is built into the
++.B prestate
++table extension. It can be used to mark packets, so that those are
++ignored by the underlying conntrack module and the
++.B nat
++table. In consequence, those packets are not seen by the conntrack/NAT
++helpers and the state of their related packets (if those are not marked 
++by
++.B
++NOTRACK
++as well) are
++.B
++INVALID
++(!) instead of
++.B
++RELATED.
+ .SH DIAGNOSTICS
+ Various error messages are printed to standard error.  The exit code
+ is 0 for correct functioning.  Errors which appear to be caused by
+diff -urN --exclude-from=diff.exclude userspace/extensions.orig/.NOTRACK-test userspace/extensions/.NOTRACK-test
+--- userspace/extensions.orig/.NOTRACK-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.NOTRACK-test	Wed May  9 22:05:17 2001
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -n "`grep NFC_NOTRACK $KERNEL_DIR/include/linux/netfilter.h 2>/dev/null`" ] && echo NOTRACK
+diff -urN --exclude-from=diff.exclude userspace/extensions.orig/libipt_NOTRACK.c userspace/extensions/libipt_NOTRACK.c
+--- userspace/extensions.orig/libipt_NOTRACK.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_NOTRACK.c	Wed May  9 22:05:17 2001
+@@ -0,0 +1,75 @@
++/* Shared library add-on to iptables for the NOTRACK target,
++ *	the simplest target ever added to netfilter...
++ *
++ * (C) 2001 by Jozsef Kadlecsik <kadlec@blackhole.kfki.hu>
++ *
++ * This program is distributed under the terms of GNU GPL
++ */
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <iptables.h>
++
++#include <linux/netfilter_ipv4/ip_tables.h>
++
++static void init(struct ipt_entry_target *t, unsigned int *nfcache) 
++{
++}
++
++static void help(void) 
++{
++	printf(
++"NOTRACK target\n"		"No options\n"
++);
++}
++
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++		const struct ipt_entry *entry,
++		struct ipt_entry_target **target)
++{
++	if (optarg) 
++		exit_error(PARAMETER_PROBLEM, 
++				"NOTRACK: You must not speficy an option");
++
++	if (check_inverse(optarg, &invert))
++		exit_error(PARAMETER_PROBLEM,
++				"NOTRACK: unexpected `!'");
++	
++	return 1;
++}
++
++static void final_check(unsigned int flags)
++{
++}
++
++static void save(const struct ipt_ip *ip,
++		const struct ipt_entry_target *target)
++{
++}
++
++static void print(const struct ipt_ip *ip,
++		const struct ipt_entry_target *target, int numeric)
++{
++}
++
++static struct option opts[] = { };
++
++struct iptables_target NOTRACK = { NULL, 
++	"NOTRACK",
++	NETFILTER_VERSION,
++	IPT_ALIGN(0),
++	IPT_ALIGN(0),
++	&help,
++	&init,
++	&parse,
++	&final_check,
++	&print,
++	&save,
++	opts 
++};
++
++void _init(void)
++{
++	register_target(&NOTRACK);
++}
+diff -urN --exclude-from=diff.exclude userspace/extensions.orig/libipt_state.c userspace/extensions/libipt_state.c
+--- userspace/extensions.orig/libipt_state.c	Mon Jul  3 12:17:58 2000
++++ userspace/extensions/libipt_state.c	Thu May 10 07:38:24 2001
+@@ -43,6 +43,8 @@
+ 		sinfo->statemask |= IPT_STATE_BIT(IP_CT_ESTABLISHED);
+ 	else if (strncasecmp(state, "RELATED", strlen) == 0)
+ 		sinfo->statemask |= IPT_STATE_BIT(IP_CT_RELATED);
++	else if (strncasecmp(state, "NONE", strlen) == 0)
++		sinfo->statemask |= IPT_STATE_NONE;
+ 	else
+ 		return 0;
+ 	return 1;
+@@ -116,6 +118,10 @@
+ 	}
+ 	if (statemask & IPT_STATE_BIT(IP_CT_ESTABLISHED)) {
+ 		printf("%sESTABLISHED", sep);
++		sep = ",";
++	}
++	if (statemask & IPT_STATE_NONE) {
++		printf("%sNONE", sep);
+ 		sep = ",";
+ 	}
+ 	printf(" ");
+diff -urN --exclude-from=diff.exclude userspace/libiptc.orig/libip4tc.c userspace/libiptc/libip4tc.c
+--- userspace/libiptc.orig/libip4tc.c	Fri Jan  5 16:22:59 2001
++++ userspace/libiptc/libip4tc.c	Wed May  9 22:05:17 2001
+@@ -401,6 +401,19 @@
+ 		assert(h->info.hook_entry[NF_IP_DROPPING] == 0);
+ 		user_offset = 0;
+ #endif
++	} else if (strcmp(h->info.name, "prestate") == 0) {
++		assert(h->info.valid_hooks
++		       == (1 << NF_IP_PRE_ROUTING
++			   | 1 << NF_IP_LOCAL_OUT));
++
++		/* Hooks should be first two */
++		assert(h->info.hook_entry[NF_IP_PRE_ROUTING] == 0);
++
++		n = get_chain_end(h, 0);
++		n += get_entry(h, n)->next_offset;
++		assert(h->info.hook_entry[NF_IP_LOCAL_OUT] == n);
++
++		user_offset = h->info.hook_entry[NF_IP_LOCAL_OUT];
+ 	} else {
+ 		fprintf(stderr, "Unknown table `%s'\n", h->info.name);
+ 		abort();

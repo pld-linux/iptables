@@ -1,0 +1,306 @@
+diff -urN --exclude CVS netfilter.old/userspace/extensions/libipt_NETMAP.c netfilter/userspace/extensions/libipt_NETMAP.c
+--- netfilter.old/userspace/extensions/libipt_NETMAP.c	Sat May 12 12:42:18 2001
++++ netfilter/userspace/extensions/libipt_NETMAP.c	Sat May 12 03:24:27 2001
+@@ -1,5 +1,6 @@
+ /* Shared library add-on to iptables to add static NAT support.
+    Author: Svenning Soerensen <svenning@post5.tele.dk>
++   Corrections and Molto mode modifications: Damien Clermonte <damien.clermonte@free.fr>
+ */
+
+ #include <stdio.h>
+@@ -10,11 +11,14 @@
+ #include <iptables.h>
+ #include <linux/netfilter_ipv4/ip_tables.h>
+ #include <linux/netfilter_ipv4/ip_nat_rule.h>
++#include <linux/netfilter_ipv4/ipt_NETMAP.h>
+
+ #define MODULENAME "NETMAP"
+
+ static struct option opts[] = {
+ 	{ "to", 1, 0, '1' },
++	{ "molto", 0, 0, '2' },
++	{ "mlt", 0, 0, '2' },
+ 	{ 0 }
+ };
+
+@@ -24,8 +28,11 @@
+ {
+ 	printf(MODULENAME" v%s options:\n"
+ 	       "  --%s address[/mask]\n"
+-	       "				Network address to map to.\n\n",
+-	       NETFILTER_VERSION, opts[0].name);
++	       "				Network address to map to.\n"
++	       "  --%s\n"
++	       "  --%s\n"
++	       "				Reversed src-dst static mapping.\n\n",
++	       NETFILTER_VERSION, opts[0].name, opts[1].name, opts[2].name);
+ }
+
+ static u_int32_t
+@@ -58,10 +65,13 @@
+ static void
+ init(struct ipt_entry_target *t, unsigned int *nfcache)
+ {
+-	struct ip_nat_multi_range *mr = (struct ip_nat_multi_range *)t->data;
++	struct ipt_NETMAP_info *info = (struct ipt_NETMAP_info *) t->data;
+
+	/* Actually, it's 0, but it's ignored at the moment. */
+-	mr->rangesize = 1;
++	info->mr.rangesize = 1;
++
++	/* Normal mode by default */
++	info->molto = 0;
+
+	/* Can't cache this */
+	*nfcache |= NFC_UNKNOWN;
+@@ -123,8 +133,8 @@
+       const struct ipt_entry *entry,
+       struct ipt_entry_target **target)
+ {
+-	struct ip_nat_multi_range *mr
+-		= (struct ip_nat_multi_range *)(*target)->data;
++	struct ipt_NETMAP_info *info =
++		(struct ipt_NETMAP_info *) (*target)->data;
+
+	switch (c) {
+	case '1':
+@@ -132,10 +142,15 @@
+			exit_error(PARAMETER_PROBLEM,
+				   "Unexpected `!' after --%s", opts[0].name);
+
+-		parse_to(optarg, &mr->range[0]);
++		parse_to(optarg, &info->mr.range[0]);
+		*flags = 1;
+		return 1;
+
++	case '2':
++		info->molto = 1;
++		*flags = 2;
++		return 1;
++
+	default:
+		return 0;
+	}
+@@ -155,9 +170,9 @@
+       const struct ipt_entry_target *target,
+       int numeric)
+ {
+-	struct ip_nat_multi_range *mr
+-		= (struct ip_nat_multi_range *)target->data;
+-	struct ip_nat_range *r = &mr->range[0];
++	struct ipt_NETMAP_info *info =
++		(struct ipt_NETMAP_info *) target->data;
++	struct ip_nat_range *r = &info->mr.range[0];
+ 	struct in_addr a;
+ 	int bits;
+
+@@ -175,16 +190,22 @@
+ static void
+ save(const struct ipt_ip *ip, const struct ipt_entry_target *target)
+ {
++	struct ipt_NETMAP_info *info =
++		(struct ipt_NETMAP_info *) target->data;
++
+	printf("--%s ", opts[0].name);
+	print(ip, target, 0);
++
++	if(info->molto)
++		printf("--%s ", opts[1].name);
+ }
+
+ struct iptables_target target_module
+ = { NULL,
+     MODULENAME,
+     NETFILTER_VERSION,
+-    IPT_ALIGN(sizeof(struct ip_nat_multi_range)),
+-    IPT_ALIGN(sizeof(struct ip_nat_multi_range)),
++    IPT_ALIGN(sizeof(struct ipt_NETMAP_info)),
++    IPT_ALIGN(sizeof(struct ipt_NETMAP_info)),
+     &help,
+     &init,
+     &parse,
+diff -urN --exclude CVS netfilter.old/userspace/include/linux/netfilter_ipv4/ipt_NETMAP.h netfilter/userspace/include/linux/netfilter_ipv4/ipt_NETMAP.h
+--- netfilter.old/userspace/include/linux/netfilter_ipv4/ipt_NETMAP.h	Thu Jan  1 01:00:00 1970
++++ netfilter/userspace/include/linux/netfilter_ipv4/ipt_NETMAP.h	Sat May 12 03:05:14 2001
+@@ -0,0 +1,14 @@
++/* NETMAP modification module for IP tables
++   Author: Svenning Soerensen <svenning@post5.tele.dk>
++   Corrections and Molto mode modifications: Damien Clermonte <damien.clermonte@free.fr>
++*/
++
++#ifndef _IPT_NETMAP_H
++#define _IPT_NETMAP_H
++
++struct ipt_NETMAP_info {
++	u_int8_t molto;
++	struct ip_nat_multi_range mr;
++};
++
++#endif
+diff -urN --exclude CVS netfilter.old/userspace/patch-o-matic/NETMAP.patch netfilter/userspace/patch-o-matic/NETMAP.patch
+--- netfilter.old/userspace/patch-o-matic/NETMAP.patch	Sat May 12 12:42:18 2001
++++ netfilter/userspace/patch-o-matic/NETMAP.patch	Sun May 20 00:53:54 2001
+@@ -1,12 +1,31 @@
++diff -uN linux.orig/include/linux/netfilter_ipv4/ipt_NETMAP.h linux/include/linux/netfilter_ipv4/ipt_NETMAP.h
++--- linux.orig/include/linux/netfilter_ipv4/ipt_NETMAP.h	Thu Jan 1 01:00:00 1970
+++++ linux/include/linux/netfilter_ipv4/ipt_NETMAP.h	Sat May 12 03:06:37 2001
++@@ -0,0 +1,8 @@
+++#ifndef _IPT_NETMAP_H
+++#define _IPT_NETMAP_H
+++
+++struct ipt_NETMAP_info {
+++ u_int8_t molto;
+++ struct ip_nat_multi_range mr;
+++};
+++#endif /* _IPT_NETMAP_H */
+ diff -uN linux.orig/net/ipv4/netfilter/ipt_NETMAP.c linux/net/ipv4/netfilter/ipt_NETMAP.c
+---- linux.orig/net/ipv4/netfilter/ipt_NETMAP.c	Thu Jan  1 01:00:00 1970
+-+++ linux/net/ipv4/netfilter/ipt_NETMAP.c	Thu Apr 19 17:30:18 2001
+-@@ -0,0 +1,106 @@
++--- linux.orig/net/ipv4/netfilter/ipt_NETMAP.c	Thu Jan 1 01:00:00 1970
+++++ linux/net/ipv4/netfilter/ipt_NETMAP.c	Sat May 12 03:10:26 2001
++@@ -0,0 +1,128 @@
+ +/* NETMAP - static NAT mapping of IP network addresses (1:1).
+ +   The mapping can be applied to source (POSTROUTING),
+ +   destination (PREROUTING), or both (with separate rules).
+ +
+++   "Molto" mode allows mapping of source based on destination (POSTROUTING)
+++   and mapping of destination based on source (PREROUTING).
+++   It allows destination based load-balancing with source based load-balancers
+++   and vice versa.
+++   Original idea and molto ipchains module by Olivier Molteni and Benjamin Bayart
+++
+ +   Author: Svenning Soerensen <svenning@post5.tele.dk>
+++   Corrections and Molto mode modifications: Damien Clermonte <damien.clermonte@free.fr>
+ +*/
+ +
+ +#include <linux/config.h>
+@@ -16,6 +35,7 @@
+ +#include <linux/netfilter.h>
+ +#include <linux/netfilter_ipv4.h>
+ +#include <linux/netfilter_ipv4/ip_nat_rule.h>
+++#include <linux/netfilter_ipv4/ipt_NETMAP.h>
+ +
+ +#define MODULENAME "NETMAP"
+ +
+@@ -32,13 +52,13 @@
+ +      unsigned int targinfosize,
+ +      unsigned int hook_mask)
+ +{
+-+	const struct ip_nat_multi_range *mr = targinfo;
+++	struct ipt_NETMAP_info *info = (struct ipt_NETMAP_info *)targinfo;
+ +
+ +	if (strcmp(tablename, "nat") != 0) {
+ +		DEBUGP(MODULENAME":check: bad table `%s'.\n", tablename);
+ +		return 0;
+ +	}
+-+	if (targinfosize != IPT_ALIGN(sizeof(*mr))) {
+++	if (targinfosize != IPT_ALIGN(sizeof(struct ipt_NETMAP_info))) {
+ +		DEBUGP(MODULENAME":check: size %u.\n", targinfosize);
+ +		return 0;
+ +	}
+@@ -46,11 +66,11 @@
+ +		DEBUGP(MODULENAME":check: bad hooks %x.\n", hook_mask);
+ +		return 0;
+ +	}
+-+	if (!(mr->range[0].flags & IP_NAT_RANGE_MAP_IPS)) {
+++	if (!(info->mr.range[0].flags & IP_NAT_RANGE_MAP_IPS)) {
+ +		DEBUGP(MODULENAME":check: bad MAP_IPS.\n");
+ +		return 0;
+ +	}
+-+	if (mr->rangesize != 1) {
+++	if (info->mr.rangesize != 1) {
+ +		DEBUGP(MODULENAME":check: bad rangesize %u.\n", mr->rangesize);
+ +		return 0;
+ +	}
+@@ -68,28 +88,42 @@
+ +	struct ip_conntrack *ct;
+ +	enum ip_conntrack_info ctinfo;
+ +	u_int32_t new_ip, netmask;
+-+	const struct ip_nat_multi_range *mr = targinfo;
+++	struct ipt_NETMAP_info *info = (struct ipt_NETMAP_info *)targinfo;
+ +	struct ip_nat_multi_range newrange;
+ +
+ +	IP_NF_ASSERT(hooknum == NF_IP_PRE_ROUTING
+ +		     || hooknum == NF_IP_POST_ROUTING);
+ +	ct = ip_conntrack_get(*pskb, &ctinfo);
+ +
+-+	netmask = ~(mr->range[0].min_ip ^ mr->range[0].max_ip);
+++	netmask = ~(info->mr.range[0].min_ip ^ info->mr.range[0].max_ip);
+ +
+-+	if (hooknum == NF_IP_PRE_ROUTING)
+-+		new_ip = (*pskb)->nh.iph->daddr & ~netmask;
+++	if(info->molto == 0)
+++	{
+++		if (hooknum == NF_IP_PRE_ROUTING)
+++			new_ip = (*pskb)->nh.iph->daddr & ~netmask;
+++		else
+++			new_ip = (*pskb)->nh.iph->saddr & ~netmask;
+++	}
+ +	else
+-+		new_ip = (*pskb)->nh.iph->saddr & ~netmask;
+-+	new_ip |= mr->range[0].min_ip & netmask;
+++	{
+++		if (hooknum == NF_IP_PRE_ROUTING)
+++			new_ip = (*pskb)->nh.iph->saddr & ~netmask;
+++		else
+++			new_ip = (*pskb)->nh.iph->daddr & ~netmask;
+++	}
+++	new_ip |= info->mr.range[0].min_ip & netmask;
+ +
+ +	newrange = ((struct ip_nat_multi_range)
+-+	{ 1, { { mr->range[0].flags | IP_NAT_RANGE_MAP_IPS,
+++	{ 1, { { info->mr.range[0].flags | IP_NAT_RANGE_MAP_IPS,
+ +		 new_ip, new_ip,
+-+		 mr->range[0].min, mr->range[0].max } } });
+++		 info->mr.range[0].min, info->mr.range[0].max } } });
+ +
+ +	/* Hand modified range to generic setup. */
+++#ifdef NF_IP_DROPPING
+++	return ip_nat_setup_info(ct, &newrange, hooknum, in, out, *pskb);
+++#else
+ +	return ip_nat_setup_info(ct, &newrange, hooknum);
+++#endif
+ +}
+ +
+ +static struct ipt_target target_module
+diff -urN --exclude CVS netfilter.old/userspace/patch-o-matic/NETMAP.patch.configure.help netfilter/userspace/patch-o-matic/NETMAP.patch.configure.help
+--- netfilter.old/userspace/patch-o-matic/NETMAP.patch.configure.help	Sat May 12 12:42:18 2001
++++ netfilter/userspace/patch-o-matic/NETMAP.patch.configure.help	Sat May 12 03:26:11 2001
+@@ -5,6 +5,8 @@
+   addresses. It maps the network address part, while keeping the
+   host address part intact. It is similar to Fast NAT, except that
+   Netfilter's connection tracking doesn't work well with Fast NAT.
++  Additional option allows reverse behavior: Mapping of source based
++  on destination and vice versa.
+
+   If you want to compile it as a module, say M here and read
+   Documentation/modules.txt.  The module will be called
+diff -urN --exclude CVS netfilter.old/userspace/patch-o-matic/NETMAP.patch.help netfilter/userspace/patch-o-matic/NETMAP.patch.help
+--- netfilter.old/userspace/patch-o-matic/NETMAP.patch.help	Sat May 12 12:42:18 2001
++++ netfilter/userspace/patch-o-matic/NETMAP.patch.help	Sat May 12 03:25:28 2001
+@@ -1,4 +1,5 @@
+ Author: Svenning Soerensen <svenning@post5.tele.dk>
++Corrections and Molto mode modifications: Damien Clermonte <damien.clermonte@free.fr>
+ Status: Experimental
+
+ This adds CONFIG_IP_NF_TARGET_NETMAP option, which provides a target for
+@@ -7,10 +8,16 @@
+ PREROUTING chain to alter the destination of incoming connections,
+ to the POSTROUTING chain to alter the source of outgoing connections,
+ or both (with separate rules).
++Behavior is reversed with --molto option (source mapping is based on
++destination and destination mapping is based on source).
++It allows to use destination based load-balancing with source based
++load-balancers in the POSTROUTING case and vice versa.
+
+ Examples:
+
+ iptables -t nat -A PREROUTING -d 1.2.3.0/24 -j NETMAP --to 5.6.7.0/24
+
+ iptables -t nat -A POSTROUTING -s 5.6.7.0/24 -j NETMAP --to 1.2.3.0/24
++
++iptables -t nat -A POSTROUTING -d 5.6.7.0/24 -j NETMAP --molto --to 1.2.3.0/24
+
+
+
