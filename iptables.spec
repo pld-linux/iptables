@@ -26,7 +26,6 @@ URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{netfilter_snap} != 0
 Source0:	%{name}-%{iptables_version}_%{netfilter_snap}.tar.bz2
-# Source0-md5:	f4e24a7286a37014441b835cd8c5189b
 %else
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 %endif
