@@ -5,7 +5,7 @@
 #
 %define		netfilter_snap		20040429
 %define		iptables_version	1.2.10
-%define		llh_version		7:2.6.5.0-2
+%define		llh_version		7:2.6.5.1-4
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
