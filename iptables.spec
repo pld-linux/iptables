@@ -1,8 +1,8 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.1.0
-Release:	5
+Version:	1.1.1
+Release:	1
 License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
@@ -11,9 +11,8 @@ Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://netfilter.kernelnotes.org/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/iptables-howtos.tar.bz2
 Source2:	rc.firewall
-Patch:		iptables-ipv6-CVS-20000703.patch.gz
 BuildRequires:	sgml-tools
-#Requires:	kernel >= 2.3.99
+#Requires:	kernel >= 2.4.0test4
 Obsoletes:	netfilter
 Obsoletes:	ipchains
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
