@@ -132,8 +132,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 %{__make} CC="%{__cc}" \
 	LIBDIR="%{_libdir}" \
 	all experimental \
-	COPT_FLAGS="%{rpmcflags}"
-#	-D%{!?debug:N}DEBUG"
+	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG"
 
 %{?with_howto:%{__make} -C iptables-howtos}
 
@@ -155,7 +154,7 @@ echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/ip6tables.8
 
 # Devel stuff
 cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}/iptables
-#install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
+install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
 ##%{?with_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
@@ -184,7 +183,7 @@ fi
 %files devel
 %defattr(644,root,root,755)
 %{?with_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
-#%%{_libdir}/lib*.a
+%{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
 
