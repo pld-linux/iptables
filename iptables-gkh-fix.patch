@@ -12,15 +12,3 @@ diff -Nur iptables-1.2.9_20040114.org/Makefile iptables-1.2.9_20040114/Makefile
  IPTABLES_VERSION:=1.2.9
  OLD_IPTABLES_VERSION:=1.2.8
  
-diff -Nur iptables-1.2.9_20040130.org/Makefile iptables-1.2.9_20040130/Makefile
---- iptables-1.2.9_20040130.org/Makefile	2004-02-03 19:23:35.703759296 +0100
-+++ iptables-1.2.9_20040130/Makefile	2004-02-03 19:24:17.034476072 +0100
-@@ -31,7 +31,7 @@
- endif
- 
- COPT_FLAGS:=-O2
--CFLAGS:=$(COPT_FLAGS) -Wall -Wunused -I$(KERNEL_DIR)/include -Iinclude/ -DIPTABLES_VERSION=\"$(IPTABLES_VERSION)\" #-g -DDEBUG #-pg # -DIPTC_DEBUG
-+CFLAGS:=$(COPT_FLAGS) -Wall -nostdinc -Wunused -I$(KERNEL_DIR)/include -Iinclude/ -DIPTABLES_VERSION=\"$(IPTABLES_VERSION)\" #-g -DDEBUG #-pg # -DIPTC_DEBUG
- 
- ifdef NO_SHARED_LIBS
- CFLAGS += -DNO_SHARED_LIBS=1
