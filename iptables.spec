@@ -18,16 +18,17 @@ Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
+Patch12:	raw.patch.userspace
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-dvips
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7}
+%{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7a}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%{!?_without_patchedkernel:Requires:	kernel_netfilter = 1.2.7}
+%{!?_without_patchedkernel:Requires:	kernel_netfilter = 1.2.7a}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -58,8 +59,9 @@ iptables.
 %setup -q -a1
 %patch0 -p1
 %{!?_without_patchedkernel:%patch3 -p1}
-%{!?_without_patchedkernel:%patch10 -p0}
-%{!?_without_patchedkernel:%patch11 -p0}
+%{!?_without_patchedkernel:%patch10 -p1}
+%{!?_without_patchedkernel:%patch11 -p1}
+%{!?_without_patchedkernel:%patch12 -p0}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
