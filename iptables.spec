@@ -28,7 +28,6 @@ Wydajny system translacji adresów (NAT) oraz system filtrowania pakietów.
 %prep
 %setup -q
 %setup -q -a1
-%patch -p1
 
 %build
 %{__make} -C iptables-howtos NAT-HOWTO.html packet-filtering-HOWTO.html \
