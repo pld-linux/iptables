@@ -5,8 +5,8 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.6a
-Release:	2
+Version:	1.2.7
+Release:	0.2
 License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
@@ -16,14 +16,20 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
 Patch1:		%{name}-log.patch
 Patch2:		%{name}-prestate.patch
-BuildRequires:	perl
+Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
+# patches from netfilter
+Patch10:	ipt_REJECT-fake-source.patch.userspace
+Patch11:	mark-bitwise-ops.patch.userspace
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-dvips
+BuildRequires:	perl
+%{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
+%{!?_without_patchedkernel:Requires:	kernel_netfilter = 1.2.7}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -54,7 +60,10 @@ iptables.
 %setup -q -a1
 %patch0 -p1
 %{!?_without_patchedkernel:%patch1 -p1}
-%{!?_without_patchedkernel:%patch2 -p1}
+#%{!?_without_patchedkernel:%patch2 -p1}
+%{!?_without_patchedkernel:%patch3 -p1}
+%{!?_without_patchedkernel:%patch10 -p0}
+%{!?_without_patchedkernel:%patch11 -p0}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
@@ -92,23 +101,24 @@ install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 #%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
 #%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
+gzip -9nf KNOWN_BUGS iptables-howtos/*.txt
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc KNOWN_BUGS
-%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*
+%doc KNOWN_BUGS.gz
+%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*.gz
 
 %attr(755,root,root) %{_sbindir}/*
-%dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
 
-%{_mandir}/man8/*
+%{_mandir}/man*/*
 
 %files devel
 %defattr(644,root,root,755)
-%doc iptables-howtos/netfilter-hacking-HOWTO*
+%doc iptables-howtos/netfilter-hacking-HOWTO*.gz
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
