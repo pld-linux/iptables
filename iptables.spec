@@ -8,7 +8,6 @@
 %define		llh_version		7:2.6.10.0-1
 %define		name6			ip6tables
 %define		l7_version		1.0
-%define		l7_proto_date		2005-01-17
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -27,10 +26,8 @@ Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/iptables-%{version}-%{_sn
 #Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
-Source2:	http://dl.sourceforge.net/l7-filter/l7-protocols-%{l7_proto_date}.tar.gz
-# Source2-md5:	4408f27b9f6758589a6694f3c9aeb8c4
-Source3:	%{name}.init
-Source4:	%{name6}.init
+Source2:	%{name}.init
+Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-pom-ng-%{_snap}.patch
 Patch2:		%{name}-1.2.9-imq1.diff
@@ -119,20 +116,8 @@ Iptables-init ma na celu udostêpnienie alternatywnego w stosunku do
 firewall-init sposobu w³±czania i wy³±czania filtrów IP j±dra poprzez
 iptables(8).
 
-%package layer7
-Summary:	Protocol patterns required by layer 7 filter
-Summary(pl):	Pliki opisuj±ce protoko³y dla filtru warstwy 7
-Group:		Networking/Admin
-Requires:	%{name}
-
-%description layer7
-Protocol patterns required by layer 7 filter.
-
-%description layer7 -l pl
-Pliki opisuj±ce protoko³y dla filtru warstwy 7
-
 %prep
-%setup -q -n %{name}-%{version}-%{_snap} -a1 -a2
+%setup -q -n %{name}-%{version}-%{_snap} -a1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -174,12 +159,6 @@ echo ".so iptables-restore.8" > %{name6}-restore.8
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
 
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/l7-protocols
-cp -R l7-protocols-%{l7_proto_date}/extra	\
-    l7-protocols-%{l7_proto_date}/file_types	\
-    l7-protocols-%{l7_proto_date}/malware	\
-    l7-protocols-%{l7_proto_date}/protocols	\
-    l7-protocols-%{l7_proto_date}/weakpatterns	\
-    $RPM_BUILD_ROOT%{_sysconfdir}/l7-protocols
 
 # Devel stuff
 cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
@@ -222,7 +201,3 @@ fi
 %files init
 %defattr(644,root,root,755)
 %attr(754,root,root) %{_initrddir}/*
-
-%files layer7
-%defattr(644,root,root,755)
-%{_sysconfdir}/l7-protocols/*
