@@ -18,9 +18,9 @@
 iptables=/usr/sbin/iptables
 show "Loading iptables module"
 busy
-/sbin/modprobe iptables   || exit 1
-/sbin/modprobe ipt_filter || exit 1
-/sbin/modprobe ipt_nat    || exit 1
+/sbin/modprobe ip_tables      || exit 1
+/sbin/modprobe iptable_filter || exit 1
+/sbin/modprobe iptable_nat    || exit 1
 deltext ; ok
 
 show "Flush standard tables"
@@ -39,7 +39,7 @@ deltext ; ok
 
 #CHAINS=`iptables -n -L |perl -n -e '/Chain\s+(\S+)/ && !($1 =~ /^(INPUT|FORWARD|OUTPUT)$/) && print "$1 "'`
 CHAINS=`$iptables -n -L | awk '($1 ~ /^Chain/) && !($2 ~ /^(INPUT|OUTPUT|FORWARD)$/) {print $2}'`
-show Remove remaining chains: $CHAINS
+show "Remove remaining chains %s:" $CHAINS
 busy
 for chain in $CHAINS; do
   $iptables --flush $chain
@@ -48,11 +48,6 @@ done
 for chain in $CHAINS; do
   $iptables --delete-chain $chain
 done
-deltext ; ok
-
-show "Loading ip_defrag module"
-busy
-/sbin/modprobe forward-fragment || exit 1
 deltext ; ok
 
 # now this is tricky with ipchains you just had to deny forward and set
@@ -66,7 +61,6 @@ deltext ; ok
 
 show "Load modules for masquerading"
 busy
-/sbin/modprobe netfilter_dev    || exit 1
 /sbin/modprobe ip_conntrack     || exit 1
 /sbin/modprobe ip_conntrack_ftp || exit 1
 /sbin/modprobe ip_nat_ftp       || exit 1
@@ -74,19 +68,22 @@ deltext ; ok
 
 show "Load neccessary extension modules"
 busy
-/sbin/modprobe ipt_mac        || exit 1
-/sbin/modprobe ipt_icmp       || exit 1
-/sbin/modprobe ipt_tcp        || exit 1
-/sbin/modprobe ipt_udp        || exit 1
 /sbin/modprobe ipt_limit      || exit 1
+/sbin/modprobe ipt_mac        || exit 1
+/sbin/modprobe ipt_mark       || exit 1
 /sbin/modprobe ipt_multiport  || exit 1
+/sbin/modprobe ipt_owner      || exit 1
 /sbin/modprobe ipt_state      || exit 1
+/sbin/modprobe ipt_tos        || exit 1
 /sbin/modprobe ipt_unclean    || exit 1
 /sbin/modprobe ipt_LOG        || exit 1
-/sbin/modprobe ipt_QUEUE      || exit 1
-/sbin/modprobe ipt_REJECT     || exit 1
+/sbin/modprobe ipt_MARK       || exit 1
 /sbin/modprobe ipt_MASQUERADE || exit 1
+/sbin/modprobe ipt_MIRROR     || exit 1
 /sbin/modprobe ipt_REDIRECT   || exit 1
+/sbin/modprobe ipt_REJECT     || exit 1
+/sbin/modprobe ipt_TOS        || exit 1
+
 deltext ; ok
 
 show "Create a target for logging and dropping packets"
@@ -159,4 +156,3 @@ busy
 $iptables --policy INPUT ACCEPT
 $iptables --policy OUTPUT ACCEPT
 deltext ; ok
-
