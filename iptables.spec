@@ -4,6 +4,10 @@
 #
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietСw oraz system translacji adresСw (NAT)
+Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
+Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
+Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
+Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	1.2.6a
 Release:	2
@@ -36,6 +40,22 @@ Replacement of ipchains in 2.4 kernels.
 %description -l pl
 Wydajny system translacji adresСw (NAT) oraz system filtrowania
 pakietСw. Zamiennik ipchains w j╠drach 2.4
+
+%description -l pt_BR
+Esta И a ferramenta que controla o cСdigo de filtragem de pacotes do
+kernel 2.4, obsoletando ipchains. Com esta ferramenta vocЙ pode
+configurar filtros de pacotes, NAT, mascaramento (masquerading),
+regras dinБmicas (stateful inspection), etc.
+
+%description -l ru
+iptables управляют кодом фильтрации сетевых пакетов в ядре Linux. Они
+позволяют вам устанавливать межсетевые экраны (firewalls) и IP
+маскарадинг, и т.п.
+
+%description -l uk
+iptables управляють кодом ф╕льтрац╕╖ пакет╕в мереж╕ в ядр╕ Linux. Вони
+дозволяють вам встановлювати м╕жмережев╕ екрани (firewalls) та IP
+маскарадинг, тощо.
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
