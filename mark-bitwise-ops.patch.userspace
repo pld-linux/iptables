@@ -1,5 +1,5 @@
---- userspace/extensions/libipt_mark.c.old	Mon Mar 25 16:15:47 2002
-+++ userspace/extensions/libipt_mark.c	Mon Mar 25 16:06:36 2002
+--- userspace/extensions/libipt_mark.c.old	2002-09-20 17:25:13.000000000 +0200
++++ userspace/extensions/libipt_mark.c	2003-04-07 03:07:45.000000000 +0200
 @@ -14,13 +14,17 @@
  {
  	printf(
@@ -102,3 +102,45 @@
  }
  
  /* Prints out the matchinfo. */
+@@ -90,12 +109,15 @@
+ {
+ 	struct ipt_mark_info *info = (struct ipt_mark_info *)match->data;
+ 
+-	printf("MARK match ");
+-
++	printf("MARK ");
++	if (info->bit_op == IPT_MARK_BIT_OP_AND)
++		printf("& 0x%lx ", info->mask);
++	else
++		if (info->bit_op == IPT_MARK_BIT_OP_OR)
++			printf("| 0x%lx ", info->mask);
+ 	if (info->invert)
+-		printf("!");
+-	
+-	print_mark(info->mark, info->mask, numeric);
++		printf("! ");
++	printf("match 0x%lx ", info->mark);
+ }
+ 
+ /* Saves the union ipt_matchinfo in parsable form to stdout. */
+@@ -107,8 +129,18 @@
+ 	if (info->invert)
+ 		printf("! ");
+ 	
+-	printf("--mark ");
+-	print_mark(info->mark, info->mask, 0);
++	switch (info->bit_op)
++	{
++	case IPT_MARK_BIT_OP_AND :
++		printf("--markand 0x%lx/0x%lx ", info->mark, info->mask);
++		break;
++	case IPT_MARK_BIT_OP_OR :
++		printf("--markor 0x%lx/0x%lx ", info->mark, info->mask);
++		break;
++	case IPT_MARK_BIT_OP_NONE :
++		printf("--mark 0x%lx ", info->mark);
++		break;
++	}
+ }
+ 
+ static
