@@ -4,7 +4,7 @@
 #
 # Conditional build:
 %bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
-%bcond_without	howto 		# without documentation (HOWTOS) which needed TeX.
+%bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
 #
 %define		netfilter_snap		20040308
 %define		iptables_version	1.2.9
@@ -39,7 +39,7 @@ Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-gkh-fix.patch
 Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-1.2.9-ipt_p2p.patch
-%if %{with howto}
+%if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
@@ -136,7 +136,7 @@ ln -sf %{_kernelsrcdir}/include/asm-%{_arch} include/asm
 	all experimental \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG"
 
-%{?with_howto:%{__make} -C iptables-howtos}
+%{?with_doc:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -176,7 +176,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc 
-%{?with_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
+%{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
@@ -184,7 +184,7 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
-%{?with_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
+%{?with_doc:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
