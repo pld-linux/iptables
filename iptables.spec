@@ -130,7 +130,7 @@ iptables(8).
 ##%patch5 -p1
 
 # removed broken ...
-#%rm -f extensions/.set-test
+rm -f extensions/.u32-test
 
 chmod 755 extensions/.*-test*
 
