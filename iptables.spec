@@ -111,13 +111,13 @@ Requires:	%{name}
 Obsoletes:	firewall-init
 
 %description init
-Iptable-init is meant to provide an alternate way than firewall-init
+Iptables-init is meant to provide an alternate way than firewall-init
 to start and stop packet filtering through iptables(8).
 
 %description init -l pl
-Iptable-init ma na celu umozliwic alternatywny w stosunku do
-firewall-init sposób startowania i stopowania filtrów IP j±dra
-poprzez iptables(8).
+Iptablea-init ma na celu umozliwiæ alternatywny w stosunku do
+firewall-init sposób w³±czania i wy³±czania filtrów IP j±dra poprzez
+iptables(8).
 
 %prep
 %setup -q -a1
