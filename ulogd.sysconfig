@@ -1,2 +1,0 @@
-# Nice level for ulogd
-SERVICE_RUN_NICE_LEVEL="-1"
