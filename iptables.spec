@@ -35,6 +35,21 @@ An extensible NAT system, and an extensible packet filtering system.
 Wydajny system translacji adresów (NAT) oraz system filtrowania
 pakietów.
 
+%package ulogd-mysql
+Summary:	Mysql target for ulogd
+Group:		Networking/Daemons
+Group(pl):	Sieciowe/Serwery
+Requires:	mysql
+
+%description ulogd-mysql
+This packages is intended for passing packets from the kernel to userspace
+to do some logging there. It should work like that:
+
+- Register a target called ULOG with netfilter
+- if the target is hit:
+	- send the packet out using netlink multicast facility
+	- return NF_ACCEPT immediately
+
 %prep
 %setup -q -a1 -a3
 %patch0 -p1
@@ -87,7 +102,7 @@ ln -s ../rc.firewall $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc6.d/K91firewall
 
 mv -f netfilter_ULOG-%{ULOG_version}/README README.ulogd
 
-gzip -9nf README.ulogd $RPM_BUILD_ROOT%{_mandir}/man*/*
+gzip -9nf README.ulogd netfilter_ULOG-%{ULOG_version}/ulogd_MYSQL.sql
 
 strip --strip-unneeded $RPM_BUILD_ROOT{%{_libdir}/*/*.so,%{_sbindir}/*} || :
 strip --strip-unneeded $RPM_BUILD_ROOT%{_libdir}/*/*/* || :
@@ -129,8 +144,12 @@ fi
 
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/iptables/*.so
-%attr(755,root,root) %{_libdir}/iptables/ulogd/*.so
+%attr(755,root,root) %{_libdir}/iptables/ulogd/ulogd_[BO]*.so
 
 %attr(640,root,root) %ghost /var/log/*
 
 %{_mandir}/man*/*
+
+%files ulogd-mysql
+%doc netfilter_ULOG-%{ULOG_version}/ulogd_MYSQL.sql.gz
+%attr(755,root,root) %{_libdir}/iptables/ulogd/ulogd_MYSQL.so
