@@ -5,7 +5,7 @@
 #
 %define		netfilter_snap		20040629
 %define		iptables_version	1.2.11
-%define		llh_version		7:2.6.6.0-3
+%define		llh_version		7:2.6.7.0-2
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
