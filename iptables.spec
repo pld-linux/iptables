@@ -1,7 +1,7 @@
 #
 # Conditional build:
-%bcond_without patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel) 4
-%bcond_without howto		# without documentation (HOWTOS) which needed TeX. 5
+%bcond_without patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
+%bcond_without howto		# without documentation (HOWTOS) which needed TeX.
 #
 #%define		netfilter_snap	0
 %define		netfilter_snap	20031206
