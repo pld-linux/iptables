@@ -32,19 +32,19 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 %{?!_without_howto:BuildRequires:	tetex-latex}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-%if %{netfilter_snap} != 0
-%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
-%else
+#%%if %{netfilter_snap} != 0
+#%%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
+#%%else
 %{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
-%endif
+#%%endif
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%if %{netfilter_snap} != 0
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}-%{netfilter_snap}}
-%else
+#%%if %{netfilter_snap} != 0
+#%%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}-%{netfilter_snap}}
+#%%else
 %{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
-%endif
+#%%endif
 
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
