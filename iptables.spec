@@ -7,7 +7,7 @@ Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.2.7a
-%define		_rel	3
+%define		_rel	4
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -82,7 +82,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3}
+install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir},%{_mandir}/man3}
 
 echo ".so iptables-save.8" > ip6tables-save.8
 echo ".so iptables-restore.8" > ip6tables-restore.8
@@ -96,7 +96,7 @@ echo ".so iptables-restore.8" > ip6tables-restore.8
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/ip6tables.8
 
 # Devel stuff
-cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
+cp -a include/* $RPM_BUILD_ROOT%{_includedir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
@@ -120,5 +120,5 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %{?!_without_tex:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
-%{_includedir}/iptables
+%{_includedir}
 %{_mandir}/man3/*
