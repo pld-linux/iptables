@@ -3,7 +3,6 @@
 #		- update kernel-net-(ipt_)p2p and remove 1.2.9-ipt_p2p.patch
 #
 # Conditional build:
-%bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
 #
 %define		netfilter_snap		20040308
@@ -36,9 +35,8 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-gkh-fix.patch
-Patch2:		%{name}-dstlimit.patch
-Patch3:		%{name}-1.2.9-ipt_p2p.patch
+Patch1:		%{name}-dstlimit.patch
+Patch2:		%{name}-1.2.9-ipt_p2p.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -48,14 +46,12 @@ BuildRequires:	tetex-dvips
 %endif
 BuildRequires:	perl-base
 %if %{netfilter_snap} != 0
-%{?with_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
+BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}
+Requires:	kernel(netfilter) = %{netfilter_snap}
 %endif
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%if %{netfilter_snap} != 0
-%{?with_patchedkernel:Requires:	kernel(netfilter) = %{netfilter_snap}}
-%endif
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -116,10 +112,9 @@ iptables(8).
 
 %prep
 %setup -q -a1
-#%%patch0 -p1
-%patch1 -p0
+%patch0 -p1
+%patch1 -p1
 %patch2 -p1
-%patch3 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
@@ -128,8 +123,6 @@ chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
-ln -sf %{_kernelsrcdir}/include/asm-%{_arch} include/asm
-
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
 	LIBDIR="%{_libdir}" \
@@ -155,12 +148,9 @@ echo ".so iptables-restore.8" > ip6tables-restore.8
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/ip6tables.8
 
 # Devel stuff
-cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}/iptables
+cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
-
-##%{?with_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-##%{?with_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -186,7 +176,11 @@ fi
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
-%{_includedir}/iptables
+%{_includedir}/*.h
+%dir %{_includedir}/libipq
+%{_includedir}/libipq/*.h
+%dir %{_includedir}/libiptc
+%{_includedir}/libiptc/*.h
 %{_mandir}/man3/*
 
 %files init
