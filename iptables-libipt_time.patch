@@ -1,0 +1,15 @@
+--- ./extensions/libipt_time.c.org	Wed May  5 12:10:33 2004
++++ ./extensions/libipt_time.c	Tue May 25 11:46:53 2004
+@@ -452,10 +452,11 @@
+ static void
+ print_date(time_t date, char *command)
+ {
++	struct tm *t;
++
+ 	/* If it's default value, don't print..*/
+ 	if (((date == 0) || (date == LONG_MAX)) && (command != NULL))
+ 		return;
+-	struct tm *t;
+ 	t = localtime(&date);
+ 	if (command != NULL)
+ 		printf("%s %d:%d:%d:%d:%d:%d ", command, (t->tm_year + 1900), (t->tm_mon + 1),
