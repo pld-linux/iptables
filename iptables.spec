@@ -19,7 +19,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -179,10 +179,8 @@ fi
 %{?with_doc:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/*.h
-%dir %{_includedir}/libipq
-%{_includedir}/libipq/*.h
-%dir %{_includedir}/libiptc
-%{_includedir}/libiptc/*.h
+%dir %{_includedir}/libip*
+%{_includedir}/libip*/*.h
 %{_mandir}/man3/*
 
 %files init
