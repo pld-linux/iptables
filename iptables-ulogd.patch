@@ -94,3 +94,24 @@ diff -ur iptables-1.1.1.orig/netfilter_ULOG-0.2/ulogd/ulogd.c iptables-1.1.1/net
  #endif
  
  #ifndef ULOGD_NLGROUP
+--- iptables-1.1.1/netfilter_ULOG-0.2/ulogd/ulogd.c~	Tue Aug 15 23:09:17 2000
++++ iptables-1.1.1/netfilter_ULOG-0.2/ulogd/ulogd.c	Tue Aug 15 23:17:51 2000
+@@ -19,9 +19,6 @@
+ #include <libipulog/libipulog.h>
+ #include "ulogd.h"
+ 
+-#define MYBUFSIZ 2048
+-
+-
+ #define DEBUGP ulogd_error
+ 
+ #ifndef ULOGD_PLUGIN_DIR
+@@ -213,7 +210,7 @@
+ 	load_plugins();	
+ 	
+ 	/* allocate a receive buffer */
+-	buf = (unsigned char *) malloc(MYBUFSIZ);
++	buf = (unsigned char *) malloc(BUFSIZ);
+ 	
+ 	/* create ipulog handle */
+ 	h = ipulog_create_handle(ipulog_group2gmask(ULOGD_NLGROUP));
