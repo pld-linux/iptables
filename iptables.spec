@@ -3,7 +3,7 @@ Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.1.1
-Release:	2
+Release:	3
 License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
@@ -16,6 +16,7 @@ Source3:	ftp://ftp.sunbeam.franken.de/pub/netfilter/netfilter_ULOG-%{ULOG_versio
 Source4:	ulogd.init
 Source5:	ulogd.sysconfig
 Source6:	ulogd.logrotate
+Patch0:		%{name}-ulogd.patch
 BuildRequires:	sgml-tools
 #Requires:	kernel >= 2.4.0test4
 Obsoletes:	netfilter
@@ -33,35 +34,21 @@ pakietów.
 
 %prep
 %setup -q -a1 -a3
+%patch0 -p1
 
 %build
 %{__make} -C iptables-howtos NAT-HOWTO.html packet-filtering-HOWTO.html \
 	# netfilter-hacking-HOWTO.html networking-concepts-HOWTO.html
 %{__make} depend 2> /dev/null || :
-%{__make} COPT_FLAGS="$RPM_OPT_FLAGS -DIP6T_LIB_DIR=\\\"%{_libdir}/iptables\\\"" \
+%{__make} COPT_FLAGS="$RPM_OPT_FLAGS" \
 	LIBDIR="%{_libdir}" \
 	all
 
-cd netfilter_ULOG-%{ULOG_version}
-%{__make} -C iptables \
-	CFLAGS="$RPM_OPT_FLAGS -DNETFILTER_VERSION=\\\"%{version}\\\" -fPIC \
-	-I../../include -DIP6T_LIB_DIR=\\\"%{_libdir}/iptables\\\"" \
-	LIBDIR="%{_libdir}" \
-	libipt_ULOG.so
-
-%{__make} -C libipulog \
-	CFLAGS="$RPM_OPT_FLAGS -I. -I./include \
-	-DIP6T_LIB_DIR=\\\"%{_libdir}/iptables\\\"" \
-	LIBDIR="%{_libdir}" \
-	libipulog.o libipulog.a ulog_test
-
-%{__make} -C ulogd \
-	CFLAGS="$RPM_OPT_FLAGS -I. -I./include -I../libipulog/include \
-	-DIP6T_LIB_DIR=\\\"%{_libdir}/iptables\\\" \
-	-DULOGD_LOGFILE=\\\"/var/log/iptables.ulog\\\" \
-	-DULOGD_PLUGIN_DIR=\\\"%{_libdir}/iptables/ulogd\\\"" \
-	LIBDIR="%{_libdir}" \
-	all
+for i in iptables libipulog ulogd ; do
+	%{__make} -C netfilter_ULOG-%{ULOG_version}/$i \
+		COPT_FLAGS="$RPM_OPT_FLAGS" \
+		all
+done
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -101,15 +88,15 @@ gzip -9nf README.ulogd $RPM_BUILD_ROOT%{_mandir}/man*/*
 strip --strip-unneeded $RPM_BUILD_ROOT{%{_libdir}/*/*.so,%{_sbindir}/*} || :
 strip --strip-unneeded $RPM_BUILD_ROOT%{_libdir}/*/*/* || :
 
-touch $RPM_BUILD_ROOT/var/log/iptables.ulog
+touch $RPM_BUILD_ROOT/var/log/ulogd
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post
-if [ ! -f /var/log/iptables.ulog ]; then
-	touch /var/log/iptables.ulog
-	chmod 640 /var/log/iptables.ulog
+if [ ! -f /var/log/ulogd ]; then
+	touch /var/log/ulogd
+	chmod 640 /var/log/ulogd
 fi
 
 /sbin/chkconfig --add ulogd
