@@ -3,7 +3,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_snap			20041118
+%define		_snap			20050104
 %define		iptables_version	1.3.0
 %define		llh_version		7:2.6.9.1-1.4
 %define		name6			ip6tables
@@ -114,11 +114,11 @@ firewall-init sposobu w³±czania i wy³±czania filtrów IP j±dra poprzez
 iptables(8).
 
 %prep
-%setup -q -n %{name}-%{version}-%{_snap} -a1
+%setup -q -n %{name}-%{version}_%{_snap} -a1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
+##%%patch3 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
