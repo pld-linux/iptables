@@ -28,11 +28,11 @@ Patch12:	raw.patch.userspace
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-#%{!?_without_patchedkernel:BuildRequires:	kernel(netfilter) = 1.2.7a-%{netfilter_snap}}
+%{!?_without_patchedkernel:BuildRequires:	kernel(netfilter) = 1.2.7a-%{netfilter_snap}}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-#%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.7a-%{netfilter_snap}}
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.7a-%{netfilter_snap}}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -101,8 +101,8 @@ cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-#%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-#%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
