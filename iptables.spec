@@ -179,7 +179,7 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc KNOWN_BUGS %{!?_without_howto:iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
+%doc %{!?_without_howto:iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
