@@ -7,7 +7,7 @@
 %bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without	howto 		# without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20040225
+%define		netfilter_snap		20040304
 %define		iptables_version	1.2.9
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -22,7 +22,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	3
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
