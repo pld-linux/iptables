@@ -132,7 +132,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc KNOWN_BUGS
+%doc 
 %{?!_without_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 
 %attr(755,root,root) %{_sbindir}/*
