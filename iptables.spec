@@ -38,7 +38,7 @@ Patch4:		grsecurity-%{iptables_version}-iptables.patch
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
 Patch12:	raw.patch.ipv6.userspace
-Patch13:	iptables-1.2.8-ipt_p2p.patch
+Patch13:	iptables-1.2.9-ipt_p2p.patch
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
