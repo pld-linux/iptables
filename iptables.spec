@@ -4,7 +4,7 @@
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
 %define		netfilter_snap	0
-#%define		netfilter_snap	20030616
+# % define		netfilter_snap	20030616
 %define		iptables_version	1.2.8
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
