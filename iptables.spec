@@ -106,6 +106,7 @@ iptables.
 Summary:	Iptables init (RedHat style)
 Summary(pl):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
+Requires(post,preun):   /sbin/chkconfig
 Requires:	%{name}
 Obsoletes:	firewall-init
 
@@ -170,6 +171,12 @@ install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/iptables
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%post init
+/sbin/chkconfig --add %{name}
+
+%preun init
+/sbin/chkconfig --del %{name}
 
 %files
 %defattr(644,root,root,755)
