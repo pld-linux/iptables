@@ -6301,3 +6301,279 @@ diff -Nur iptables-1.3.1.org/include/linux/netfilter_ipv4/ipt_set.h iptables-1.3
 +};
 +
 +#endif /*_IPT_SET_H*/
+diff -Nur iptables-1.3.1.org/include/linux/netfilter_ipv4/ip_nat.h iptables-1.3.1/include/linux/netfilter_ipv4/ip_nat.h
+--- iptables-1.3.1.org/include/linux/netfilter_ipv4/ip_nat.h	1970-01-01 01:00:00.000000000 +0100
++++ iptables-1.3.1/include/linux/netfilter_ipv4/ip_nat.h	2005-03-16 01:09:20.000000000 +0100
+@@ -0,0 +1,87 @@
++#ifndef _IP_NAT_H
++#define _IP_NAT_H
++#include <linux/netfilter_ipv4.h>
++#include <linux/netfilter_ipv4/ip_conntrack_tuple.h>
++
++#define IP_NAT_MAPPING_TYPE_MAX_NAMELEN 16
++
++enum ip_nat_manip_type
++{
++	IP_NAT_MANIP_SRC,
++	IP_NAT_MANIP_DST
++};
++
++/* SRC manip occurs POST_ROUTING or LOCAL_IN */
++#define HOOK2MANIP(hooknum) ((hooknum) != NF_IP_POST_ROUTING && (hooknum) != NF_IP_LOCAL_IN)
++
++#define IP_NAT_RANGE_MAP_IPS 1
++#define IP_NAT_RANGE_PROTO_SPECIFIED 2
++
++/* NAT sequence number modifications */
++struct ip_nat_seq {
++	/* position of the last TCP sequence number 
++	 * modification (if any) */
++	u_int32_t correction_pos;
++	/* sequence number offset before and after last modification */
++	int32_t offset_before, offset_after;
++};
++
++/* Single range specification. */
++struct ip_nat_range
++{
++	/* Set to OR of flags above. */
++	unsigned int flags;
++
++	/* Inclusive: network order. */
++	u_int32_t min_ip, max_ip;
++
++	/* Inclusive: network order */
++	union ip_conntrack_manip_proto min, max;
++};
++
++/* For backwards compat: don't use in modern code. */
++struct ip_nat_multi_range_compat
++{
++	unsigned int rangesize; /* Must be 1. */
++
++	/* hangs off end. */
++	struct ip_nat_range range[1];
++};
++
++#ifdef __KERNEL__
++#include <linux/list.h>
++#include <linux/netfilter_ipv4/lockhelp.h>
++
++/* Protects NAT hash tables, and NAT-private part of conntracks. */
++DECLARE_RWLOCK_EXTERN(ip_nat_lock);
++
++/* The structure embedded in the conntrack structure. */
++struct ip_nat_info
++{
++	struct list_head bysource;
++
++	/* Helper (NULL if none). */
++	struct ip_nat_helper *helper;
++
++	struct ip_nat_seq seq[IP_CT_DIR_MAX];
++};
++
++struct ip_conntrack;
++
++/* Set up the info structure to map into this range. */
++extern unsigned int ip_nat_setup_info(struct ip_conntrack *conntrack,
++				      const struct ip_nat_range *range,
++				      unsigned int hooknum);
++
++/* Is this tuple already taken? (not by us)*/
++extern int ip_nat_used_tuple(const struct ip_conntrack_tuple *tuple,
++			     const struct ip_conntrack *ignored_conntrack);
++
++/* Calculate relative checksum. */
++extern u_int16_t ip_nat_cheat_check(u_int32_t oldvalinv,
++				    u_int32_t newval,
++				    u_int16_t oldcheck);
++#else  /* !__KERNEL__: iptables wants this to compile. */
++#define ip_nat_multi_range ip_nat_multi_range_compat
++#endif /*__KERNEL__*/
++#endif
+diff -Nur iptables-1.3.1.org/include/linux/netfilter_ipv4/ip_queue.h iptables-1.3.1/include/linux/netfilter_ipv4/ip_queue.h
+--- iptables-1.3.1.org/include/linux/netfilter_ipv4/ip_queue.h	1970-01-01 01:00:00.000000000 +0100
++++ iptables-1.3.1/include/linux/netfilter_ipv4/ip_queue.h	2005-03-17 10:40:29.000000000 +0100
+@@ -0,0 +1,83 @@
++/*
++ * This is a module which is used for queueing IPv4 packets and
++ * communicating with userspace via netlink.
++ *
++ * (C) 2000 James Morris, this code is GPL.
++ */
++#ifndef _IP_QUEUE_H
++#define _IP_QUEUE_H
++
++#ifdef __KERNEL__
++#ifdef DEBUG_IPQ
++#define QDEBUG(x...) printk(KERN_DEBUG ## x)
++#else
++#define QDEBUG(x...)
++#endif  /* DEBUG_IPQ */
++#else
++#include <net/if.h>
++#endif	/* ! __KERNEL__ */
++
++/* Messages sent from kernel */
++typedef struct ipq_packet_msg {
++	unsigned long packet_id;	/* ID of queued packet */
++	unsigned long mark;		/* Netfilter mark value */
++	long timestamp_sec;		/* Packet arrival time (seconds) */
++	long timestamp_usec;		/* Packet arrvial time (+useconds) */
++	unsigned int hook;		/* Netfilter hook we rode in on */
++	char indev_name[IFNAMSIZ];	/* Name of incoming interface */
++	char outdev_name[IFNAMSIZ];	/* Name of outgoing interface */
++	unsigned short hw_protocol;	/* Hardware protocol (network order) */
++	unsigned short hw_type;		/* Hardware type */
++	unsigned char hw_addrlen;	/* Hardware address length */
++	unsigned char hw_addr[8];	/* Hardware address */
++	size_t data_len;		/* Length of packet data */
++	unsigned char payload[0];	/* Optional packet data */
++} ipq_packet_msg_t;
++
++/* Messages sent from userspace */
++typedef struct ipq_mode_msg {
++	unsigned char value;		/* Requested mode */
++	size_t range;			/* Optional range of packet requested */
++} ipq_mode_msg_t;
++
++typedef struct ipq_verdict_msg {
++	unsigned int value;		/* Verdict to hand to netfilter */
++	unsigned long id;		/* Packet ID for this verdict */
++	size_t data_len;		/* Length of replacement data */
++	unsigned char payload[0];	/* Optional replacement packet */
++} ipq_verdict_msg_t;
++
++typedef struct ipq_vwmark_msg {
++	unsigned int value;		/* Verdict to hand to netfilter */
++	unsigned long id;		/* Packet ID for this verdict */
++	size_t data_len;		/* Length of replacement data */
++	unsigned char payload[0];	/* Optional replacement packet */
++	unsigned long nfmark;		/* Mark for the Packet */
++} ipq_vwmark_msg_t;
++
++
++typedef struct ipq_peer_msg {
++	union {
++		ipq_verdict_msg_t verdict;
++		ipq_mode_msg_t mode;
++                ipq_vwmark_msg_t vwmark;
++	} msg;
++} ipq_peer_msg_t;
++
++/* Packet delivery modes */
++enum {
++	IPQ_COPY_NONE,		/* Initial mode, packets are dropped */
++	IPQ_COPY_META,		/* Copy metadata */
++	IPQ_COPY_PACKET		/* Copy metadata + packet (range) */
++};
++#define IPQ_COPY_MAX IPQ_COPY_PACKET
++
++/* Types of messages */
++#define IPQM_BASE	0x10	/* standard netlink messages below this */
++#define IPQM_MODE	(IPQM_BASE + 1)		/* Mode request from peer */
++#define IPQM_VERDICT	(IPQM_BASE + 2)		/* Verdict from peer */ 
++#define IPQM_PACKET	(IPQM_BASE + 3)		/* Packet from kernel */
++#define IPQM_VWMARK	(IPQM_BASE + 4)		/* Verdict and mark from peer */
++#define IPQM_MAX	(IPQM_BASE + 5)
++
++#endif /*_IP_QUEUE_H*/
+diff -Nur iptables-1.3.1.org/include/linux/netfilter_ipv4/ipt_ROUTE.h iptables-1.3.1/include/linux/netfilter_ipv4/ipt_ROUTE.h
+--- iptables-1.3.1.org/include/linux/netfilter_ipv4/ipt_ROUTE.h	1970-01-01 01:00:00.000000000 +0100
++++ iptables-1.3.1/include/linux/netfilter_ipv4/ipt_ROUTE.h	2005-03-17 10:40:29.000000000 +0100
+@@ -0,0 +1,23 @@
++/* Header file for iptables ipt_ROUTE target
++ *
++ * (C) 2002 by Cédric de Launois <delaunois@info.ucl.ac.be>
++ *
++ * This software is distributed under GNU GPL v2, 1991
++ */
++#ifndef _IPT_ROUTE_H_target
++#define _IPT_ROUTE_H_target
++
++#define IPT_ROUTE_IFNAMSIZ 16
++
++struct ipt_route_target_info {
++	char      oif[IPT_ROUTE_IFNAMSIZ];      /* Output Interface Name */
++	char      iif[IPT_ROUTE_IFNAMSIZ];      /* Input Interface Name  */
++	u_int32_t gw;                           /* IP address of gateway */
++	u_int8_t  flags;
++};
++
++/* Values for "flags" field */
++#define IPT_ROUTE_CONTINUE        0x01
++#define IPT_ROUTE_TEE             0x02
++
++#endif /*_IPT_ROUTE_H_target*/
+diff -Nur iptables-1.3.1.org/include/linux/netfilter_ipv4/ipt_psd.h iptables-1.3.1/include/linux/netfilter_ipv4/ipt_psd.h
+--- iptables-1.3.1.org/include/linux/netfilter_ipv4/ipt_psd.h	1970-01-01 01:00:00.000000000 +0100
++++ iptables-1.3.1/include/linux/netfilter_ipv4/ipt_psd.h	2005-03-17 10:40:29.000000000 +0100
+@@ -0,0 +1,40 @@
++#ifndef _IPT_PSD_H
++#define _IPT_PSD_H
++
++#include <linux/param.h>
++#include <linux/types.h>
++
++/*
++ * High port numbers have a lower weight to reduce the frequency of false
++ * positives, such as from passive mode FTP transfers.
++ */
++#define PORT_WEIGHT_PRIV		3
++#define PORT_WEIGHT_HIGH		1
++
++/*
++ * Port scan detection thresholds: at least COUNT ports need to be scanned
++ * from the same source, with no longer than DELAY ticks between ports.
++ */
++#define SCAN_MIN_COUNT			7
++#define SCAN_MAX_COUNT			(SCAN_MIN_COUNT * PORT_WEIGHT_PRIV)
++#define SCAN_WEIGHT_THRESHOLD		SCAN_MAX_COUNT
++#define SCAN_DELAY_THRESHOLD		(300) /* old usage of HZ here was erroneously and broke under uml */
++
++/*
++ * Keep track of up to LIST_SIZE source addresses, using a hash table of
++ * HASH_SIZE entries for faster lookups, but limiting hash collisions to
++ * HASH_MAX source addresses per the same hash value.
++ */
++#define LIST_SIZE			0x100
++#define HASH_LOG			9
++#define HASH_SIZE			(1 << HASH_LOG)
++#define HASH_MAX			0x10
++
++struct ipt_psd_info {
++	unsigned int weight_threshold;
++	unsigned int delay_threshold;
++	unsigned short lo_ports_weight;
++	unsigned short hi_ports_weight;
++};
++
++#endif /*_IPT_PSD_H*/
+diff -Nur iptables-1.3.1.org/include/linux/netfilter_ipv6/ip6t_ROUTE.h iptables-1.3.1/include/linux/netfilter_ipv6/ip6t_ROUTE.h
+--- iptables-1.3.1.org/include/linux/netfilter_ipv6/ip6t_ROUTE.h	1970-01-01 01:00:00.000000000 +0100
++++ iptables-1.3.1/include/linux/netfilter_ipv6/ip6t_ROUTE.h	2005-03-17 10:40:29.000000000 +0100
+@@ -0,0 +1,23 @@
++/* Header file for iptables ip6t_ROUTE target
++ *
++ * (C) 2003 by Cédric de Launois <delaunois@info.ucl.ac.be>
++ *
++ * This software is distributed under GNU GPL v2, 1991
++ */
++#ifndef _IPT_ROUTE_H_target
++#define _IPT_ROUTE_H_target
++
++#define IP6T_ROUTE_IFNAMSIZ 16
++
++struct ip6t_route_target_info {
++	char      oif[IP6T_ROUTE_IFNAMSIZ];     /* Output Interface Name */
++	char      iif[IP6T_ROUTE_IFNAMSIZ];     /* Input Interface Name  */
++	u_int32_t gw[4];                        /* IPv6 address of gateway */
++	u_int8_t  flags;
++};
++
++/* Values for "flags" field */
++#define IP6T_ROUTE_CONTINUE        0x01
++#define IP6T_ROUTE_TEE             0x02
++
++#endif /*_IP6T_ROUTE_H_target*/
