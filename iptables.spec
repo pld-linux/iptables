@@ -22,11 +22,10 @@ Patch1:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
 %{?!_without_tex:BuildRequires:	sgmls}
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
-BuildRequires:	perl
-BuildRequires: groff
-BuildRequires: tetex-format-latex
-BuildRequires: tetex-tex-babel
-
+BuildRequires:	%{__perl}
+BuildRequires:	groff
+BuildRequires:	tetex-format-latex
+BuildRequires:	tetex-tex-babel
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
@@ -63,7 +62,7 @@ iptables.
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
-perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
+%{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
 %{__make} depend 2> /dev/null || :
