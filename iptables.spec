@@ -1,10 +1,11 @@
 #
 # Conditional build:
-%bcond_without patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
-%bcond_without howto 		# without documentation (HOWTOS) which needed TeX.
+%bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
+%bcond_without	howto 		# without documentation (HOWTOS) which needed TeX.
 #
 %define		netfilter_snap		20040225
 %define		iptables_version	1.2.9
+#
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
@@ -30,16 +31,18 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 %endif
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
+Source2:	%{name}.init
 Patch1:		%{name}-1.2.9-ipt_p2p.patch
 Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-include_path.patch
-Patch10:	%{name}-gkh-fix.patch
-
-%{?with_howto:BuildRequires:	sgml-tools}
-%{?with_howto:BuildRequires:	sgmls}
-%{?with_howto:BuildRequires:	tetex-latex}
-%{?with_howto:BuildRequires:	tetex-tex-babel}
-%{?with_howto:BuildRequires:	tetex-dvips}
+Patch4:		%{name}-gkh-fix.patch
+%if %{with howto}
+BuildRequires:	sgml-tools
+BuildRequires:	sgmls
+BuildRequires:	tetex-latex
+BuildRequires:	tetex-tex-babel
+BuildRequires:	tetex-dvips
+%endif
 BuildRequires:	perl-base
 %if %{netfilter_snap} != 0
 %{?with_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
@@ -50,11 +53,8 @@ Obsoletes:	ipchains
 %if %{netfilter_snap} != 0
 %{?with_patchedkernel:Requires:	kernel(netfilter) = %{netfilter_snap}}
 %endif
-
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-%define		_sysconfdir	/etc
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
@@ -84,7 +84,7 @@ iptables ÕÐÒÁ×ÌÑÀÔØ ËÏÄÏÍ Æ¦ÌØÔÒÁÃ¦§ ÐÁËÅÔ¦× ÍÅÒÅÖ¦ × ÑÄÒ¦ Linux. ÷ÏÎÉ
 Summary:	Libraries and headers for developing iptables extensions
 Summary(pl):	Biblioteki i nag³ówki do tworzenia rozszerzeñ iptables
 Group:		Development/Libraries
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{version}-%{release}
 
 %description devel
 Libraries and headers for developing iptables extensions.
@@ -93,16 +93,30 @@ Libraries and headers for developing iptables extensions.
 Biblioteki i pliki nag³ówkowe niezbêdne do tworzenia rozszerzeñ dla
 iptables.
 
+%package init
+Summary:	Iptables init (RedHat style)
+Summary(pl):	Iptables init (w stylu RedHata)
+Group:		Networking/Admin
+PreReq:		rc-scripts
+Requires(post,preun):   /sbin/chkconfig
+Requires:	%{name} = %{version}-%{release}
+Obsoletes:	firewall-init
+
+%description init
+Iptables-init is meant to provide an alternate way than firewall-init
+to start and stop packet filtering through iptables(8).
+
+%description init -l pl
+Iptablea-init ma na celu udostêpnienie alternatywnego w stosunku do
+firewall-init sposobu w³±czania i wy³±czania filtrów IP j±dra poprzez
+iptables(8).
+
 %prep
 %setup -q -a1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
-%patch10 -p0
-
-#%%patch2 -p1
-#%%patch3 -p1
-#%%patch4 -p1
+%patch4 -p0
 
 # removed broken ...
 #%rm -f extensions/.set-test
@@ -111,20 +125,22 @@ chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
-rm -f include/asm
-ln -s %{_kernelsrcdir}/include/asm-%{_arch} include/asm
+#rm -f include/asm
+#ln -s %{_kernelsrcdir}/include/asm-%{_arch} include/asm
 
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
 	LIBDIR="%{_libdir}" \
-	all experimental
-#	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
+	all experimental \
+	COPT_FLAGS="%{rpmcflags}"
+#	-D%{!?debug:N}DEBUG"
 
 %{?with_howto:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3}
+install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3,%{_initrddir}}
+install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/iptables
 
 echo ".so iptables-save.8" > ip6tables-save.8
 echo ".so iptables-restore.8" > ip6tables-restore.8
@@ -138,7 +154,7 @@ echo ".so iptables-restore.8" > ip6tables-restore.8
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/ip6tables.8
 
 # Devel stuff
-cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
+cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}/iptables
 #install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
@@ -148,15 +164,21 @@ install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post init
+/sbin/chkconfig --add %{name}
+
+%preun init
+if [ "$1" = "0" ]; then
+	/sbin/chkconfig --del %{name}
+fi
+
 %files
 %defattr(644,root,root,755)
 %doc 
 %{?with_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
-
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
-
 %{_mandir}/man8/*
 
 %files devel
@@ -165,3 +187,7 @@ rm -rf $RPM_BUILD_ROOT
 #%%{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
+
+%files init
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_initrddir}/iptables
