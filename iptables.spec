@@ -3,7 +3,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_snap			20050313
+%define		_snap			20050405
 %define		iptables_version	1.3.1
 %define		llh_version		7:2.6.10.0-1
 %define		name6			ip6tables
@@ -20,14 +20,15 @@ Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
 Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
-Version:	%{iptables_version}
+Version:	%{iptables_version}_%{_snap}
 %define		_rel	1
 Release:	%{_snap}.%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 #Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/iptables-%{version}-%{_snap}.tar.bz2
-Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	c3358a3bd0d7755df0b64a5063db296b
+Source0:	%{name}-%{iptables_version}_%%{_snap}.tar.bz2
+# Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+## Source0-md5:	c3358a3bd0d7755df0b64a5063db296b
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -121,7 +122,7 @@ firewall-init sposobu wЁ╠czania i wyЁ╠czania filtrСw IP j╠dra poprzez
 iptables(8).
 
 %prep
-%setup -q -n %{name}-%{version} -a1
+%setup -q -a1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
