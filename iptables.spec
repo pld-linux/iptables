@@ -5,8 +5,8 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.7
-Release:	0.2
+Version:	1.2.6a
+Release:	1
 License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
@@ -16,19 +16,14 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
 Patch1:		%{name}-log.patch
 Patch2:		%{name}-prestate.patch
-# patches from netfilter
-Patch10:	ipt_REJECT-fake-source.patch.userspace
-Patch11:	mark-bitwise-ops.patch.userspace
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-dvips
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%{!?_without_patchedkernel:Requires:	kernel_netfilter = 1.2.7}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -59,9 +54,7 @@ iptables.
 %setup -q -a1
 %patch0 -p1
 %{!?_without_patchedkernel:%patch1 -p1}
-#%{!?_without_patchedkernel:%patch2 -p1}
-%{!?_without_patchedkernel:%patch10 -p0}
-%{!?_without_patchedkernel:%patch11 -p0}
+%{!?_without_patchedkernel:%patch2 -p1}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
