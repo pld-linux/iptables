@@ -1,0 +1,4996 @@
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/INCOMPATIBILITIES userspace/INCOMPATIBILITIES
+--- iptables-1.2.8/INCOMPATIBILITIES	Thu Jan  1 01:00:00 1970
++++ userspace/INCOMPATIBILITIES	Sat May 24 13:44:18 2003
+@@ -0,0 +1,6 @@
++INCOMPATIBILITIES:
++
++- The REJECT target has an '--reject-with admin-prohib' option which used
++  with kernels that do not support it, will result in a plain DROP instead
++  of REJECT.  Use with caution.
++  Kernels that do support it:
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.IPMARK-test userspace/extensions/.IPMARK-test
+--- iptables-1.2.8/extensions/.IPMARK-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.IPMARK-test	Sat May 31 19:31:31 2003
+@@ -0,0 +1,3 @@
++#!/bin/sh
++# True if IPMARK patch is applied.
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_IPMARK.h ] && echo IPMARK
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.NETLINK-test userspace/extensions/.NETLINK-test
+--- iptables-1.2.8/extensions/.NETLINK-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.NETLINK-test	Thu Feb 15 09:05:09 2001
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_NETLINK.c ] && echo NETLINK
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.NETLINK.test userspace/extensions/.NETLINK.test
+--- iptables-1.2.8/extensions/.NETLINK.test	Thu Feb 15 09:05:09 2001
++++ userspace/extensions/.NETLINK.test	Thu Jan  1 01:00:00 1970
+@@ -1,2 +0,0 @@
+-#! /bin/sh
+-[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_NETLINK.c ] && echo NETLINK
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.NOTRACK-test userspace/extensions/.NOTRACK-test
+--- iptables-1.2.8/extensions/.NOTRACK-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.NOTRACK-test	Wed May 21 12:31:08 2003
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_NOTRACK.c ] && echo NOTRACK
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.TRACE-test userspace/extensions/.TRACE-test
+--- iptables-1.2.8/extensions/.TRACE-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.TRACE-test	Wed May 21 12:31:08 2003
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_TRACE.c ] && echo TRACE
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.TRACE-test6 userspace/extensions/.TRACE-test6
+--- iptables-1.2.8/extensions/.TRACE-test6	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.TRACE-test6	Wed May 21 12:31:08 2003
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/net/ipv4/netfilter/ip6t_TRACE.c ] && echo TRACE
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.XOR-test userspace/extensions/.XOR-test
+--- iptables-1.2.8/extensions/.XOR-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.XOR-test	Sat May 31 19:11:49 2003
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_XOR.c ] && echo XOR
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.addrtype-test userspace/extensions/.addrtype-test
+--- iptables-1.2.8/extensions/.addrtype-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.addrtype-test	Wed May  7 18:51:40 2003
+@@ -0,0 +1,5 @@
++#!/bin/bash
++
++if test -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_addrtype.h; then
++	echo "addrtype"
++fi
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.connbytes-test userspace/extensions/.connbytes-test
+--- iptables-1.2.8/extensions/.connbytes-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.connbytes-test	Thu Jun 19 14:23:37 2003
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_connbytes.c ] && echo connbytes
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.iprange-test userspace/extensions/.iprange-test
+--- iptables-1.2.8/extensions/.iprange-test	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.iprange-test	Wed Apr 23 15:27:09 2003
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_iprange.h ] && echo iprange
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.nth-test6 userspace/extensions/.nth-test6
+--- iptables-1.2.8/extensions/.nth-test6	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.nth-test6	Sat May  3 15:55:06 2003
+@@ -0,0 +1,3 @@
++#!/bin/sh
++# True if nth is applied.
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_nth.h ] && echo nth
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/.random-test6 userspace/extensions/.random-test6
+--- iptables-1.2.8/extensions/.random-test6	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/.random-test6	Sat May  3 15:46:18 2003
+@@ -0,0 +1,3 @@
++#!/bin/sh
++# True if random is applied.
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_random.h ] && echo random
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/Makefile userspace/extensions/Makefile
+--- iptables-1.2.8/extensions/Makefile	Wed Mar  5 12:39:31 2003
++++ userspace/extensions/Makefile	Thu May 22 16:33:34 2003
+@@ -5,7 +5,7 @@
+ # header files are present in the include/linux directory of this iptables
+ # package (HW)
+ #
+-PF_EXT_SLIB:=ah conntrack dscp ecn esp helper stealth icmp length limit mac mark multiport owner physdev pkttype rpc standard state tcp tcpmss tos ttl udp unclean DNAT DSCP ECN LOG MARK MASQUERADE MIRROR REDIRECT REJECT SAME SNAT TARPIT TCPMSS TOS TTL ULOG IMQ
++PF_EXT_SLIB:=ah connlimit conntrack dscp ecn esp helper stealth icmp length limit mac mark multiport owner physdev pkttype rpc standard state tcp tcpmss tos ttl udp unclean DNAT DSCP ECN LOG MARK MASQUERADE MIRROR REDIRECT REJECT SAME SNAT TARPIT TCPMSS TOS TTL ULOG IMQ
+ PF6_EXT_SLIB:=eui64 hl icmpv6 length limit mac mark multiport owner standard tcp udp HL LOG MARK
+ 
+ # Optionals
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_LOG.c userspace/extensions/libip6t_LOG.c
+--- iptables-1.2.8/extensions/libip6t_LOG.c	Sat Sep  7 16:31:01 2002
++++ userspace/extensions/libip6t_LOG.c	Tue Jul 15 15:29:20 2003
+@@ -230,16 +230,8 @@
+ 	if (strcmp(loginfo->prefix, "") != 0)
+ 		printf("--log-prefix \"%s\" ", loginfo->prefix);
+ 
+-	if (loginfo->level != LOG_DEFAULT_LEVEL) {
+-		for (i = 0;
+-		     i < sizeof(ip6t_log_names) / sizeof(struct ip6t_log_names);
+-		     i++) {
+-			if (loginfo->level == ip6t_log_names[i].level) {
+-				printf("--log-level %s ", ip6t_log_names[i].name);
+-				break;
+-			}
+-        }
+-    }
++	if (loginfo->level != LOG_DEFAULT_LEVEL)
++		printf("--log-level %d ", loginfo->level);
+ 
+ 	if (loginfo->logflags & IP6T_LOG_TCPSEQ)
+ 		printf("--log-tcp-sequence ");
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_TRACE.c userspace/extensions/libip6t_TRACE.c
+--- iptables-1.2.8/extensions/libip6t_TRACE.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libip6t_TRACE.c	Wed May 21 12:31:08 2003
+@@ -0,0 +1,63 @@
++/* Shared library add-on to iptables to add TRACE target support. */
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++
++#include <ip6tables.h>
++#include <linux/netfilter_ipv6/ip6_tables.h>
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"TRACE target v%s takes no options\n",
++IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ 0 }
++};
++
++/* Initialize the target. */
++static void
++init(struct ip6t_entry_target *t, unsigned int *nfcache)
++{
++}
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ip6t_entry *entry,
++      struct ip6t_entry_target **target)
++{
++	return 0;
++}
++
++static void
++final_check(unsigned int flags)
++{
++}
++
++static
++struct ip6tables_target trace
++= {	.next = NULL,
++	.name = "TRACE",
++	.version = IPTABLES_VERSION,
++	.size = IP6T_ALIGN(0),
++	.userspacesize = IP6T_ALIGN(0),
++	.help = &help,
++	.init = &init,
++	.parse = &parse,
++	.final_check = &final_check,
++	.print = NULL, /* print */
++	.save = NULL, /* save */
++	.extra_opts = opts
++};
++
++void _init(void)
++{
++	register_target6(&trace);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_condition.c userspace/extensions/libip6t_condition.c
+--- iptables-1.2.8/extensions/libip6t_condition.c	Wed Mar 26 15:42:35 2003
++++ userspace/extensions/libip6t_condition.c	Thu May 22 16:33:34 2003
+@@ -1,3 +1,4 @@
++/* Shared library add-on to ip6tables for condition match */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -39,13 +40,13 @@
+ 	struct condition6_info *info =
+ 	    (struct condition6_info *) (*match)->data;
+ 
+-	check_inverse(optarg, &invert, &optind, 0);
+-
+ 	if (c == 'X') {
+ 		if (*flags)
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Can't specify multiple conditions");
+ 
++		check_inverse(optarg, &invert, &optind, 0);
++
+ 		if (strlen(argv[optind - 1]) < CONDITION6_NAME_LEN)
+ 			strcpy(info->name, argv[optind - 1]);
+ 		else
+@@ -88,7 +89,7 @@
+ 	const struct condition6_info *info =
+ 	    (const struct condition6_info *) match->data;
+ 
+-	printf("--condition %s%s ", (info->invert) ? "! " : "", info->name);
++	printf("--condition %s\"%s\" ", (info->invert) ? "! " : "", info->name);
+ }
+ 
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_fuzzy.c userspace/extensions/libip6t_fuzzy.c
+--- iptables-1.2.8/extensions/libip6t_fuzzy.c	Fri Apr 11 12:30:36 2003
++++ userspace/extensions/libip6t_fuzzy.c	Mon Jun 16 13:39:36 2003
+@@ -7,6 +7,9 @@
+ 
+ 2002-08-07 Hime Aguiar e Oliveira Jr. <hime@engineer.com> : Initial version.
+ 2003-04-08 Maciej Soltysiak <solt@dns.toxicfilms.tv> : IPv6 Port
++2003-06-09 Hime Aguiar e Oliveira Jr. <hime@engineer.com> : Bug corrections in
++the save function , thanks to information given by Jean-Francois Patenaude.
++
+ */
+ 
+ #include <stdio.h>
+@@ -131,8 +134,8 @@
+ 	const struct ip6t_fuzzy_info *fuzzyinfo
+ 		= (const struct ip6t_fuzzy_info *)match->data;
+ 
+-	printf("--upper-limit %u ",fuzzyinfo->minimum_rate);
+-	printf("--lower-limit %u ",fuzzyinfo->maximum_rate);
++	printf("--lower-limit %u ",fuzzyinfo->minimum_rate);
++	printf("--upper-limit %u ",fuzzyinfo->maximum_rate);
+ 
+ }
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_hl.c userspace/extensions/libip6t_hl.c
+--- iptables-1.2.8/extensions/libip6t_hl.c	Wed Jan  8 10:14:20 2003
++++ userspace/extensions/libip6t_hl.c	Thu May 22 16:33:34 2003
+@@ -3,6 +3,7 @@
+  * Maciej Soltysiak <solt@dns.toxicfilms.tv>
+  * Based on HW's ttl match
+  * This program is released under the terms of GNU GPL
++ * Cleanups by Stephane Ouellette <ouellettes@videotron.ca>
+  */
+ 
+ #include <stdio.h>
+@@ -18,7 +19,7 @@
+ {
+ 	printf(
+ "HL match v%s options:\n"
+-"  --hl-eq value	Match hop limit value\n"
++"  --hl-eq [!] value	Match hop limit value\n"
+ "  --hl-lt value	Match HL < value\n"
+ "  --hl-gt value	Match HL > value\n"
+ , IPTABLES_VERSION);
+@@ -81,7 +82,6 @@
+ 			break;
+ 		default:
+ 			return 0;
+-
+ 	}
+ 
+ 	return 1;
+@@ -92,82 +92,61 @@
+ 	if (!flags) 
+ 		exit_error(PARAMETER_PROBLEM,
+ 			"HL match: You must specify one of "
+-			"`--hl-eq', `--hl-lt', `--hl-gt");
++			"`--hl-eq', `--hl-lt', `--hl-gt'");
+ }
+ 
+ static void print(const struct ip6t_ip6 *ip, 
+ 		const struct ip6t_entry_match *match,
+ 		int numeric)
+ {
++	static const char *op[] = {
++		[IP6T_HL_EQ] = "==",
++		[IP6T_HL_NE] = "!=",
++		[IP6T_HL_LT] = "<",
++		[IP6T_HL_GT] = ">" };
++
+ 	const struct ip6t_hl_info *info = 
+ 		(struct ip6t_hl_info *) match->data;
+ 
+-	printf("HL match ");
+-	switch (info->mode) {
+-		case IP6T_HL_EQ:
+-			printf("HL == ");
+-			break;
+-		case IP6T_HL_NE:
+-			printf("HL != ");
+-			break;
+-		case IP6T_HL_LT:
+-			printf("HL < ");
+-			break;
+-		case IP6T_HL_GT:
+-			printf("HL > ");
+-			break;
+-	}
+-	printf("%u ", info->hop_limit);
++	printf("HL match HL %s %u ", op[info->mode], info->hop_limit);
+ }
+ 
+ static void save(const struct ip6t_ip6 *ip, 
+ 		const struct ip6t_entry_match *match)
+ {
++	static const char *op[] = {
++		[IP6T_HL_EQ] = "eq",
++		[IP6T_HL_NE] = "eq !",
++		[IP6T_HL_LT] = "lt",
++		[IP6T_HL_GT] = "gt" };
++
+ 	const struct ip6t_hl_info *info =
+ 		(struct ip6t_hl_info *) match->data;
+ 
+-	switch (info->mode) {
+-		case IP6T_HL_EQ:
+-			printf("--hl-eq ");
+-			break;
+-		case IP6T_HL_NE:
+-			printf("! --hl-eq ");
+-			break;
+-		case IP6T_HL_LT:
+-			printf("--hl-lt ");
+-			break;
+-		case IP6T_HL_GT:
+-			printf("--hl-gt ");
+-			break;
+-		default:
+-			/* error */
+-			break;
+-	}
+-	printf("%u ", info->hop_limit);
++	printf("--hl-%s %u ", op[info->mode], info->hop_limit);
+ }
+ 
+ static struct option opts[] = {
+-	{ "hl", 1, 0, '2' },
+-	{ "hl-eq", 1, 0, '2'},
+-	{ "hl-lt", 1, 0, '3'},
+-	{ "hl-gt", 1, 0, '4'},
++	{ .name = "hl",    .has_arg = 1, .flag = 0, .val = '2' },
++	{ .name = "hl-eq", .has_arg = 1, .flag = 0, .val = '2' },
++	{ .name = "hl-lt", .has_arg = 1, .flag = 0, .val = '3' },
++	{ .name = "hl-gt", .has_arg = 1, .flag = 0, .val = '4' },
+ 	{ 0 }
+ };
+ 
+ static
+ struct ip6tables_match hl = {
+-	NULL,
+-	"hl",
+-	IPTABLES_VERSION,
+-	IP6T_ALIGN(sizeof(struct ip6t_hl_info)),
+-	IP6T_ALIGN(sizeof(struct ip6t_hl_info)),
+-	&help,
+-	&init,
+-	&parse,
+-	&final_check,
+-	&print,
+-	&save,
+-	opts
++	.name          = "hl",
++	.version       = IPTABLES_VERSION,
++	.size          = IP6T_ALIGN(sizeof(struct ip6t_hl_info)),
++	.userspacesize = IP6T_ALIGN(sizeof(struct ip6t_hl_info)),
++	.help          = &help,
++	.init          = &init,
++	.parse         = &parse,
++	.final_check   = &final_check,
++	.print         = &print,
++	.save          = &save,
++	.extra_opts    = opts
+ };
+ 
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_mac.c userspace/extensions/libip6t_mac.c
+--- iptables-1.2.8/extensions/libip6t_mac.c	Mon Jan  6 14:04:53 2003
++++ userspace/extensions/libip6t_mac.c	Mon Jun 16 13:39:36 2003
+@@ -86,11 +86,11 @@
+ 	return 1;
+ }
+ 
+-static void print_mac(unsigned char macaddress[ETH_ALEN], int invert)
++static void print_mac(unsigned char macaddress[ETH_ALEN])
+ {
+ 	unsigned int i;
+ 
+-	printf("%s%02X", invert ? "! " : "", macaddress[0]);
++	printf("%02X", macaddress[0]);
+ 	for (i = 1; i < ETH_ALEN; i++)
+ 		printf(":%02X", macaddress[i]);
+ 	printf(" ");
+@@ -111,16 +111,21 @@
+       int numeric)
+ {
+ 	printf("MAC ");
+-	print_mac(((struct ip6t_mac_info *)match->data)->srcaddr,
+-		  ((struct ip6t_mac_info *)match->data)->invert);
++
++	if (((struct ip6t_mac_info *)match->data)->invert)
++		printf("! ");
++
++	print_mac(((struct ip6t_mac_info *)match->data)->srcaddr);
+ }
+ 
+ /* Saves the union ip6t_matchinfo in parsable form to stdout. */
+ static void save(const struct ip6t_ip6 *ip, const struct ip6t_entry_match *match)
+ {
++	if (((struct ip6t_mac_info *)match->data)->invert)
++		printf("! ");
++
+ 	printf("--mac-source ");
+-	print_mac(((struct ip6t_mac_info *)match->data)->srcaddr,
+-		  ((struct ip6t_mac_info *)match->data)->invert);
++	print_mac(((struct ip6t_mac_info *)match->data)->srcaddr);
+ }
+ 
+ static
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_multiport.c userspace/extensions/libip6t_multiport.c
+--- iptables-1.2.8/extensions/libip6t_multiport.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libip6t_multiport.c	Tue Jul 15 15:29:20 2003
+@@ -237,7 +237,7 @@
+ 
+ 	for (i=0; i < multiinfo->count; i++) {
+ 		printf("%s", i ? "," : "");
+-		print_port(multiinfo->ports[i], ip->proto, 0);
++		print_port(multiinfo->ports[i], ip->proto, 1);
+ 	}
+ 	printf(" ");
+ }
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_nth.c userspace/extensions/libip6t_nth.c
+--- iptables-1.2.8/extensions/libip6t_nth.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libip6t_nth.c	Sat May  3 15:55:06 2003
+@@ -0,0 +1,238 @@
++/* 
++   Shared library add-on to iptables to add match support for every Nth packet
++   
++   This file is distributed under the terms of the GNU General Public
++   License (GPL). Copies of the GPL can be obtained from:
++   ftp://prep.ai.mit.edu/pub/gnu/GPL
++
++   2001-07-17 Fabrice MARIE <fabrice@netfilter.org> : initial development.
++   2001-09-20 Richard Wagner (rwagner@cloudnet.com)
++        * added support for multiple counters
++        * added support for matching on individual packets
++          in the counter cycle
++*/
++
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <syslog.h>
++#include <getopt.h>
++#include <ip6tables.h>
++#include <linux/netfilter_ipv6/ip6_tables.h>
++#include <linux/netfilter_ipv6/ip6t_nth.h>
++
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"nth v%s options:\n"
++"   --every     Nth              Match every Nth packet\n"
++"  [--counter]  num              Use counter 0-%u (default:0)\n"
++"  [--start]    num              Initialize the counter at the number 'num'\n"
++"                                instead of 0. Must be between 0 and Nth-1\n"
++"  [--packet]   num              Match on 'num' packet. Must be between 0\n"
++"                                and Nth-1.\n\n"
++"                                If --packet is used for a counter than\n"
++"                                there must be Nth number of --packet\n"
++"                                rules, covering all values between 0 and\n"
++"                                Nth-1 inclusively.\n",
++IPTABLES_VERSION, IP6T_NTH_NUM_COUNTERS-1);
++}
++
++static struct option opts[] = {
++	{ "every", 1, 0, '1' },
++	{ "start", 1, 0, '2' },
++        { "counter", 1, 0, '3' },
++        { "packet", 1, 0, '4' },
++	{ 0 }
++};
++
++/* Initialize the target. */
++static void
++init(struct ip6t_entry_match *m, unsigned int *nfcache)
++{
++	*nfcache |= NFC_UNKNOWN;
++}
++
++#define IP6T_NTH_OPT_EVERY	0x01
++#define IP6T_NTH_OPT_NOT_EVERY	0x02
++#define IP6T_NTH_OPT_START	0x04
++#define IP6T_NTH_OPT_COUNTER     0x08
++#define IP6T_NTH_OPT_PACKET      0x10
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ip6t_entry *entry,
++      unsigned int *nfcache,
++      struct ip6t_entry_match **match)
++{
++	struct ip6t_nth_info *nthinfo = (struct ip6t_nth_info *)(*match)->data;
++	unsigned int num;
++
++	switch (c) {
++	case '1':
++		/* check for common mistakes... */
++		if ((!invert) && (*flags & IP6T_NTH_OPT_EVERY))
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --every twice");
++		if (invert && (*flags & IP6T_NTH_OPT_NOT_EVERY))
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify ! --every twice");
++		if ((!invert) && (*flags & IP6T_NTH_OPT_NOT_EVERY))
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --every with ! --every");
++		if (invert && (*flags & IP6T_NTH_OPT_EVERY))
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify ! --every with --every");
++
++		/* Remember, this function will interpret a leading 0 to be 
++		   Octal, a leading 0x to be hexdecimal... */
++                if (string_to_number(optarg, 2, 100, &num) == -1 || num < 2)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "bad --every `%s', must be between 2 and 100", optarg);
++
++		/* assign the values */
++		nthinfo->every = num-1;
++		nthinfo->startat = 0;
++                nthinfo->packet = 0xFF;
++                if(!(*flags & IP6T_NTH_OPT_EVERY))
++                {
++                        nthinfo->counter = 0;
++                }
++		if (invert)
++		{
++			*flags |= IP6T_NTH_OPT_NOT_EVERY;
++			nthinfo->not = 1;
++		}
++		else
++		{
++			*flags |= IP6T_NTH_OPT_EVERY;
++			nthinfo->not = 0;
++		}
++		break;
++	case '2':
++		/* check for common mistakes... */
++		if (!((*flags & IP6T_NTH_OPT_EVERY) ||
++		      (*flags & IP6T_NTH_OPT_NOT_EVERY)))
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --start before --every");
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify with ! --start");
++		if (*flags & IP6T_NTH_OPT_START)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --start twice");
++		if (string_to_number(optarg, 0, nthinfo->every, &num) == -1)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "bad --start `%s', must between 0 and %u", optarg, nthinfo->every);
++		*flags |= IP6T_NTH_OPT_START;
++		nthinfo->startat = num;
++		break;
++        case '3':
++                /* check for common mistakes... */
++                if (invert)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "Can't specify with ! --counter");
++                if (*flags & IP6T_NTH_OPT_COUNTER)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "Can't specify --counter twice");
++                if (string_to_number(optarg, 0, IP6T_NTH_NUM_COUNTERS-1, &num) == -1)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "bad --counter `%s', must between 0 and %u", optarg, IP6T_NTH_NUM_COUNTERS-1);
++                /* assign the values */
++                *flags |= IP6T_NTH_OPT_COUNTER;
++                nthinfo->counter = num;
++                break;
++        case '4':
++                /* check for common mistakes... */
++                if (!((*flags & IP6T_NTH_OPT_EVERY) ||
++                      (*flags & IP6T_NTH_OPT_NOT_EVERY)))
++                        exit_error(PARAMETER_PROBLEM,
++                                   "Can't specify --packet before --every");
++                if ((*flags & IP6T_NTH_OPT_NOT_EVERY))
++                        exit_error(PARAMETER_PROBLEM,
++                                   "Can't specify --packet with ! --every");
++                if (invert)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "Can't specify with ! --packet");
++                if (*flags & IP6T_NTH_OPT_PACKET)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "Can't specify --packet twice");
++                if (string_to_number(optarg, 0, nthinfo->every, &num) == -1)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "bad --packet `%s', must between 0 and %u", optarg, nthinfo->every);
++                *flags |= IP6T_NTH_OPT_PACKET;
++                nthinfo->packet = num;
++                break;
++	default:
++		return 0;
++	}
++	return 1;
++}
++
++/* Final check; nothing. */
++static void final_check(unsigned int flags)
++{
++}
++
++/* Prints out the targinfo. */
++static void
++print(const struct ip6t_ip6 *ip,
++      const struct ip6t_entry_match *match,
++      int numeric)
++{
++	const struct ip6t_nth_info *nthinfo
++		= (const struct ip6t_nth_info *)match->data;
++
++	if (nthinfo->not == 1)
++		printf(" !");
++	printf("every %uth ", (nthinfo->every +1));
++	if (nthinfo->counter != 0) 
++		printf("counter #%u ", (nthinfo->counter));
++        if (nthinfo->packet != 0xFF)
++                printf("packet #%u ", nthinfo->packet);
++	if (nthinfo->startat != 0)
++		printf("start at %u ", nthinfo->startat);
++}
++
++/* Saves the union ip6t_targinfo in parsable form to stdout. */
++static void
++save(const struct ip6t_ip6 *ip, const struct ip6t_entry_match *match)
++{
++	const struct ip6t_nth_info *nthinfo
++		= (const struct ip6t_nth_info *)match->data;
++
++	if (nthinfo->not == 1)
++		printf("! ");
++	printf("--every %u ", (nthinfo->every +1));
++	printf("--counter %u ", (nthinfo->counter));
++	if (nthinfo->startat != 0)
++		printf("--start %u ", nthinfo->startat );
++        if (nthinfo->packet != 0xFF)
++                printf("--packet %u ", nthinfo->packet );
++}
++
++struct ip6tables_match nth
++= { NULL,
++    "nth",
++    IPTABLES_VERSION,
++    IP6T_ALIGN(sizeof(struct ip6t_nth_info)),
++    IP6T_ALIGN(sizeof(struct ip6t_nth_info)),
++    &help,
++    &init,
++    &parse,
++    &final_check,
++    &print,
++    &save,
++    opts
++};
++
++void _init(void)
++{
++	register_match6(&nth);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_owner.c userspace/extensions/libip6t_owner.c
+--- iptables-1.2.8/extensions/libip6t_owner.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libip6t_owner.c	Tue Jul 15 15:29:20 2003
+@@ -14,14 +14,26 @@
+ static void
+ help(void)
+ {
++#ifdef IP6T_OWNER_COMM
+ 	printf(
+ "OWNER match v%s options:\n"
+ "[!] --uid-owner userid     Match local uid\n"
+ "[!] --gid-owner groupid    Match local gid\n"
+ "[!] --pid-owner processid  Match local pid\n"
+ "[!] --sid-owner sessionid  Match local sid\n"
++"[!] --cmd-owner name       Match local command name\n"
+ "\n",
+ IPTABLES_VERSION);
++#else
++	printf(
++"OWNER match v%s options:\n"
++"[!] --uid-owner userid     Match local uid\n"
++"[!] --gid-owner groupid    Match local gid\n"
++"[!] --pid-owner processid  Match local pid\n"
++"[!] --sid-owner sessionid  Match local sid\n"
++"\n",
++IPTABLES_VERSION);
++#endif /* IP6T_OWNER_COMM */
+ }
+ 
+ static struct option opts[] = {
+@@ -29,6 +41,9 @@
+ 	{ "gid-owner", 1, 0, '2' },
+ 	{ "pid-owner", 1, 0, '3' },
+ 	{ "sid-owner", 1, 0, '4' },
++#ifdef IP6T_OWNER_COMM
++	{ "cmd-owner", 1, 0, '5' },
++#endif
+ 	{0}
+ };
+ 
+@@ -107,6 +122,21 @@
+ 		*flags = 1;
+ 		break;
+ 
++#ifdef IP6T_OWNER_COMM
++	case '5':
++		check_inverse(optarg, &invert, &optind, 0);
++		if(strlen(optarg) > sizeof(ownerinfo->comm))
++			exit_error(PARAMETER_PROBLEM, "OWNER CMD `%s' too long, max %d characters", optarg, sizeof(ownerinfo->comm));
++		
++		strncpy(ownerinfo->comm, optarg, sizeof(ownerinfo->comm));
++
++		if (invert)
++			ownerinfo->invert |= IP6T_OWNER_COMM;
++		ownerinfo->match |= IP6T_OWNER_COMM;
++		*flags = 1;
++		break;
++#endif
++		
+ 	default:
+ 		return 0;
+ 	}
+@@ -121,7 +151,7 @@
+ 		printf(label);
+ 
+ 		if (info->invert & flag)
+-			fputc('!', stdout);
++			printf("! ");
+ 
+ 		switch(info->match & flag) {
+ 		case IP6T_OWNER_UID:
+@@ -154,6 +184,11 @@
+ 		case IP6T_OWNER_SID:
+ 			printf("%u ", info->sid);
+ 			break;
++#ifdef IP6T_OWNER_COMM
++		case IP6T_OWNER_COMM:
++			printf("%.*s ", (int)sizeof(info->comm), info->comm);
++			break;
++#endif
+ 		default:
+ 			break;
+ 		}
+@@ -181,6 +216,9 @@
+ 	print_item(info, IP6T_OWNER_GID, numeric, "OWNER GID match ");
+ 	print_item(info, IP6T_OWNER_PID, numeric, "OWNER PID match ");
+ 	print_item(info, IP6T_OWNER_SID, numeric, "OWNER SID match ");
++#ifdef IP6T_OWNER_COMM
++	print_item(info, IP6T_OWNER_COMM, numeric, "OWNER CMD match ");
++#endif
+ }
+ 
+ /* Saves the union ip6t_matchinfo in parsable form to stdout. */
+@@ -193,6 +231,9 @@
+ 	print_item(info, IP6T_OWNER_GID, 0, "--gid-owner ");
+ 	print_item(info, IP6T_OWNER_PID, 0, "--pid-owner ");
+ 	print_item(info, IP6T_OWNER_SID, 0, "--sid-owner ");
++#ifdef IP6T_OWNER_COMM
++	print_item(info, IP6T_OWNER_COMM, 0, "--cmd-owner ");
++#endif
+ }
+ 
+ static
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libip6t_random.c userspace/extensions/libip6t_random.c
+--- iptables-1.2.8/extensions/libip6t_random.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libip6t_random.c	Sat May  3 15:46:18 2003
+@@ -0,0 +1,152 @@
++/* 
++   Shared library add-on to iptables to add match support for random match.
++   
++   This file is distributed under the terms of the GNU General Public
++   License (GPL). Copies of the GPL can be obtained from:
++   ftp://prep.ai.mit.edu/pub/gnu/GPL
++
++   2001-10-14 Fabrice MARIE <fabrice@netfilter.org> : initial development.
++   2003-04-30 Maciej Soltysiak <solt@dns.toxicfilms.tv> : IPv6 port.
++*/
++
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <syslog.h>
++#include <getopt.h>
++#include <ip6tables.h>
++#include <linux/netfilter_ipv6/ip6_tables.h>
++#include <linux/netfilter_ipv6/ip6t_random.h>
++
++/**
++ * The kernel random routing returns numbers between 0 and 255.
++ * To ease the task of the user in choosing the probability
++ * of matching, we want him to be able to use percentages.
++ * Therefore we have to accept numbers in percentage here,
++ * turn them into number between 0 and 255 for the kernel module,
++ * and turn them back to percentages when we print/save
++ * the rule.
++ */
++
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"random v%s options:\n"
++"  [--average]     percent      The probability in percentage of the match\n"
++"                               If ommited, a probability of 50%% percent is set.\n"
++"                               Percentage must be within : 1 <= percent <= 99.\n\n",
++IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ "average", 1, 0, '1' },
++	{ 0 }
++};
++
++/* Initialize the target. */
++static void
++init(struct ip6t_entry_match *m, unsigned int *nfcache)
++{
++	struct ip6t_rand_info *randinfo = (struct ip6t_rand_info *)(m)->data;
++	*nfcache |= NFC_UNKNOWN;
++
++	/* We assign the average to be 50 which is our default value */
++	/* 50 * 2.55 = 128 */
++	randinfo->average = 128;
++}
++
++#define IP6T_RAND_OPT_AVERAGE	0x01
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ip6t_entry *entry,
++      unsigned int *nfcache,
++      struct ip6t_entry_match **match)
++{
++	struct ip6t_rand_info *randinfo = (struct ip6t_rand_info *)(*match)->data;
++	unsigned int num;
++
++	switch (c) {
++	case '1':
++		/* check for common mistakes... */
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify ! --average");
++		if (*flags & IP6T_RAND_OPT_AVERAGE)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --average twice");
++
++		/* Remember, this function will interpret a leading 0 to be 
++		   Octal, a leading 0x to be hexdecimal... */
++                if (string_to_number(optarg, 1, 99, &num) == -1 || num < 1)
++                        exit_error(PARAMETER_PROBLEM,
++                                   "bad --average `%s', must be between 1 and 99", optarg);
++
++		/* assign the values */
++		randinfo->average = (int)(num * 2.55);
++		*flags |= IP6T_RAND_OPT_AVERAGE;
++		break;
++	default:
++		return 0;
++	}
++	return 1;
++}
++
++/* Final check; nothing. */
++static void final_check(unsigned int flags)
++{
++}
++
++/* Prints out the targinfo. */
++static void
++print(const struct ip6t_ip6 *ip,
++      const struct ip6t_entry_match *match,
++      int numeric)
++{
++	const struct ip6t_rand_info *randinfo
++		= (const struct ip6t_rand_info *)match->data;
++	div_t result = div((randinfo->average*100), 255);
++	if (result.rem > 127)  /* round up... */
++		++result.quot;
++
++	printf(" random %u%% ", result.quot);
++}
++
++/* Saves the union ip6t_targinfo in parsable form to stdout. */
++static void
++save(const struct ip6t_ip6 *ip, const struct ip6t_entry_match *match)
++{
++	const struct ip6t_rand_info *randinfo
++		= (const struct ip6t_rand_info *)match->data;
++	div_t result = div((randinfo->average *100), 255);
++	if (result.rem > 127)  /* round up... */
++		++result.quot;
++
++	printf("--average %u ", result.quot);
++}
++
++struct ip6tables_match rand_match
++= { NULL,
++    "random",
++    IPTABLES_VERSION,
++    IP6T_ALIGN(sizeof(struct ip6t_rand_info)),
++    IP6T_ALIGN(sizeof(struct ip6t_rand_info)),
++    &help,
++    &init,
++    &parse,
++    &final_check,
++    &print,
++    &save,
++    opts
++};
++
++void _init(void)
++{
++	register_match6(&rand_match);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_IPMARK.c userspace/extensions/libipt_IPMARK.c
+--- iptables-1.2.8/extensions/libipt_IPMARK.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_IPMARK.c	Tue Jul 15 15:29:20 2003
+@@ -0,0 +1,170 @@
++/* Shared library add-on to iptables to add IPMARK target support.
++ * (C) 2003 by Grzegorz Janoszka <Grzegorz.Janoszka@pro.onet.pl>
++ *
++ * based on original MARK target
++ * 
++ * This program is distributed under the terms of GNU GPL
++ */
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ip_tables.h>
++#include <linux/netfilter_ipv4/ipt_IPMARK.h>
++
++#define IPT_ADDR_USED        1
++#define IPT_AND_MASK_USED    2
++#define IPT_OR_MASK_USED     4
++
++struct ipmarkinfo {
++	struct ipt_entry_target t;
++	struct ipt_ipmark_target_info ipmark;
++};
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"IPMARK target v%s options:\n"
++"  --addr src/dst         use source or destination ip address\n"
++"  --and-mask value       logical AND ip address with this value becomes MARK\n"
++"  --or-mask value        logical OR ip address with this value becomes MARK\n"
++"\n",
++IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ "addr", 1, 0, '1' },
++	{ "and-mask", 1, 0, '2' },
++	{ "or-mask", 1, 0, '3' },
++	{ 0 }
++};
++
++/* Initialize the target. */
++static void
++init(struct ipt_entry_target *t, unsigned int *nfcache)
++{
++	struct ipt_ipmark_target_info *ipmarkinfo =
++		(struct ipt_ipmark_target_info *)t->data;
++
++	ipmarkinfo->andmask=0xffffffff;
++	ipmarkinfo->ormask=0;
++
++	*nfcache |= NFC_UNKNOWN;
++}
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry,
++      struct ipt_entry_target **target)
++{
++	struct ipt_ipmark_target_info *ipmarkinfo
++		= (struct ipt_ipmark_target_info *)(*target)->data;
++
++	switch (c) {
++		char *end;
++	case '1':
++		if(!strcmp(optarg, "src")) ipmarkinfo->addr=IPT_IPMARK_SRC;
++		  else if(!strcmp(optarg, "dst")) ipmarkinfo->addr=IPT_IPMARK_DST;
++		    else exit_error(PARAMETER_PROBLEM, "Bad addr value `%s' - should be `src' or `dst'", optarg);
++		if (*flags & IPT_ADDR_USED)
++			exit_error(PARAMETER_PROBLEM,
++			           "IPMARK target: Can't specify --addr twice");
++		*flags |= IPT_ADDR_USED;
++		break;
++	
++	case '2':
++		ipmarkinfo->andmask = strtoul(optarg, &end, 0);
++		if (*end != '\0' || end == optarg)
++			exit_error(PARAMETER_PROBLEM, "Bad and-mask value `%s'", optarg);
++		if (*flags & IPT_AND_MASK_USED)
++			exit_error(PARAMETER_PROBLEM,
++			           "IPMARK target: Can't specify --and-mask twice");
++		*flags |= IPT_AND_MASK_USED;
++		break;
++	case '3':
++		ipmarkinfo->ormask = strtoul(optarg, &end, 0);
++		if (*end != '\0' || end == optarg)
++			exit_error(PARAMETER_PROBLEM, "Bad or-mask value `%s'", optarg);
++		if (*flags & IPT_OR_MASK_USED)
++			exit_error(PARAMETER_PROBLEM,
++			           "IPMARK target: Can't specify --or-mask twice");
++		*flags |= IPT_OR_MASK_USED;
++		break;
++
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++static void
++final_check(unsigned int flags)
++{
++	if (!(flags & IPT_ADDR_USED))
++		exit_error(PARAMETER_PROBLEM,
++		           "IPMARK target: Parameter --addr is required");
++	if (!(flags & (IPT_AND_MASK_USED | IPT_OR_MASK_USED)))
++		exit_error(PARAMETER_PROBLEM,
++		           "IPMARK target: Parameter --and-mask or --or-mask is required");
++}
++
++/* Prints out the targinfo. */
++static void
++print(const struct ipt_ip *ip,
++      const struct ipt_entry_target *target,
++      int numeric)
++{
++	const struct ipt_ipmark_target_info *ipmarkinfo =
++		(const struct ipt_ipmark_target_info *)target->data;
++
++	if(ipmarkinfo->addr == IPT_IPMARK_SRC)
++	  printf("IPMARK src");
++	else
++	  printf("IPMARK dst");
++	printf(" ip and 0x%lx or 0x%lx", ipmarkinfo->andmask, ipmarkinfo->ormask);
++}
++
++/* Saves the union ipt_targinfo in parsable form to stdout. */
++static void
++save(const struct ipt_ip *ip, const struct ipt_entry_target *target)
++{
++	const struct ipt_ipmark_target_info *ipmarkinfo =
++		(const struct ipt_ipmark_target_info *)target->data;
++
++	if(ipmarkinfo->addr == IPT_IPMARK_SRC)
++	  printf("--addr=src ");
++	else
++	  printf("--addr=dst ");
++	if(ipmarkinfo->andmask != 0xffffffff)
++	  printf("--and-mask 0x%lx ", ipmarkinfo->andmask);
++	if(ipmarkinfo->ormask != 0)
++	  printf("--or-mask 0x%lx ", ipmarkinfo->ormask);
++}
++
++static
++struct iptables_target ipmark
++= { NULL,
++    "IPMARK",
++    IPTABLES_VERSION,
++    IPT_ALIGN(sizeof(struct ipt_ipmark_target_info)),
++    IPT_ALIGN(sizeof(struct ipt_ipmark_target_info)),
++    &help,
++    &init,
++    &parse,
++    &final_check,
++    &print,
++    &save,
++    opts
++};
++
++void _init(void)
++{
++	register_target(&ipmark);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_LOG.c userspace/extensions/libipt_LOG.c
+--- iptables-1.2.8/extensions/libipt_LOG.c	Sat Sep  7 16:31:01 2002
++++ userspace/extensions/libipt_LOG.c	Tue Jul 15 15:29:20 2003
+@@ -230,16 +230,8 @@
+ 	if (strcmp(loginfo->prefix, "") != 0)
+ 		printf("--log-prefix \"%s\" ", loginfo->prefix);
+ 
+-	if (loginfo->level != LOG_DEFAULT_LEVEL) {
+-		for (i = 0;
+-		     i < sizeof(ipt_log_names) / sizeof(struct ipt_log_names);
+-		     i++) {
+-			if (loginfo->level == ipt_log_names[i].level) {
+-				printf("--log-level %s ", ipt_log_names[i].name);
+-				break;
+-			}
+-        }
+-    }
++	if (loginfo->level != LOG_DEFAULT_LEVEL)
++		printf("--log-level %d ", loginfo->level);
+ 
+ 	if (loginfo->logflags & IPT_LOG_TCPSEQ)
+ 		printf("--log-tcp-sequence ");
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_NOTRACK.c userspace/extensions/libipt_NOTRACK.c
+--- iptables-1.2.8/extensions/libipt_NOTRACK.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_NOTRACK.c	Wed May 21 12:31:08 2003
+@@ -0,0 +1,63 @@
++/* Shared library add-on to iptables to add NOTRACK target support. */
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ip_tables.h>
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"NOTRACK target v%s takes no options\n",
++IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ 0 }
++};
++
++/* Initialize the target. */
++static void
++init(struct ipt_entry_target *t, unsigned int *nfcache)
++{
++}
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry,
++      struct ipt_entry_target **target)
++{
++	return 0;
++}
++
++static void
++final_check(unsigned int flags)
++{
++}
++
++static
++struct iptables_target notrack 
++= {	.next = NULL,
++	.name = "NOTRACK",
++	.version = IPTABLES_VERSION,
++	.size = IPT_ALIGN(0),
++	.userspacesize = IPT_ALIGN(0),
++	.help = &help,
++	.init = &init,
++	.parse = &parse,
++	.final_check = &final_check,
++	.print = NULL, /* print */
++	.save = NULL, /* save */
++	.extra_opts = opts
++};
++
++void _init(void)
++{
++	register_target(&notrack);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_REJECT.c userspace/extensions/libipt_REJECT.c
+--- iptables-1.2.8/extensions/libipt_REJECT.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libipt_REJECT.c	Tue May 27 19:44:29 2003
+@@ -9,6 +9,16 @@
+ #include <iptables.h>
+ #include <linux/netfilter_ipv4/ip_tables.h>
+ #include <linux/netfilter_ipv4/ipt_REJECT.h>
++#include <linux/version.h>
++
++/* If we are compiling against a kernel that does not support
++ * IPT_ICMP_ADMIN_PROHIBITED, we are emulating it.
++ * The result will be a plain DROP of the packet instead of
++ * reject. -- Maciej Soltysiak <solt@dns.toxicfilms.tv>
++ */
++#ifndef IPT_ICMP_ADMIN_PROHIBITED
++#define IPT_ICMP_ADMIN_PROHIBITED	IPT_TCP_RESET + 1
++#endif
+ 
+ struct reject_names {
+ 	const char *name;
+@@ -35,7 +45,9 @@
+ 	{"icmp-host-prohibited", "host-prohib",
+ 	 IPT_ICMP_HOST_PROHIBITED, "ICMP host prohibited"},
+ 	{"tcp-reset", "tcp-reset",
+-	 IPT_TCP_RESET, "TCP RST packet"}
++	 IPT_TCP_RESET, "TCP RST packet"},
++	{"icmp-admin-prohibited", "admin-prohib",
++	 IPT_ICMP_ADMIN_PROHIBITED, "ICMP administratively prohibited (*)"}
+ };
+ 
+ static void
+@@ -64,6 +76,8 @@
+ "                                a reply packet according to type:\n");
+ 
+ 	print_reject_types();
++
++	printf("(*) See man page or read the INCOMPATIBILITES file for compatibility issues.\n");
+ }
+ 
+ static struct option opts[] = {
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_TRACE.c userspace/extensions/libipt_TRACE.c
+--- iptables-1.2.8/extensions/libipt_TRACE.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_TRACE.c	Wed May 21 12:31:08 2003
+@@ -0,0 +1,63 @@
++/* Shared library add-on to iptables to add TRACE target support. */
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ip_tables.h>
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"TRACE target v%s takes no options\n",
++IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ 0 }
++};
++
++/* Initialize the target. */
++static void
++init(struct ipt_entry_target *t, unsigned int *nfcache)
++{
++}
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry,
++      struct ipt_entry_target **target)
++{
++	return 0;
++}
++
++static void
++final_check(unsigned int flags)
++{
++}
++
++static
++struct iptables_target trace
++= {	.next = NULL,
++	.name = "TRACE",
++	.version = IPTABLES_VERSION,
++	.size = IPT_ALIGN(0),
++	.userspacesize = IPT_ALIGN(0),
++	.help = &help,
++	.init = &init,
++	.parse = &parse,
++	.final_check = &final_check,
++	.print = NULL, /* print */
++	.save = NULL, /* save */
++	.extra_opts = opts
++};
++
++void _init(void)
++{
++	register_target(&trace);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_XOR.c userspace/extensions/libipt_XOR.c
+--- iptables-1.2.8/extensions/libipt_XOR.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_XOR.c	Sat May 31 19:11:49 2003
+@@ -0,0 +1,112 @@
++/* Shared library add-on to iptables for the XOR target
++ * (C) 2000 by Tim Vandermeersch <Tim.Vandermeersch@pandora.be>
++ * Based on libipt_TTL.c
++ *
++ * Version 1.0
++ *
++ * This program is distributed under the terms of GNU GPL
++ */
++
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <iptables.h>
++
++#include <linux/netfilter_ipv4/ip_tables.h>
++#include <linux/netfilter_ipv4/ipt_XOR.h>
++
++#define	IPT_KEY_SET		1
++#define IPT_BLOCKSIZE_SET	2
++
++static void init(struct ipt_entry_target *t, unsigned int *nfcache) 
++{
++}
++
++static void help(void) 
++{
++	printf(
++		"XOR target v%s options\n"
++		"  --key string	          Set key to \"string\"\n"
++		"  --block-size		  Set block size\n",
++		IPTABLES_VERSION);
++}
++
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++		const struct ipt_entry *entry, 
++		struct ipt_entry_target **target)
++{
++	struct ipt_XOR_info *info = (struct ipt_XOR_info *) (*target)->data;
++	
++	if (!optarg)
++		exit_error(PARAMETER_PROBLEM, "XOR: too few arguments");
++	
++	if (check_inverse(optarg, &invert, NULL, 0))
++		exit_error(PARAMETER_PROBLEM, "XOR: unexpected '!'");
++
++	switch (c) {	
++		case '1':
++			strncpy(info->key, optarg, 30);
++			*flags |= IPT_KEY_SET;
++			break;
++		case '2':
++			info->block_size = atoi(optarg);
++			*flags |= IPT_BLOCKSIZE_SET;
++			break;
++		default:
++			return 0;
++	}
++	
++	return 1;
++}
++
++static void final_check(unsigned int flags)
++{
++	if (!(flags & IPT_KEY_SET))
++		exit_error(PARAMETER_PROBLEM, "XOR: You must specify a key");
++	if (!(flags & IPT_BLOCKSIZE_SET))
++		exit_error(PARAMETER_PROBLEM, "XOR: You must specify a block-size");
++}
++
++static void save (const struct ipt_ip *ip,
++		const struct ipt_entry_target *target)
++{
++	const struct ipt_XOR_info *info = (struct ipt_XOR_info *) target->data;
++
++	printf("--key %s ", info->key);
++	printf("--block-size %u ", info->block_size);
++}
++
++static void print (const struct ipt_ip *ip,
++	const struct ipt_entry_target *target, int numeric)
++{
++	const struct ipt_XOR_info *info = (struct ipt_XOR_info *) target->data;
++
++	printf("key: %s ", info->key);
++	printf("block-size: %u ", info->block_size);
++}
++
++static struct option opts[] = {
++	{ "key", 1, 0, '1' },
++	{ "block-size", 1, 0, '2' },
++	{ 0 }
++};
++
++static struct iptables_target XOR = { NULL, 
++	"XOR",
++	IPTABLES_VERSION,
++	IPT_ALIGN(sizeof(struct ipt_XOR_info)),
++	IPT_ALIGN(sizeof(struct ipt_XOR_info)),
++	&help,
++	&init,
++	&parse,
++	&final_check,
++	&print,
++	&save,
++	opts 
++};
++
++void _init(void)
++{
++	register_target(&XOR);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_addrtype.c userspace/extensions/libipt_addrtype.c
+--- iptables-1.2.8/extensions/libipt_addrtype.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_addrtype.c	Wed May  7 18:51:40 2003
+@@ -0,0 +1,214 @@
++/* Shared library add-on to iptables to add addrtype matching support 
++ * 
++ * This program is released under the terms of GNU GPL */
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <getopt.h>
++#include <iptables.h>
++
++#include <linux/netfilter_ipv4/ip_tables.h>
++#include <linux/netfilter_ipv4/ipt_addrtype.h>
++
++/* from linux/rtnetlink.h, must match order of enumeration */
++static char *rtn_names[] = {
++	"UNSPEC",
++	"UNICAST",
++	"LOCAL",
++	"BROADCAST",
++	"ANYCAST",
++	"MULTICAST",
++	"BLACKHOLE",
++	"UNREACHABLE",
++	"PROHIBIT",
++	"THROW",
++	"NAT",
++	"XRESOLVE",
++	NULL
++};
++
++static void help_types(void)
++{
++	int i;
++
++	for (i = 0; rtn_names[i]; i++)
++		printf("                                %s\n", rtn_names[i]);
++}
++
++static void help(void) 
++{
++	printf(
++"Address type match v%s options:\n"
++" [!] --src-type type[,...]      Match source address type\n"
++" [!] --dst-type type[,...]      Match destination address type\n"
++"\n"
++"Valid types:           \n"
++, IPTABLES_VERSION);
++	help_types();
++}
++
++static void init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++	/* caching not yet implemented */
++	*nfcache |= NFC_UNKNOWN;
++}
++
++static int
++parse_type(const char *name, size_t strlen, u_int16_t *mask)
++{
++	int i;
++
++	for (i = 0; rtn_names[i]; i++)
++		if (strncasecmp(name, rtn_names[i], strlen) == 0) {
++			/* build up bitmask for kernel module */
++			*mask |= (1 << i);
++			return 1;
++		}
++
++	return 0;
++}
++
++static void parse_types(const char *arg, u_int16_t *mask)
++{
++	const char *comma;
++
++	while ((comma = strchr(arg, ',')) != NULL) {
++		if (comma == arg || !parse_type(arg, comma-arg, mask))
++			exit_error(PARAMETER_PROBLEM,
++			           "addrtype: bad type `%s'", arg);
++		arg = comma + 1;
++	}
++
++	if (strlen(arg) == 0 || !parse_type(arg, strlen(arg), mask))
++		exit_error(PARAMETER_PROBLEM, "addrtype: bad type `%s'", arg);
++}
++	
++#define IPT_ADDRTYPE_OPT_SRCTYPE	0x1
++#define IPT_ADDRTYPE_OPT_DSTTYPE	0x2
++
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++		const struct ipt_entry *entry, unsigned int *nfcache,
++		struct ipt_entry_match **match)
++{
++	struct ipt_addrtype_info *info =
++		(struct ipt_addrtype_info *) (*match)->data;
++
++	switch (c) {
++	case '1':
++		if (*flags&IPT_ADDRTYPE_OPT_SRCTYPE)
++			exit_error(PARAMETER_PROBLEM,
++			           "addrtype: can't specify src-type twice");
++		check_inverse(optarg, &invert, &optind, 0);
++		parse_types(argv[optind-1], &info->source);
++		if (invert)
++			info->invert_source = 1;
++		*flags |= IPT_ADDRTYPE_OPT_SRCTYPE;
++		break;
++	case '2':
++		if (*flags&IPT_ADDRTYPE_OPT_DSTTYPE)
++			exit_error(PARAMETER_PROBLEM,
++			           "addrtype: can't specify dst-type twice");
++		check_inverse(optarg, &invert, &optind, 0);
++		parse_types(argv[optind-1], &info->dest);
++		if (invert)
++			info->invert_dest = 1;
++		*flags |= IPT_ADDRTYPE_OPT_DSTTYPE;
++		break;
++	default:
++		return 0;
++	}
++	
++	return 1;
++}
++
++static void final_check(unsigned int flags)
++{
++	if (!(flags & (IPT_ADDRTYPE_OPT_SRCTYPE|IPT_ADDRTYPE_OPT_DSTTYPE)))
++		exit_error(PARAMETER_PROBLEM,
++			   "addrtype: you must specify --src-type or --dst-type");
++}
++
++static void print_types(u_int16_t mask)
++{
++	const char *sep = "";
++	int i;
++
++	for (i = 0; rtn_names[i]; i++)
++		if (mask & (1 << i)) {
++			printf("%s%s", sep, rtn_names[i]);
++			sep = ",";
++		}
++
++	printf(" ");
++}
++
++static void print(const struct ipt_ip *ip, 
++		const struct ipt_entry_match *match,
++		int numeric)
++{
++	const struct ipt_addrtype_info *info = 
++		(struct ipt_addrtype_info *) match->data;
++
++	printf("ADDRTYPE match ");
++	if (info->source) {
++		printf("src-type ");
++		if (info->invert_source)
++			printf("!");
++		print_types(info->source);
++	}
++	if (info->dest) {
++		printf("dst-type ");
++		if (info->invert_dest)
++			printf("!");
++		print_types(info->dest);
++	}
++}
++
++static void save(const struct ipt_ip *ip, 
++		const struct ipt_entry_match *match)
++{
++	const struct ipt_addrtype_info *info =
++		(struct ipt_addrtype_info *) match->data;
++
++	if (info->source) {
++		printf("--src-type ");
++		if (info->invert_source)
++			printf("! ");
++		print_types(info->source);
++	}
++	if (info->dest) {
++		printf("--dst-type ");
++		if (info->invert_dest)
++			printf("! ");
++		print_types(info->dest);
++	}
++}
++
++static struct option opts[] = {
++	{ "src-type", 1, 0, '1' },
++	{ "dst-type", 1, 0, '2' },
++	{ 0 }
++};
++
++static
++struct iptables_match addrtype = {
++	NULL,
++	"addrtype",
++	IPTABLES_VERSION,
++	IPT_ALIGN(sizeof(struct ipt_addrtype_info)),
++	IPT_ALIGN(sizeof(struct ipt_addrtype_info)),
++	&help,
++	&init,
++	&parse,
++	&final_check,
++	&print,
++	&save,
++	opts
++};
++
++
++void _init(void) 
++{
++	register_match(&addrtype);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_condition.c userspace/extensions/libipt_condition.c
+--- iptables-1.2.8/extensions/libipt_condition.c	Wed Mar 26 15:42:35 2003
++++ userspace/extensions/libipt_condition.c	Thu May 22 16:33:34 2003
+@@ -1,3 +1,4 @@
++/* Shared library add-on to iptables for condition match */
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -39,13 +40,13 @@
+ 	struct condition_info *info =
+ 	    (struct condition_info *) (*match)->data;
+ 
+-	check_inverse(optarg, &invert, &optind, 0);
+-
+ 	if (c == 'X') {
+ 		if (*flags)
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Can't specify multiple conditions");
+ 
++		check_inverse(optarg, &invert, &optind, 0);
++
+ 		if (strlen(argv[optind - 1]) < CONDITION_NAME_LEN)
+ 			strcpy(info->name, argv[optind - 1]);
+ 		else
+@@ -88,7 +89,7 @@
+ 	const struct condition_info *info =
+ 	    (const struct condition_info *) match->data;
+ 
+-	printf("--condition %s%s ", (info->invert) ? "! " : "", info->name);
++	printf("--condition %s\"%s\" ", (info->invert) ? "! " : "", info->name);
+ }
+ 
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_connbytes.c userspace/extensions/libipt_connbytes.c
+--- iptables-1.2.8/extensions/libipt_connbytes.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_connbytes.c	Thu Jun 19 14:23:37 2003
+@@ -0,0 +1,134 @@
++/* Shared library add-on to iptables to add byte tracking support. */
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ip_conntrack.h>
++#include <linux/netfilter_ipv4/ipt_connbytes.h>
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"connbytes v%s options:\n"
++" [!] --connbytes from:[to]\n"
++"				Transfered byte range to match\n"
++"\n", IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ "connbytes", 1, 0, '1' },
++	{0}
++};
++
++/* Initialize the match. */
++static void
++init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++	/* Can't cache this */
++	*nfcache |= NFC_UNKNOWN;
++}
++
++static void
++parse_range(const char *arg, struct ipt_connbytes_info *si)
++{
++	char *colon,*p;
++
++	si->from = strtol(arg,&colon,10);
++	if (*colon != ':') 
++		exit_error(PARAMETER_PROBLEM, "Bad range `%s'", arg);
++	si->to = strtol(colon+1,&p,10);
++	if (p == colon+1) {
++		/* second number omited */
++		si->to = 0xffffffff;
++	}
++	if (si->from > si->to)
++		exit_error(PARAMETER_PROBLEM, "%lu should be less than %lu", si->from,si->to);
++}
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry,
++      unsigned int *nfcache,
++      struct ipt_entry_match **match)
++{
++	struct ipt_connbytes_info *sinfo = (struct ipt_connbytes_info *)(*match)->data;
++	int i;
++
++	switch (c) {
++	case '1':
++		if (check_inverse(optarg, &invert, optind, 0))
++			optind++;
++
++		parse_range(argv[optind-1], sinfo);
++		if (invert) {
++			i = sinfo->from;
++			sinfo->from = sinfo->to;
++			sinfo->to = i;
++		}
++		*flags = 1;
++		break;
++
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++static void final_check(unsigned int flags)
++{
++	if (!flags)
++		exit_error(PARAMETER_PROBLEM, "You must specify `--connbytes'");
++}
++
++/* Prints out the matchinfo. */
++static void
++print(const struct ipt_ip *ip,
++      const struct ipt_entry_match *match,
++      int numeric)
++{
++	struct ipt_connbytes_info *sinfo = (struct ipt_connbytes_info *)match->data;
++
++	if (sinfo->from > sinfo->to) 
++		printf("connbytes ! %lu:%lu",sinfo->to,sinfo->from);
++	else
++		printf("connbytes %lu:%lu",sinfo->from,sinfo->to);
++}
++
++/* Saves the matchinfo in parsable form to stdout. */
++static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++{
++	struct ipt_connbytes_info *sinfo = (struct ipt_connbytes_info *)match->data;
++
++	if (sinfo->from > sinfo->to) 
++		printf("! --connbytes %lu:%lu",sinfo->to,sinfo->from);
++	else
++		printf("--connbytes %lu:%lu",sinfo->from,sinfo->to);
++}
++
++static
++struct iptables_match state
++= { NULL,
++    "connbytes",
++    IPTABLES_VERSION,
++    IPT_ALIGN(sizeof(struct ipt_connbytes_info)),
++    IPT_ALIGN(sizeof(struct ipt_connbytes_info)),
++    &help,
++    &init,
++    &parse,
++    &final_check,
++    &print,
++    &save,
++    opts
++};
++
++void _init(void)
++{
++	register_match(&state);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_connlimit.c userspace/extensions/libipt_connlimit.c
+--- iptables-1.2.8/extensions/libipt_connlimit.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_connlimit.c	Wed Apr 30 18:54:48 2003
+@@ -0,0 +1,132 @@
++/* Shared library add-on to iptables to add connection limit support. */
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <stddef.h>
++#include <getopt.h>
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ip_conntrack.h>
++#include <linux/netfilter_ipv4/ipt_connlimit.h>
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"connlimit v%s options:\n"
++"[!] --connlimit-above n		match if the number of existing tcp connections is (not) above n\n"
++" --connlimit-mask n		group hosts using mask\n"
++"\n", IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ "connlimit-above", 1, 0, '1' },
++	{ "connlimit-mask",  1, 0, '2' },
++	{0}
++};
++
++/* Initialize the match. */
++static void
++init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++	/* Can't cache this */
++	*nfcache |= NFC_UNKNOWN;
++}
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry,
++      unsigned int *nfcache,
++      struct ipt_entry_match **match)
++{
++	struct ipt_connlimit_info *info = (struct ipt_connlimit_info*)(*match)->data;
++
++	if (0 == (*flags & 2)) {
++		/* set default mask unless we've already seen a mask option */
++		info->mask = htonl(0xFFFFFFFF);
++	}
++
++	switch (c) {
++	case '1':
++		check_inverse(optarg, &invert, &optind, 0);
++		info->limit = atoi(argv[optind-1]);
++		info->inverse = invert;
++		*flags |= 1;
++		break;
++
++	case '2':
++		info->mask = htonl(0xFFFFFFFF << (32 - atoi(argv[optind-1])));
++		*flags |= 2;
++		break;
++
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++/* Final check */
++static void final_check(unsigned int flags)
++{
++	if (!flags & 1)
++		exit_error(PARAMETER_PROBLEM, "You must specify `--connlimit-above'");
++}
++
++static int
++count_bits(u_int32_t mask)
++{
++	int i, bits;
++
++	for (bits = 0, i = 31; i >= 0; i--) {
++		if (mask & htonl((u_int32_t)1 << i)) {
++			bits++;
++			continue;
++		}
++		break;
++	}
++	return bits;
++}
++
++/* Prints out the matchinfo. */
++static void
++print(const struct ipt_ip *ip,
++      const struct ipt_entry_match *match,
++      int numeric)
++{
++	struct ipt_connlimit_info *info = (struct ipt_connlimit_info*)match->data;
++
++	printf("#conn/%d %s %d ", count_bits(info->mask),
++	       info->inverse ? "<" : ">", info->limit);
++}
++
++/* Saves the matchinfo in parsable form to stdout. */
++static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++{
++	struct ipt_connlimit_info *info = (struct ipt_connlimit_info*)match->data;
++
++	printf("%s--connlimit-above %d ",info->inverse ? "! " : "",info->limit);
++	printf("--connlimit-mask %d ",count_bits(info->mask));
++}
++
++static struct iptables_match connlimit = {
++	name:		"connlimit",
++	version:	IPTABLES_VERSION,
++	size:		IPT_ALIGN(sizeof(struct ipt_connlimit_info)),
++	userspacesize:	offsetof(struct ipt_connlimit_info,data),
++	help:		help,
++	init:		init,
++	parse:		parse,
++	final_check:	final_check,
++	print:		print,
++	save: 		save,
++	extra_opts:	opts
++};
++
++void _init(void)
++{
++	register_match(&connlimit);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_fuzzy.c userspace/extensions/libipt_fuzzy.c
+--- iptables-1.2.8/extensions/libipt_fuzzy.c	Mon Aug 26 18:10:30 2002
++++ userspace/extensions/libipt_fuzzy.c	Mon Jun 16 13:39:36 2003
+@@ -6,6 +6,8 @@
+    ftp://prep.ai.mit.edu/pub/gnu/GPL
+ 
+ 2002-08-07 Hime Aguiar e Oliveira Jr. <hime@engineer.com> : Initial version.
++2003-06-09 Hime Aguiar e Oliveira Jr. <hime@engineer.com> : Bug corrections in
++the save function , thanks to information given by Jean-Francois Patenaude .
+ 
+ */
+ 
+@@ -131,8 +133,8 @@
+ 	const struct ipt_fuzzy_info *fuzzyinfo
+ 		= (const struct ipt_fuzzy_info *)match->data;
+ 
+-	printf("--upper-limit %u ",fuzzyinfo->minimum_rate);
+-	printf("--lower-limit %u ",fuzzyinfo->maximum_rate);
++	printf("--lower-limit %u ",fuzzyinfo->minimum_rate);
++	printf("--upper-limit %u ",fuzzyinfo->maximum_rate);
+ 
+ }
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_iplimit.c userspace/extensions/libipt_iplimit.c
+--- iptables-1.2.8/extensions/libipt_iplimit.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libipt_iplimit.c	Thu Jan  1 01:00:00 1970
+@@ -1,132 +0,0 @@
+-/* Shared library add-on to iptables to add state tracking support. */
+-#include <stdio.h>
+-#include <netdb.h>
+-#include <string.h>
+-#include <stdlib.h>
+-#include <stddef.h>
+-#include <getopt.h>
+-#include <iptables.h>
+-#include <linux/netfilter_ipv4/ip_conntrack.h>
+-#include <linux/netfilter_ipv4/ipt_iplimit.h>
+-
+-/* Function which prints out usage message. */
+-static void
+-help(void)
+-{
+-	printf(
+-"iplimit v%s options:\n"
+-"[!] --iplimit-above n		match if the number of existing tcp connections is (not) above n\n"
+-" --iplimit-mask n		group hosts using mask\n"
+-"\n", IPTABLES_VERSION);
+-}
+-
+-static struct option opts[] = {
+-	{ "iplimit-above", 1, 0, '1' },
+-	{ "iplimit-mask",  1, 0, '2' },
+-	{0}
+-};
+-
+-/* Initialize the match. */
+-static void
+-init(struct ipt_entry_match *m, unsigned int *nfcache)
+-{
+-	/* Can't cache this */
+-	*nfcache |= NFC_UNKNOWN;
+-}
+-
+-/* Function which parses command options; returns true if it
+-   ate an option */
+-static int
+-parse(int c, char **argv, int invert, unsigned int *flags,
+-      const struct ipt_entry *entry,
+-      unsigned int *nfcache,
+-      struct ipt_entry_match **match)
+-{
+-	struct ipt_iplimit_info *info = (struct ipt_iplimit_info*)(*match)->data;
+-
+-	if (0 == (*flags & 2)) {
+-		/* set default mask unless we've already seen a mask option */
+-		info->mask = htonl(0xFFFFFFFF);
+-	}
+-
+-	switch (c) {
+-	case '1':
+-		check_inverse(optarg, &invert, &optind, 0);
+-		info->limit = atoi(argv[optind-1]);
+-		info->inverse = invert;
+-		*flags |= 1;
+-		break;
+-
+-	case '2':
+-		info->mask = htonl(0xFFFFFFFF << (32 - atoi(argv[optind-1])));
+-		*flags |= 2;
+-		break;
+-
+-	default:
+-		return 0;
+-	}
+-
+-	return 1;
+-}
+-
+-/* Final check */
+-static void final_check(unsigned int flags)
+-{
+-	if (!flags & 1)
+-		exit_error(PARAMETER_PROBLEM, "You must specify `--iplimit-above'");
+-}
+-
+-static int
+-count_bits(u_int32_t mask)
+-{
+-	int i, bits;
+-
+-	for (bits = 0, i = 31; i >= 0; i--) {
+-		if (mask & htonl((u_int32_t)1 << i)) {
+-			bits++;
+-			continue;
+-		}
+-		break;
+-	}
+-	return bits;
+-}
+-
+-/* Prints out the matchinfo. */
+-static void
+-print(const struct ipt_ip *ip,
+-      const struct ipt_entry_match *match,
+-      int numeric)
+-{
+-	struct ipt_iplimit_info *info = (struct ipt_iplimit_info*)match->data;
+-
+-	printf("#conn/%d %s %d ", count_bits(info->mask),
+-	       info->inverse ? "<" : ">", info->limit);
+-}
+-
+-/* Saves the matchinfo in parsable form to stdout. */
+-static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
+-{
+-	struct ipt_iplimit_info *info = (struct ipt_iplimit_info*)match->data;
+-
+-	printf("%s--iplimit-above %d ",info->inverse ? "! " : "",info->limit);
+-	printf("--iplimit-mask %d ",count_bits(info->mask));
+-}
+-
+-static struct iptables_match iplimit = {
+-	name:		"iplimit",
+-	version:	IPTABLES_VERSION,
+-	size:		IPT_ALIGN(sizeof(struct ipt_iplimit_info)),
+-	userspacesize:	offsetof(struct ipt_iplimit_info,data),
+-	help:		help,
+-	init:		init,
+-	parse:		parse,
+-	final_check:	final_check,
+-	print:		print,
+-	save: 		save,
+-	extra_opts:	opts
+-};
+-
+-void _init(void)
+-{
+-	register_match(&iplimit);
+-}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_iprange.c userspace/extensions/libipt_iprange.c
+--- iptables-1.2.8/extensions/libipt_iprange.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_iprange.c	Wed Apr 23 15:27:09 2003
+@@ -0,0 +1,195 @@
++/* Shared library add-on to iptables to add IP range matching support. */
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ipt_iprange.h>
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"iprange match v%s options:\n"
++"[!] --src-range ip-ip        Match source IP in the specified range\n"
++"[!] --dst-range ip-ip        Match destination IP in the specified range\n"
++"\n",
++IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ "src-range", 1, 0, '1' },
++	{ "dst-range", 1, 0, '2' },
++	{0}
++};
++
++/* Initialize the match. */
++static void
++init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++	/* Can't cache this. */
++	*nfcache |= NFC_UNKNOWN;
++}
++
++static void
++parse_iprange(char *arg, struct ipt_iprange *range)
++{
++	char *dash;
++	struct in_addr *ip;
++
++	dash = strchr(arg, '-');
++	if (dash)
++		*dash = '\0';
++		
++	ip = dotted_to_addr(arg);
++	if (!ip)
++		exit_error(PARAMETER_PROBLEM, "iprange match: Bad IP address `%s'\n", 
++			   arg);
++	range->min_ip = ip->s_addr;
++
++	if (dash) {
++		ip = dotted_to_addr(dash+1);
++		if (!ip)
++			exit_error(PARAMETER_PROBLEM, "iprange match: Bad IP address `%s'\n",
++				   dash+1);
++		range->max_ip = ip->s_addr;
++	} else
++		range->max_ip = range->min_ip;
++}
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry,
++      unsigned int *nfcache,
++      struct ipt_entry_match **match)
++{
++	struct ipt_iprange_info *info = (struct ipt_iprange_info *)(*match)->data;
++
++	switch (c) {
++	case '1':
++		if (*flags & IPRANGE_SRC)
++			exit_error(PARAMETER_PROBLEM,
++				   "iprange match: Only use --src-range ONCE!");
++		*flags |= IPRANGE_SRC;
++
++		info->flags |= IPRANGE_SRC;
++		check_inverse(optarg, &invert, &optind, 0);
++		if (invert) {
++			info->flags |= IPRANGE_SRC_INV;
++			printf("hoho\n");
++		}
++		parse_iprange(optarg, &info->src);		
++
++		break;
++
++	case '2':
++		if (*flags & IPRANGE_DST)
++			exit_error(PARAMETER_PROBLEM,
++				   "iprange match: Only use --dst-range ONCE!");
++		*flags |= IPRANGE_DST;
++
++		info->flags |= IPRANGE_DST;
++		check_inverse(optarg, &invert, &optind, 0);
++		if (invert)
++			info->flags |= IPRANGE_DST_INV;
++
++		parse_iprange(optarg, &info->dst);		
++		*flags = 1;
++		break;
++
++	default:
++		return 0;
++	}
++	return 1;
++}
++
++/* Final check; must have specified --src-range or --dst-range. */
++static void
++final_check(unsigned int flags)
++{
++	if (!flags)
++		exit_error(PARAMETER_PROBLEM,
++			   "iprange match: You must specify `--src-range' or `--dst-range'");
++}
++
++static void
++print_iprange(const struct ipt_iprange *range)
++{
++	const unsigned char *byte_min, *byte_max;
++
++	byte_min = (const unsigned char *) &(range->min_ip);
++	byte_max = (const unsigned char *) &(range->max_ip);
++	printf("%d.%d.%d.%d-%d.%d.%d.%d ", 
++		byte_min[0], byte_min[1], byte_min[2], byte_min[3],
++		byte_max[0], byte_max[1], byte_max[2], byte_max[3]);
++}
++
++/* Prints out the info. */
++static void
++print(const struct ipt_ip *ip,
++      const struct ipt_entry_match *match,
++      int numeric)
++{
++	struct ipt_iprange_info *info = (struct ipt_iprange_info *)match->data;
++
++	if (info->flags & IPRANGE_SRC) {
++		printf("source IP range ");
++		if (info->flags & IPRANGE_SRC_INV)
++			printf("! ");
++		print_iprange(&info->src);
++	}
++	if (info->flags & IPRANGE_DST) {
++		printf("destination IP range ");
++		if (info->flags & IPRANGE_DST_INV)
++			printf("! ");
++		print_iprange(&info->dst);
++	}
++}
++
++/* Saves the union ipt_info in parsable form to stdout. */
++static void
++save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++{
++	struct ipt_iprange_info *info = (struct ipt_iprange_info *)match->data;
++
++	if (info->flags & IPRANGE_SRC) {
++		if (info->flags & IPRANGE_SRC_INV)
++			printf("! ");
++		printf("--src-range ");
++		print_iprange(&info->src);
++		if (info->flags & IPRANGE_DST)
++			fputc(' ', stdout);
++	}
++	if (info->flags & IPRANGE_DST) {
++		if (info->flags & IPRANGE_DST_INV)
++			printf("! ");
++		printf("--dst-range ");
++		print_iprange(&info->dst);
++	}
++}
++
++static
++struct iptables_match iprange
++= { NULL,
++    "iprange",
++    IPTABLES_VERSION,
++    IPT_ALIGN(sizeof(struct ipt_iprange_info)),
++    IPT_ALIGN(sizeof(struct ipt_iprange_info)),
++    &help,
++    &init,
++    &parse,
++    &final_check,
++    &print,
++    &save,
++    opts
++};
++
++void _init(void)
++{
++	register_match(&iprange);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_mac.c userspace/extensions/libipt_mac.c
+--- iptables-1.2.8/extensions/libipt_mac.c	Wed Oct  2 15:52:17 2002
++++ userspace/extensions/libipt_mac.c	Mon Jun 16 13:39:36 2003
+@@ -86,11 +86,11 @@
+ 	return 1;
+ }
+ 
+-static void print_mac(unsigned char macaddress[ETH_ALEN], int invert)
++static void print_mac(unsigned char macaddress[ETH_ALEN])
+ {
+ 	unsigned int i;
+ 
+-	printf("%s%02X", invert ? "! " : "", macaddress[0]);
++	printf("%02X", macaddress[0]);
+ 	for (i = 1; i < ETH_ALEN; i++)
+ 		printf(":%02X", macaddress[i]);
+ 	printf(" ");
+@@ -111,16 +111,21 @@
+       int numeric)
+ {
+ 	printf("MAC ");
+-	print_mac(((struct ipt_mac_info *)match->data)->srcaddr,
+-		  ((struct ipt_mac_info *)match->data)->invert);
++
++	if (((struct ipt_mac_info *)match->data)->invert)
++		printf("! ");
++	
++	print_mac(((struct ipt_mac_info *)match->data)->srcaddr);
+ }
+ 
+ /* Saves the union ipt_matchinfo in parsable form to stdout. */
+ static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
+ {
++	if (((struct ipt_mac_info *)match->data)->invert)
++		printf("! ");
++
+ 	printf("--mac-source ");
+-	print_mac(((struct ipt_mac_info *)match->data)->srcaddr,
+-		  ((struct ipt_mac_info *)match->data)->invert);
++	print_mac(((struct ipt_mac_info *)match->data)->srcaddr);
+ }
+ 
+ static
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_mport.c userspace/extensions/libipt_mport.c
+--- iptables-1.2.8/extensions/libipt_mport.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libipt_mport.c	Tue Jul 15 15:29:20 2003
+@@ -276,10 +276,10 @@
+                     && minfo->ports[i-1] == minfo->ports[i])
+                         break;
+ 		printf("%s", i ? "," : "");
+-		print_port(minfo->ports[i], ip->proto, 0);
++		print_port(minfo->ports[i], ip->proto, 1);
+                 if (pflags & (1<<i)) {
+                         printf(":");
+-                        print_port(minfo->ports[++i], ip->proto, 0);
++                        print_port(minfo->ports[++i], ip->proto, 1);
+                 }
+ 	}
+ 	printf(" ");
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_multiport.c userspace/extensions/libipt_multiport.c
+--- iptables-1.2.8/extensions/libipt_multiport.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libipt_multiport.c	Tue Jul 15 15:29:20 2003
+@@ -237,7 +237,7 @@
+ 
+ 	for (i=0; i < multiinfo->count; i++) {
+ 		printf("%s", i ? "," : "");
+-		print_port(multiinfo->ports[i], ip->proto, 0);
++		print_port(multiinfo->ports[i], ip->proto, 1);
+ 	}
+ 	printf(" ");
+ }
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_owner.c userspace/extensions/libipt_owner.c
+--- iptables-1.2.8/extensions/libipt_owner.c	Mon Jan  6 13:40:33 2003
++++ userspace/extensions/libipt_owner.c	Thu May 22 16:33:34 2003
+@@ -148,7 +148,7 @@
+ 	if(info->match & flag) {
+ 
+ 		if (info->invert & flag)
+-			fputc('!', stdout);
++			printf("! ");
+ 
+ 		printf(label);
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_physdev.c userspace/extensions/libipt_physdev.c
+--- iptables-1.2.8/extensions/libipt_physdev.c	Tue Feb 11 21:19:04 2003
++++ userspace/extensions/libipt_physdev.c	Thu May 22 16:33:34 2003
+@@ -17,14 +17,20 @@
+ {
+ 	printf(
+ "physdev v%s options:\n"
+-" --physdev-in [!] input name[+]	bridge port name ([+] for wildcard)\n"
++" --physdev-in [!] input name[+]		bridge port name ([+] for wildcard)\n"
+ " --physdev-out [!] output name[+]	bridge port name ([+] for wildcard)\n"
++" [!] --physdev-is-in			arrived on a bridge device\n"
++" [!] --physdev-is-out			will leave on a bridge device\n"
++" [!] --physdev-is-bridged		it's a bridged packet\n"
+ "\n", IPTABLES_VERSION);
+ }
+ 
+ static struct option opts[] = {
+ 	{ "physdev-in", 1, 0, '1' },
+ 	{ "physdev-out", 1, 0, '2' },
++	{ "physdev-is-in", 0, 0, '3' },
++	{ "physdev-is-out", 0, 0, '4' },
++	{ "physdev-is-bridged", 0, 0, '5' },
+ 	{0}
+ };
+ 
+@@ -83,26 +89,56 @@
+ 
+ 	switch (c) {
+ 	case '1':
+-		if (*flags & IPT_PHYSDEV_OP_MATCH_IN)
+-			exit_error(PARAMETER_PROBLEM,
+-				   "multiple --physdev-in not allowed");
++		if (*flags & IPT_PHYSDEV_OP_IN)
++			goto multiple_use;
+ 		check_inverse(optarg, &invert, &optind, 0);
+ 		parse_interface(argv[optind-1], info->physindev, info->in_mask);
+ 		if (invert)
+-			info->invert |= IPT_PHYSDEV_OP_MATCH_IN;
+-		*flags |= IPT_PHYSDEV_OP_MATCH_IN;
++			info->invert |= IPT_PHYSDEV_OP_IN;
++		info->bitmask |= IPT_PHYSDEV_OP_IN;
++		*flags |= IPT_PHYSDEV_OP_IN;
+ 		break;
+ 
+ 	case '2':
+-		if (*flags & IPT_PHYSDEV_OP_MATCH_OUT)
+-			exit_error(PARAMETER_PROBLEM,
+-				   "multiple --physdev-out not allowed");
++		if (*flags & IPT_PHYSDEV_OP_OUT)
++			goto multiple_use;
+ 		check_inverse(optarg, &invert, &optind, 0);
+ 		parse_interface(argv[optind-1], info->physoutdev,
+ 				info->out_mask);
+ 		if (invert)
+-			info->invert |= IPT_PHYSDEV_OP_MATCH_OUT;
+-		*flags |= IPT_PHYSDEV_OP_MATCH_OUT;
++			info->invert |= IPT_PHYSDEV_OP_OUT;
++		info->bitmask |= IPT_PHYSDEV_OP_OUT;
++		*flags |= IPT_PHYSDEV_OP_OUT;
++		break;
++
++	case '3':
++		if (*flags & IPT_PHYSDEV_OP_ISIN)
++			goto multiple_use;
++		check_inverse(optarg, &invert, &optind, 0);
++		info->bitmask |= IPT_PHYSDEV_OP_ISIN;
++		if (invert)
++			info->invert |= IPT_PHYSDEV_OP_ISIN;
++		*flags |= IPT_PHYSDEV_OP_ISIN;
++		break;
++
++	case '4':
++		if (*flags & IPT_PHYSDEV_OP_ISOUT)
++			goto multiple_use;
++		check_inverse(optarg, &invert, &optind, 0);
++		info->bitmask |= IPT_PHYSDEV_OP_ISOUT;
++		if (invert)
++			info->invert |= IPT_PHYSDEV_OP_ISOUT;
++		*flags |= IPT_PHYSDEV_OP_ISOUT;
++		break;
++
++	case '5':
++		if (*flags & IPT_PHYSDEV_OP_BRIDGED)
++			goto multiple_use;
++		check_inverse(optarg, &invert, &optind, 0);
++		if (invert)
++			info->invert |= IPT_PHYSDEV_OP_BRIDGED;
++		*flags |= IPT_PHYSDEV_OP_BRIDGED;
++		info->bitmask |= IPT_PHYSDEV_OP_BRIDGED;
+ 		break;
+ 
+ 	default:
+@@ -110,26 +146,16 @@
+ 	}
+ 
+ 	return 1;
+-}
++multiple_use:
++	exit_error(PARAMETER_PROBLEM,
++	   "multiple use of the same physdev option is not allowed");
+ 
+-static void final_check(unsigned int flags)
+-{
+ }
+ 
+-static void print_iface(u_int8_t invert, char *dev, char *prefix)
++static void final_check(unsigned int flags)
+ {
+-	char iface[IFNAMSIZ+2];
+-
+-	if (invert) {
+-		iface[0] = '!';
+-		iface[1] = '\0';
+-	} else
+-		iface[0] = '\0';
+-
+-	if (dev[0] != '\0') {
+-		strcat(iface, dev);
+-		printf("%s%s", prefix, iface);
+-	}
++	if (flags == 0)
++		exit_error(PARAMETER_PROBLEM, "PHYSDEV: no physdev option specified");
+ }
+ 
+ static void
+@@ -141,10 +167,22 @@
+ 		(struct ipt_physdev_info*)match->data;
+ 
+ 	printf("PHYSDEV match");
+-	print_iface(info->invert & IPT_PHYSDEV_OP_MATCH_IN, info->physindev,
+-		    " physindev=");
+-	print_iface(info->invert & IPT_PHYSDEV_OP_MATCH_OUT, info->physoutdev,
+-		    " physoutdev=");
++	if (info->bitmask & IPT_PHYSDEV_OP_ISIN)
++		printf("%s --physdev-is-in",
++		       info->invert & IPT_PHYSDEV_OP_ISIN ? " !":"");
++	if (info->bitmask & IPT_PHYSDEV_OP_IN)
++		printf("%s --physdev-in %s",
++		(info->invert & IPT_PHYSDEV_OP_IN) ? " !":"", info->physindev);
++
++	if (info->bitmask & IPT_PHYSDEV_OP_ISOUT)
++		printf("%s --physdev-is-out",
++		       info->invert & IPT_PHYSDEV_OP_ISOUT ? " !":"");
++	if (info->bitmask & IPT_PHYSDEV_OP_OUT)
++		printf("%s --physdev-out %s",
++		(info->invert & IPT_PHYSDEV_OP_OUT) ? " !":"", info->physoutdev);
++	if (info->bitmask & IPT_PHYSDEV_OP_BRIDGED)
++		printf("%s --physdev-is-bridged",
++		       info->invert & IPT_PHYSDEV_OP_BRIDGED ? " !":"");
+ 	printf(" ");
+ }
+ 
+@@ -153,10 +191,22 @@
+ 	struct ipt_physdev_info *info =
+ 		(struct ipt_physdev_info*)match->data;
+ 
+-	print_iface(info->invert & IPT_PHYSDEV_OP_MATCH_IN, info->physindev,
+-		    "--physdev-in ");
+-	print_iface(info->invert & IPT_PHYSDEV_OP_MATCH_OUT, info->physoutdev,
+-		    "--physdev-out ");
++	if (info->bitmask & IPT_PHYSDEV_OP_ISIN)
++		printf("%s --physdev-is-in",
++		       info->invert & IPT_PHYSDEV_OP_ISIN ? " !":"");
++	if (info->bitmask & IPT_PHYSDEV_OP_IN)
++		printf("%s --physdev-in %s",
++		(info->invert & IPT_PHYSDEV_OP_IN) ? " !":"", info->physindev);
++
++	if (info->bitmask & IPT_PHYSDEV_OP_ISOUT)
++		printf("%s --physdev-is-out",
++		       info->invert & IPT_PHYSDEV_OP_ISOUT ? " !":"");
++	if (info->bitmask & IPT_PHYSDEV_OP_OUT)
++		printf("%s --physdev-out %s",
++		(info->invert & IPT_PHYSDEV_OP_OUT) ? " !":"", info->physoutdev);
++	if (info->bitmask & IPT_PHYSDEV_OP_BRIDGED)
++		printf("%s --physdev-is-bridged",
++		       info->invert & IPT_PHYSDEV_OP_BRIDGED ? " !":"");
+ 	printf(" ");
+ }
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_psd.c userspace/extensions/libipt_psd.c
+--- iptables-1.2.8/extensions/libipt_psd.c	Wed May 29 15:08:16 2002
++++ userspace/extensions/libipt_psd.c	Tue Jul 15 15:29:20 2003
+@@ -11,6 +11,7 @@
+   2000-08-18 Dennis Koslowski <koslowski@astaro.de> : first release
+   2000-12-01 Dennis Koslowski <koslowski@astaro.de> : UDP scans detection added
+   2001-02-04 Jan Rekorajski <baggins@pld.org.pl> : converted from target to match
++  2003-03-02 Harald Welte <laforge@netfilter.org>: fix 'storage' bug
+ */
+ 
+ #include <stdio.h>
+@@ -82,11 +83,11 @@
+ {
+ 	struct ipt_psd_info *psdinfo = (struct ipt_psd_info *)(*match)->data;
+ 	unsigned int num;
+-	char storage[strlen(optarg) + 2];
++	
++	if (!optarg)
++		exit_error(PARAMETER_PROBLEM, "missing optarg");
+ 
+ 	/* string_to_number needs a leading space */
+-	storage[0] = ' ';
+-	strcpy(&storage[1], optarg);
+ 
+ 	switch (c) {
+ 	/* PSD-weight-threshold */
+@@ -95,7 +96,7 @@
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Can't specify --psd-weight-threshold "
+ 				   "twice");
+-                if (string_to_number(storage, 0, 10000, &num) == -1)
++                if (string_to_number(optarg, 0, 10000, &num) == -1)
+                         exit_error(PARAMETER_PROBLEM,
+                                    "bad --psd-weight-threshold `%s'", optarg);
+ 		psdinfo->weight_threshold = num;
+@@ -107,7 +108,7 @@
+ 		if (*flags & IPT_PSD_OPT_DTRESH)
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Can't specify --psd-delay-threshold twice");
+-                if (string_to_number(storage, 0, 10000, &num) == -1)
++                if (string_to_number(optarg, 0, 10000, &num) == -1)
+                         exit_error(PARAMETER_PROBLEM,
+                                    "bad --psd-delay-threshold `%s'", optarg);
+ 		psdinfo->delay_threshold = num;
+@@ -119,7 +120,7 @@
+ 		if (*flags & IPT_PSD_OPT_LPWEIGHT)
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Can't specify --psd-lo-ports-weight twice");
+-                if (string_to_number(storage, 0, 10000, &num) == -1)
++                if (string_to_number(optarg, 0, 10000, &num) == -1)
+                         exit_error(PARAMETER_PROBLEM,
+                                    "bad --psd-lo-ports-weight `%s'", optarg);
+ 		psdinfo->lo_ports_weight = num;
+@@ -131,7 +132,7 @@
+ 		if (*flags & IPT_PSD_OPT_HPWEIGHT)
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Can't specify --psd-hi-ports-weight twice");
+-                if (string_to_number(storage, 0, 10000, &num) == -1)
++                if (string_to_number(optarg, 0, 10000, &num) == -1)
+                         exit_error(PARAMETER_PROBLEM,
+                                    "bad --psd-hi-ports-weight `%s'", optarg);
+ 		psdinfo->hi_ports_weight = num;
+@@ -160,10 +161,10 @@
+ 		= (const struct ipt_psd_info *)match->data;
+ 
+ 	printf("psd ");
+-	printf("weight-threshold: %u ",psdinfo->weight_threshold);
+-	printf("delay-threshold: %u ",psdinfo->delay_threshold);
+-	printf("lo-ports-weight: %u ",psdinfo->lo_ports_weight);
+-	printf("hi-ports-weight: %u ",psdinfo->hi_ports_weight);
++	printf("weight-threshold: %u ", psdinfo->weight_threshold);
++	printf("delay-threshold: %u ", psdinfo->delay_threshold);
++	printf("lo-ports-weight: %u ", psdinfo->lo_ports_weight);
++	printf("hi-ports-weight: %u ", psdinfo->hi_ports_weight);
+ }
+ 
+ /* Saves the union ipt_targinfo in parsable form to stdout. */
+@@ -175,8 +176,8 @@
+ 
+ 	printf("--psd-weight-threshold %u ", psdinfo->weight_threshold);
+ 	printf("--psd-delay-threshold %u ", psdinfo->delay_threshold);
+-	printf("--psd-lo-ports-weight %u ",psdinfo->lo_ports_weight);
+-	printf("--psd-hi-ports-weight %u ",psdinfo->hi_ports_weight);
++	printf("--psd-lo-ports-weight %u ", psdinfo->lo_ports_weight);
++	printf("--psd-hi-ports-weight %u ", psdinfo->hi_ports_weight);
+ }
+ 
+ static
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_recent.c userspace/extensions/libipt_recent.c
+--- iptables-1.2.8/extensions/libipt_recent.c	Sun Mar 30 22:26:42 2003
++++ userspace/extensions/libipt_recent.c	Tue Jun  3 20:18:04 2003
+@@ -8,17 +8,34 @@
+ #include <iptables.h>
+ #include <linux/netfilter_ipv4/ipt_recent.h>
+ 
+-/* need thos two to not fail compilation with old kernel, new userspace */
++/* Need these in order to not fail when compiling against an older kernel. */
+ #ifndef RECENT_NAME
+ #define RECENT_NAME	"ipt_recent"
+ #endif /* RECENT_NAME */
++
+ #ifndef RECENT_VER
+ #define RECENT_VER	"unknown"
+ #endif /* RECENT_VER */
++
+ #ifndef IPT_RECENT_NAME_LEN
+-#define	IPT_RECENT_NAME_LEN	200
++#define IPT_RECENT_NAME_LEN	200
+ #endif /* IPT_RECENT_NAME_LEN */
+ 
++/* Options for this module */
++static struct option opts[] = {
++	{ .name = "set",      .has_arg = 0, .flag = 0, .val = 201 }, 
++	{ .name = "rcheck",   .has_arg = 0, .flag = 0, .val = 202 }, 
++	{ .name = "update",   .has_arg = 0, .flag = 0, .val = 203 },
++	{ .name = "seconds",  .has_arg = 1, .flag = 0, .val = 204 }, 
++	{ .name = "hitcount", .has_arg = 1, .flag = 0, .val = 205 },
++	{ .name = "remove",   .has_arg = 0, .flag = 0, .val = 206 },
++	{ .name = "rttl",     .has_arg = 0, .flag = 0, .val = 207 },
++	{ .name = "name",     .has_arg = 1, .flag = 0, .val = 208 },
++	{ .name = "rsource",  .has_arg = 0, .flag = 0, .val = 209 },
++	{ .name = "rdest",    .has_arg = 0, .flag = 0, .val = 210 },
++	{ .name = 0,          .has_arg = 0, .flag = 0, .val = 0   }
++};
++
+ /* Function which prints out usage message. */
+ static void
+ help(void)
+@@ -41,28 +58,14 @@
+ "                                Useful if you have problems with people spoofing their source address in order\n"
+ "                                to DoS you via this module.\n"
+ "    --name name                 Name of the recent list to be used.  DEFAULT used if none given.\n"
+-"    --rsource                   Save the source address of each packet in the recent list table (default).\n"
+-"    --rdest                     Save the destination address of each packet in the recent list table.\n"
++"    --rsource                   Match/Save the source address of each packet in the recent list table (default).\n"
++"    --rdest                     Match/Save the destination address of each packet in the recent list table.\n"
+ RECENT_NAME " " RECENT_VER ": Stephen Frost <sfrost@snowman.net>.  http://snowman.net/projects/ipt_recent/\n"
+ ,
+ IPTABLES_VERSION);
+ 
+ }
+   
+-static struct option opts[] = {
+-	{ "set", 0, 0, 201 }, 
+-	{ "rcheck", 0, 0, 202 }, 
+-	{ "update", 0, 0, 203 },
+-	{ "seconds", 1, 0, 204 }, 
+-	{ "hitcount", 1, 0, 205 },
+-	{ "remove",0, 0, 206 },
+-	{ "rttl",0, 0, 207},
+-	{ "name", 1, 0, 208},
+-	{ "rsource", 0, 0, 209},
+-	{ "rdest", 0, 0, 210},
+-	{0}
+-};
+-
+ /* Initialize the match. */
+ static void
+ init(struct ipt_entry_match *match, unsigned int *nfcache)
+@@ -175,7 +178,8 @@
+ {
+ 	struct ipt_recent_info *info = (struct ipt_recent_info *)match->data;
+ 
+-	if (info->invert) fputc('!', stdout);
++	if (info->invert)
++		fputc('!', stdout);
+ 
+ 	printf("recent: ");
+ 	if(info->check_set & IPT_RECENT_SET) printf("SET ");
+@@ -194,37 +198,37 @@
+ static void
+ save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
+ {
+-	struct ipt_recent_info *info = (struct ipt_recent_info *)match;
++	struct ipt_recent_info *info = (struct ipt_recent_info *)match->data;
+ 
+-	if (info->invert) fputc('!', stdout);
++	if (info->invert)
++		printf("! ");
+ 
+-	printf("recent: ");
+ 	if(info->check_set & IPT_RECENT_SET) printf("--set ");
+ 	if(info->check_set & IPT_RECENT_CHECK) printf("--rcheck ");
+ 	if(info->check_set & IPT_RECENT_UPDATE) printf("--update ");
+ 	if(info->check_set & IPT_RECENT_REMOVE) printf("--remove ");
+ 	if(info->seconds) printf("--seconds %d ",info->seconds);
+ 	if(info->hit_count) printf("--hitcount %d ",info->hit_count);
+-	if(info->check_set & IPT_RECENT_TTL) printf("-rttl ");
++	if(info->check_set & IPT_RECENT_TTL) printf("--rttl ");
+ 	if(info->name) printf("--name %s ",info->name);
+ 	if(info->side == IPT_RECENT_SOURCE) printf("--rsource ");
+ 	if(info->side == IPT_RECENT_DEST) printf("--rdest ");
+ }
+ 
+-static
+-struct iptables_match recent
+-= { NULL,
+-    "recent",
+-    IPTABLES_VERSION,
+-    IPT_ALIGN(sizeof(struct ipt_recent_info)),
+-    IPT_ALIGN(sizeof(struct ipt_recent_info)),
+-    &help,
+-    &init,
+-    &parse,
+-    &final_check,
+-    &print,
+-    &save,
+-    opts
++/* Structure for iptables to use to communicate with module */
++static struct iptables_match recent = { 
++    .next          = NULL,
++    .name          = "recent",
++    .version       = IPTABLES_VERSION,
++    .size          = IPT_ALIGN(sizeof(struct ipt_recent_info)),
++    .userspacesize = IPT_ALIGN(sizeof(struct ipt_recent_info)),
++    .help          = &help,
++    .init          = &init,
++    .parse         = &parse,
++    .final_check   = &final_check,
++    .print         = &print,
++    .save          = &save,
++    .extra_opts    = opts
+ };
+ 
+ void _init(void)
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_sctp.c userspace/extensions/libipt_sctp.c
+--- iptables-1.2.8/extensions/libipt_sctp.c	Thu Jan  1 01:00:00 1970
++++ userspace/extensions/libipt_sctp.c	Sat May  3 20:05:58 2003
+@@ -0,0 +1,402 @@
++/* Shared library add-on to iptables for SCTP matching
++ *
++ * (C) 2003 by Harald Welte <laforge@gnumonks.org>
++ *
++ * This program is distributed under the terms of GNU GPL v2, 1991
++ *
++ * libipt_ecn.c borrowed heavily from libipt_dscp.c
++ *
++ */
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <netdb.h>
++
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ip_tables.h>
++#include <linux/netfilter_ipv4/ipt_sctp.h>
++
++/* Initialize the match. */
++static void
++init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++	struct ipt_sctp_info *einfo = (struct ipt_sctp_info *)m->data;
++
++	einfo->spts[1] = einfo->dpts[1] = 0xFFFF;
++}
++
++static void help(void) 
++{
++	printf(
++"SCTP match v%s options\n"
++" --sctp-chunks [!] mask comp	match when SCTP chunks & mask == comp\n"
++" --source-port [!] port[:port]\n"
++" --sport ...\n"
++"                               match source port(s)"
++" --destination-port [!] port[:port]\n"
++" --dport ...\n\n",
++	IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{ .name = "source-port", .has_arg = 1, .flag = 0, .val = '1' },
++	{ .name = "sport", .has_arg = 1, .flag = 0, .val = '1' },
++	{ .name = "destination-port", .has_arg = 1, .flag = 0, .val = '2' },
++	{ .name = "dport", .has_arg = 1, .flag = 0, .val = '2' },
++	{ .name = "sctp-chunks", .has_arg = 1, .flag = 0, .val = '3' },
++	{ .name = 0 }
++};
++
++static int
++service_to_port(const char *name)
++{
++	struct servent *service;
++
++	if ((service = getservbyname(name, "sctp")) != NULL)
++		return ntohs((unsigned short) service->s_port);
++
++	return -1;
++}
++
++static u_int16_t
++parse_sctp_port(const char *port)
++{
++	unsigned int portnum;
++
++	if (string_to_number(port, 0, 65535, &portnum) != -1 ||
++	    (portnum = service_to_port(port)) != -1)
++		return (u_int16_t)portnum;
++
++	exit_error(PARAMETER_PROBLEM,
++		   "invalid TCP port/service `%s' specified", port);
++}
++
++
++static void
++parse_sctp_ports(const char *portstring, u_int16_t *ports)
++{
++	char *buffer;
++	char *cp;
++
++	buffer = strdup(portstring);
++	if ((cp = strchr(buffer, ':')) == NULL)
++		ports[0] = ports[1] = parse_sctp_port(buffer);
++	else {
++		*cp = '\0';
++		cp++;
++
++		ports[0] = buffer[0] ? parse_sctp_port(buffer) : 0;
++		ports[1] = cp[0] ? parse_sctp_port(cp) : 0xFFFF;
++
++		if (ports[0] > ports[1])
++			exit_error(PARAMETER_PROBLEM,
++				   "invalid portrange (min > max)");
++	}
++	free(buffer);
++}
++
++struct sctp_chunk_names {
++	const char *name;
++	unsigned int flag;
++};
++
++/* FIXME: */
++#define ALL_CHUNKS	0xabcdef
++static struct sctp_chunk_names sctp_chunk_names[]
++= { { .name = "DATA", 		.flag = (1 << 0) },
++    { .name = "INIT", 		.flag = (1 << 1) },
++    { .name = "INIT_ACK", 	.flag = (1 << 2) },
++    { .name = "SACK",		.flag = (1 << 3) },
++    { .name = "HEARTBEAT",	.flag = (1 << 4) },
++    { .name = "HEARTBEAT_ACK",	.flag = (1 << 5) },
++    { .name = "ABORT",		.flag = (1 << 6) },
++    { .name = "SHUTDOWN",	.flag = (1 << 7) },
++    { .name = "SHUTDOWN_ACK",	.flag = (1 << 8) },
++    { .name = "ERROR",		.flag = (1 << 9) },
++    { .name = "COOKIE_ECHO",	.flag = (1 << 10) },
++    { .name = "COOKIE_ACK",	.flag = (1 << 11) },
++    { .name = "ECN_ECNE",	.flag = (1 << 12) },
++    { .name = "ECN_CWR",	.flag = (1 << 13) },
++    { .name = "SHUTDOWN_COMPLETE", .flag = (1 << 14) },
++    { .name = "ASCONF",		.flag = (1 << 31) },
++    { .name = "ASCONF_ACK",	.flag = (1 << 30) },
++    { .name = "ALL", 		.flag = ALL_CHUNKS },
++    { .name = "NONE",		.flag = 0 },
++};
++
++
++static unsigned int
++parse_sctp_chunk(const char *flags)
++{
++	unsigned int ret = 0;
++	char *ptr;
++	char *buffer;
++
++	buffer = strdup(flags);
++
++	for (ptr = strtok(buffer, ","); ptr; ptr = strtok(NULL, ",")) {
++		unsigned int i;
++		int found = 0;
++		for (i = 0;
++		     i < sizeof(sctp_chunk_names)/sizeof(struct sctp_chunk_names);
++		     i++) {
++			if (strcasecmp(sctp_chunk_names[i].name, ptr) == 0) {
++				ret |= sctp_chunk_names[i].flag;
++				found = 1;
++				break;
++			}
++		}
++		if (!found)
++			exit_error(PARAMETER_PROBLEM,
++				   "Unknown sctp chunk `%s'", ptr);
++	}
++
++	free(buffer);
++	return ret;
++}
++
++static void
++parse_sctp_chunks(struct ipt_sctp_info *einfo,
++		const char *mask,
++		const char *cmp,
++		int invert)
++{
++	einfo->chunks = parse_sctp_chunk(mask);
++	einfo->chunk_mask = parse_sctp_chunk(cmp);
++
++	if (invert)
++		einfo->invflags |= IPT_SCTP_INV_CHUNKS;
++}
++
++#define SCTP_SRC_PORTS	0x01
++#define SCTP_DST_PORTS	0x02
++#define SCTP_CHUNKS	0x03
++
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry,
++      unsigned int *nfcache,
++      struct ipt_entry_match **match)
++{
++	struct ipt_sctp_info *einfo
++		= (struct ipt_sctp_info *)(*match)->data;
++
++	switch (c) {
++	case '1':
++		if (*flags & SCTP_SRC_PORTS)
++			exit_error(PARAMETER_PROBLEM,
++			           "Only one `--source-port' allowed");
++		check_inverse(optarg, &invert, &optind, 0);
++		parse_sctp_ports(argv[optind-1], einfo->spts);
++		if (invert)
++			einfo->invflags |= IPT_SCTP_INV_SRCPT;
++		*flags |= SCTP_SRC_PORTS;
++		*nfcache |= NFC_IP_SRC_PT;
++		break;
++
++	case '2':
++		if (*flags & SCTP_DST_PORTS)
++			exit_error(PARAMETER_PROBLEM,
++				   "Only one `--destination-port' allowed");
++		check_inverse(optarg, &invert, &optind, 0);
++		parse_sctp_ports(argv[optind-1], einfo->dpts);
++		if (invert)
++			einfo->invflags |= IPT_SCTP_INV_DSTPT;
++		*flags |= SCTP_DST_PORTS;
++		*nfcache |= NFC_IP_DST_PT;
++		break;
++
++	case '3':
++		if (*flags & SCTP_CHUNKS)
++			exit_error(PARAMETER_PROBLEM,
++				   "Only one `--sctp-chunks' allowed");
++		check_inverse(optarg, &invert, &optind, 0);
++
++		if (!argv[optind] 
++		    || argv[optind][0] == '-' || argv[optind][0] == '!')
++			exit_error(PARAMETER_PROBLEM,
++				   "--sctp-chunks requires two args");
++
++		parse_sctp_chunks(einfo, argv[optind-1], argv[optind], invert);
++		optind++;
++		*flags |= SCTP_CHUNKS;
++		break;
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++static void
++final_check(unsigned int flags)
++{
++}
++
++static char *
++port_to_service(int port)
++{
++	struct servent *service;
++
++	if ((service = getservbyport(htons(port), "sctp")))
++		return service->s_name;
++
++	return NULL;
++}
++
++static void
++print_port(u_int16_t port, int numeric)
++{
++	char *service;
++
++	if (numeric || (service = port_to_service(port)) == NULL)
++		printf("%u", port);
++	else
++		printf("%s", service);
++}
++
++static void
++print_ports(const char *name, u_int16_t min, u_int16_t max,
++	    int invert, int numeric)
++{
++	const char *inv = invert ? "!" : "";
++
++	if (min != 0 || max != 0xFFFF || invert) {
++		printf("%s", name);
++		if (min == max) {
++			printf(":%s", inv);
++			print_port(min, numeric);
++		} else {
++			printf("s:%s", inv);
++			print_port(min, numeric);
++			printf(":");
++			print_port(max, numeric);
++		}
++		printf(" ");
++	}
++}
++
++static void
++print_chunk(u_int32_t chunks)
++{
++	unsigned int have_flag = 0;
++
++	while (chunks) {
++		unsigned int i;
++
++		for (i = 0; (chunks & sctp_chunk_names[i].flag) == 0; i++);
++
++		if (have_flag)
++			printf(",");
++		printf("%s", sctp_chunk_names[i].name);
++		have_flag = 1;
++
++		chunks &= ~sctp_chunk_names[i].flag;
++	}
++
++	if (!have_flag)
++		printf("NONE");
++}
++
++static void
++print_chunks(u_int32_t mask, u_int32_t cmp, int invert, int numeric)
++{
++	if (mask || invert) {
++		printf("flags:%s", invert ? "!" : "");
++		if (numeric)
++			printf("0x%04X/0x%04X ", mask, cmp);
++		else {
++			print_chunk(mask);
++			printf("/");
++			print_chunk(cmp);
++			printf(" ");
++		}
++	}
++}
++
++/* Prints out the matchinfo. */
++static void
++print(const struct ipt_ip *ip,
++      const struct ipt_entry_match *match,
++      int numeric)
++{
++	const struct ipt_sctp_info *einfo =
++		(const struct ipt_sctp_info *)match->data;
++
++	printf("sctp ");
++
++	print_ports("spt", einfo->spts[0], einfo->spts[1],
++		    einfo->invflags & IPT_SCTP_INV_SRCPT,
++		    numeric);
++	print_ports("dpt", einfo->dpts[0], einfo->dpts[1],
++		    einfo->invflags & IPT_SCTP_INV_DSTPT,
++		    numeric);
++
++	print_chunks(einfo->chunks, einfo->chunk_mask,
++		     einfo->invflags & ~IPT_SCTP_INV_MASK,
++		     numeric);
++}
++
++/* Saves the union ipt_matchinfo in parsable form to stdout. */
++static void
++save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++{
++	const struct ipt_sctp_info *einfo =
++		(const struct ipt_sctp_info *)match->data;
++
++	if (einfo->spts[0] != 0
++	    || einfo->spts[1] != 0xFFFF) {
++		if (einfo->invflags & IPT_SCTP_INV_SRCPT)
++			printf("! ");
++		if (einfo->spts[0] != einfo->spts[1])
++			printf("--sport %u:%u ", 
++			       einfo->spts[0], einfo->spts[1]);
++		else
++			printf("--sport %u ", einfo->spts[0]);
++	}
++
++	if (einfo->dpts[0] != 0
++	    || einfo->dpts[1] != 0xFFFF) {
++		if (einfo->invflags & IPT_SCTP_INV_DSTPT)
++			printf("! ");
++		if (einfo->dpts[0] != einfo->dpts[1])
++			printf("--dport %u:%u ",
++			       einfo->dpts[0], einfo->dpts[1]);
++		else
++			printf("--dport %u ", einfo->dpts[0]);
++	}
++
++	if (einfo->chunks
++	    || (einfo->invflags & IPT_SCTP_INV_CHUNKS)) {
++		if (einfo->invflags & IPT_SCTP_INV_CHUNKS)
++			printf("! ");
++		printf("--sctp-chunks ");
++		if (einfo->chunks != ALL_CHUNKS) {
++			print_chunk(einfo->chunks);
++		}
++		printf(" ");
++		print_chunk(einfo->chunk_mask);
++		printf(" ");
++	}
++}
++
++static
++struct iptables_match sctp
++= { .name          = "sctp",
++    .version       = IPTABLES_VERSION,
++    .size          = IPT_ALIGN(sizeof(struct ipt_sctp_info)),
++    .userspacesize = IPT_ALIGN(sizeof(struct ipt_sctp_info)),
++    .help          = &help,
++    .init          = &init,
++    .parse         = &parse,
++    .final_check   = &final_check,
++    .print         = &print,
++    .save          = &save,
++    .extra_opts    = opts
++};
++
++void _init(void)
++{
++	register_match(&sctp);
++}
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/extensions/libipt_string.c userspace/extensions/libipt_string.c
+--- iptables-1.2.8/extensions/libipt_string.c	Wed Feb 26 18:34:13 2003
++++ userspace/extensions/libipt_string.c	Thu May 22 16:33:34 2003
+@@ -18,23 +18,26 @@
+ #include <iptables.h>
+ #include <linux/netfilter_ipv4/ipt_string.h>
+ 
++
+ /* Function which prints out usage message. */
+ static void
+ help(void)
+ {
+ 	printf(
+ "STRING match v%s options:\n"
+-"--string [!] string             Match a string in a packet\n",
++"--string [!] string          Match a string in a packet\n"
++"--hex-string [!] string      Match a hex string in a packet\n",
+ IPTABLES_VERSION);
+-
+-	fputc('\n', stdout);
+ }
+ 
++
+ static struct option opts[] = {
+-	{ "string", 1, 0, '1' },
+-	{0}
++	{ .name = "string",     .has_arg = 1, .flag = 0, .val = '1' },
++	{ .name = "hex-string", .has_arg = 1, .flag = 0, .val = '2' },
++	{ .name = 0 }
+ };
+ 
++
+ /* Initialize the match. */
+ static void
+ init(struct ipt_entry_match *m, unsigned int *nfcache)
+@@ -42,9 +45,18 @@
+ 	*nfcache |= NFC_UNKNOWN;
+ }
+ 
++
+ static void
+ parse_string(const unsigned char *s, struct ipt_string_info *info)
+ {	
++	if (strlen(s) <= BM_MAX_NLEN) strcpy(info->string, s);
++	else exit_error(PARAMETER_PROBLEM, "STRING too long `%s'", s);
++}
++
++
++static void
++parse_hex_string(const unsigned char *s, struct ipt_string_info *info)
++{
+ 	int i=0, slen, sindex=0, schar;
+ 	short hex_f = 0, literal_f = 0;
+ 	char hextmp[3];
+@@ -90,6 +102,10 @@
+ 				/* must end with a "|" */
+ 				exit_error(PARAMETER_PROBLEM, "Invalid hex block");
+ 			}
++			if (! isxdigit(s[i])) /* check for valid hex char */
++				exit_error(PARAMETER_PROBLEM, "Invalid hex char `%c'", s[i]);
++			if (! isxdigit(s[i+1])) /* check for valid hex char */
++				exit_error(PARAMETER_PROBLEM, "Invalid hex char `%c'", s[i+1]);
+ 			hextmp[0] = s[i];
+ 			hextmp[1] = s[i+1];
+ 			hextmp[2] = '\0';
+@@ -109,8 +125,10 @@
+ 			exit_error(PARAMETER_PROBLEM, "STRING too long `%s'", s);
+ 		sindex++;
+ 	}
++	info->len = sindex;
+ }
+ 
++
+ /* Function which parses command options; returns true if it
+    ate an option */
+ static int
+@@ -123,11 +141,27 @@
+ 
+ 	switch (c) {
+ 	case '1':
++		if (*flags)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify multiple strings");
++
+ 		check_inverse(optarg, &invert, &optind, 0);
+ 		parse_string(argv[optind-1], stringinfo);
+ 		if (invert)
+ 			stringinfo->invert = 1;
+-                stringinfo->len=strlen((char *)&stringinfo->string);
++		stringinfo->len=strlen((char *)&stringinfo->string);
++		*flags = 1;
++		break;
++
++	case '2':
++		if (*flags)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify multiple strings");
++
++		check_inverse(optarg, &invert, &optind, 0);
++		parse_hex_string(argv[optind-1], stringinfo);  /* sets length */
++		if (invert)
++			stringinfo->invert = 1;
+ 		*flags = 1;
+ 		break;
+ 
+@@ -137,14 +171,6 @@
+ 	return 1;
+ }
+ 
+-static void
+-print_string(char string[], int invert, int numeric)
+-{
+-
+-	if (invert)
+-		fputc('!', stdout);
+-	printf("%s ",string);
+-}
+ 
+ /* Final check; must have specified --string. */
+ static void
+@@ -155,42 +181,46 @@
+ 			   "STRING match: You must specify `--string'");
+ }
+ 
++
+ /* Prints out the matchinfo. */
+ static void
+ print(const struct ipt_ip *ip,
+       const struct ipt_entry_match *match,
+       int numeric)
+ {
+-	printf("STRING match ");
+-	print_string(((struct ipt_string_info *)match->data)->string,
+-		  ((struct ipt_string_info *)match->data)->invert, numeric);
++	const struct ipt_string_info *info =
++	    (const struct ipt_string_info*) match->data;
++
++	printf("STRING match %s%s ", (info->invert) ? "!" : "", info->string);
+ }
+ 
+-/* Saves the union ipt_matchinfo in parsable form to stdout. */
++
++/* Saves the union ipt_matchinfo in parseable form to stdout. */
+ static void
+ save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
+ {
+-	printf("--string ");
+-	print_string(((struct ipt_string_info *)match->data)->string,
+-		  ((struct ipt_string_info *)match->data)->invert, 0);
+-}
+-
+-static
+-struct iptables_match string
+-= { NULL,
+-    "string",
+-    IPTABLES_VERSION,
+-    IPT_ALIGN(sizeof(struct ipt_string_info)),
+-    IPT_ALIGN(sizeof(struct ipt_string_info)),
+-    &help,
+-    &init,
+-    &parse,
+-    &final_check,
+-    &print,
+-    &save,
+-    opts
++	const struct ipt_string_info *info =
++	    (const struct ipt_string_info*) match->data;
++
++	printf("--string %s%s ", (info->invert) ? "! ": "", info->string);
++}
++
++
++static struct iptables_match string = {
++    .name          = "string",
++    .version       = IPTABLES_VERSION,
++    .size          = IPT_ALIGN(sizeof(struct ipt_string_info)),
++    .userspacesize = IPT_ALIGN(sizeof(struct ipt_string_info)),
++    .help          = &help,
++    .init          = &init,
++    .parse         = &parse,
++    .final_check   = &final_check,
++    .print         = &print,
++    .save          = &save,
++    .extra_opts    = opts
+ };
+ 
++
+ void _init(void)
+ {
+ 	register_match(&string);
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/include/libiptc/libip6tc.h userspace/include/libiptc/libip6tc.h
+--- iptables-1.2.8/include/libiptc/libip6tc.h	Mon Feb 25 10:00:36 2002
++++ userspace/include/libiptc/libip6tc.h	Thu May 22 16:33:34 2003
+@@ -26,6 +26,9 @@
+ /* Take a snapshot of the rules. Returns NULL on error. */
+ ip6tc_handle_t ip6tc_init(const char *tablename);
+ 
++/* Cleanup after ip6tc_init(). */
++void ip6tc_free(ip6tc_handle_t *h);
++
+ /* Iterator functions to run through the chains.  Returns NULL at end. */
+ const char *ip6tc_first_chain(ip6tc_handle_t *handle);
+ const char *ip6tc_next_chain(ip6tc_handle_t *handle);
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/include/libiptc/libiptc.h userspace/include/libiptc/libiptc.h
+--- iptables-1.2.8/include/libiptc/libiptc.h	Thu Apr 19 18:35:39 2001
++++ userspace/include/libiptc/libiptc.h	Thu May 22 16:33:34 2003
+@@ -34,6 +34,9 @@
+ /* Take a snapshot of the rules.  Returns NULL on error. */
+ iptc_handle_t iptc_init(const char *tablename);
+ 
++/* Cleanup after iptc_init(). */
++void iptc_free(iptc_handle_t *h);
++
+ /* Iterator functions to run through the chains.  Returns NULL at end. */
+ const char *iptc_first_chain(iptc_handle_t *handle);
+ const char *iptc_next_chain(iptc_handle_t *handle);
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/include/linux/netfilter_ipv4/ipt_connlimit.h userspace/include/linux/netfilter_ipv4/ipt_connlimit.h
+--- iptables-1.2.8/include/linux/netfilter_ipv4/ipt_connlimit.h	Thu Jan  1 01:00:00 1970
++++ userspace/include/linux/netfilter_ipv4/ipt_connlimit.h	Wed Apr 30 18:54:48 2003
+@@ -0,0 +1,12 @@
++#ifndef _IPT_CONNLIMIT_H
++#define _IPT_CONNLIMIT_H
++
++struct ipt_connlimit_data;
++
++struct ipt_connlimit_info {
++	int limit;
++	int inverse;
++	u_int32_t mask;
++	struct ipt_connlimit_data *data;
++};
++#endif /* _IPT_CONNLIMIT_H */
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/include/linux/netfilter_ipv4/ipt_iplimit.h userspace/include/linux/netfilter_ipv4/ipt_iplimit.h
+--- iptables-1.2.8/include/linux/netfilter_ipv4/ipt_iplimit.h	Wed Feb 28 12:21:54 2001
++++ userspace/include/linux/netfilter_ipv4/ipt_iplimit.h	Thu Jan  1 01:00:00 1970
+@@ -1,12 +0,0 @@
+-#ifndef _IPT_IPLIMIT_H
+-#define _IPT_IPLIMIT_H
+-
+-struct ipt_iplimit_data;
+-
+-struct ipt_iplimit_info {
+-	int limit;
+-	int inverse;
+-	u_int32_t mask;
+-	struct ipt_iplimit_data *data;
+-};
+-#endif /* _IPT_IPLIMIT_H */
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/include/linux/netfilter_ipv4/ipt_physdev.h userspace/include/linux/netfilter_ipv4/ipt_physdev.h
+--- iptables-1.2.8/include/linux/netfilter_ipv4/ipt_physdev.h	Tue Feb 11 21:19:04 2003
++++ userspace/include/linux/netfilter_ipv4/ipt_physdev.h	Thu May 22 16:33:34 2003
+@@ -5,11 +5,16 @@
+ #include <linux/if.h>
+ #endif
+ 
+-#define IPT_PHYSDEV_OP_MATCH_IN 0x01
+-#define IPT_PHYSDEV_OP_MATCH_OUT 0x02
++#define IPT_PHYSDEV_OP_IN		0x01
++#define IPT_PHYSDEV_OP_OUT		0x02
++#define IPT_PHYSDEV_OP_BRIDGED		0x04
++#define IPT_PHYSDEV_OP_ISIN		0x08
++#define IPT_PHYSDEV_OP_ISOUT		0x10
++#define IPT_PHYSDEV_OP_MASK		(0x20 - 1)
+ 
+ struct ipt_physdev_info {
+ 	u_int8_t invert;
++	u_int8_t bitmask;
+ 	char physindev[IFNAMSIZ];
+ 	char in_mask[IFNAMSIZ];
+ 	char physoutdev[IFNAMSIZ];
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/include/linux/netfilter_ipv4/ipt_sctp.h userspace/include/linux/netfilter_ipv4/ipt_sctp.h
+--- iptables-1.2.8/include/linux/netfilter_ipv4/ipt_sctp.h	Thu Jan  1 01:00:00 1970
++++ userspace/include/linux/netfilter_ipv4/ipt_sctp.h	Sat May  3 20:05:58 2003
+@@ -0,0 +1,25 @@
++/* iptables module for matching the SCTP header
++ *
++ * (C) 2003 Harald Welte <laforge@gnumonks.org>
++ *
++ * This software is distributed under GNU GPL v2, 1991
++ *
++ * $Id$
++ */
++#ifndef _IPT_SCTP_H
++#define _IPT_SCTP_H
++
++struct ipt_sctp_info {
++	u_int16_t spts[2];			/* Souce port range */
++	u_int16_t dpts[2];			/* Destination port range */
++	u_int32_t chunks;			/* chunks to be matched */
++	u_int32_t chunk_mask;			/* chunk mask to be matched */
++	u_int8_t invflags;			/* Inverse flags */
++};
++
++#define IPT_SCTP_INV_SRCPT	0x01	/* Invert the sense of source ports */
++#define IPT_SCTP_INV_DSTPT	0x02	/* Invert the sense of dest ports */
++#define IPT_SCTP_INV_CHUNKS	0x03	/* Invert the sense of chunks */
++#define IPT_SCTP_INV_MASK	0x03	/* All possible flags */
++
++#endif /* _IPT_SCTP_H */
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/ip6tables-restore.c userspace/ip6tables-restore.c
+--- iptables-1.2.8/ip6tables-restore.c	Wed Mar  5 08:46:15 2003
++++ userspace/ip6tables-restore.c	Thu May 22 16:33:34 2003
+@@ -7,7 +7,7 @@
+  * 	Rusty Russell <rusty@linuxcare.com.au>
+  * This code is distributed under the terms of GNU GPL v2
+  *
+- * $Id$
++ * $Id$
+  */
+ 
+ #include <getopt.h>
+@@ -102,7 +102,7 @@
+ 
+ int main(int argc, char *argv[])
+ {
+-	ip6tc_handle_t handle;
++	ip6tc_handle_t handle = NULL;
+ 	char buffer[10240];
+ 	int c;
+ 	char curtable[IP6T_TABLE_MAXNAMELEN + 1];
+@@ -183,6 +183,9 @@
+ 			}
+ 			strncpy(curtable, table, IP6T_TABLE_MAXNAMELEN);
+ 
++			if (handle)
++				ip6tc_free(&handle);
++
+ 			handle = create_handle(table, modprobe);
+ 			if (noflush == 0) {
+ 				DEBUGP("Cleaning all chains of table '%s'\n",
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/ip6tables-save.c userspace/ip6tables-save.c
+--- iptables-1.2.8/ip6tables-save.c	Wed Aug 14 13:40:41 2002
++++ userspace/ip6tables-save.c	Thu May 22 16:33:34 2003
+@@ -305,6 +305,8 @@
+ 		exit_error(OTHER_PROBLEM, "Binary NYI\n");
+ 	}
+ 
++	ip6tc_free(&h);
++
+ 	return 1;
+ }
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/ip6tables.8 userspace/ip6tables.8
+--- iptables-1.2.8/ip6tables.8	Wed Aug  7 11:56:14 2002
++++ userspace/ip6tables.8	Tue Jul 15 15:29:20 2003
+@@ -27,7 +27,7 @@
+ .SH NAME
+ ip6tables \- IPv6 packet filter administration
+ .SH SYNOPSIS
+-.BR "ip6tables [-t table] -[ADC] " "chain rule-specification [options]"
++.BR "ip6tables [-t table] -[AD] " "chain rule-specification [options]"
+ .br
+ .BR "ip6tables [-t table] -I " "chain [rulenum] rule-specification [options]"
+ .br
+@@ -93,8 +93,9 @@
+ that table if it is not already there.
+ 
+ The tables are as follows:
+-.TP
+-.B "filter"
++.RS
++.TP .4i
++.BR "filter" :
+ This is the default table (if no -t option is passed).  It contains
+ the built-in chains
+ .B INPUT
+@@ -104,7 +105,7 @@
+ .B OUTPUT
+ (for locally-generated packets).
+ .TP
+-.B "mangle"
++.BR "mangle" :
+ This table is used for specialized packet alteration.  Until kernel
+ 2.4.17 it had two built-in chains:
+ .B PREROUTING
+@@ -118,6 +119,7 @@
+ (for altering packets being routed through the box), and
+ .B POSTROUTING
+ (for altering packets as they are about to go out).
++.RE
+ .SH OPTIONS
+ The options that are recognized by
+ .B ip6tables
+@@ -157,10 +159,10 @@
+ .BR "-L, --list " "[\fIchain\fP]"
+ List all rules in the selected chain.  If no chain is selected, all
+ chains are listed.  As every other iptables command, it applies to the
+-specified table (filter is the default), so NAT rules get listed by
+-.br
+- iptables -t nat -n -L
+-.br
++specified table (filter is the default), so mangle rules get listed by
++.nf
++ ip6tables -t mangle -n -L
++.fi
+ Please note that it is often used with the
+ .B -n
+ option, in order to avoid long reverse DNS lookups.
+@@ -169,9 +171,9 @@
+ (zero) option as well, in which case the chain(s) will be atomically
+ listed and zeroed.  The exact output is affected by the other
+ arguments given. The exact rules are suppressed until you use
+-.br
++.nf
+  ip6tables -L -v
+-.br
++.fi
+ .TP
+ .BR "-F, --flush " "[\fIchain\fP]"
+ Flush the selected chain (all the chains in the table if none is given).
+@@ -398,14 +400,14 @@
+ set.  Flags are: 
+ .BR "SYN ACK FIN RST URG PSH ALL NONE" .
+ Hence the command
+-.br
++.nf
+  ip6tables -A FORWARD -p tcp --tcp-flags SYN,ACK,FIN,RST SYN
+-.br
++.fi
+ will only match packets with the SYN flag set, and the ACK, FIN and
+ RST flags unset.
+ .TP
+ .B "[!] --syn"
+-Only match TCP packets with the SYN bit set and the ACK and FIN bits
++Only match TCP packets with the SYN bit set and the ACK and RST bits
+ cleared.  Such packets are used to request TCP connection initiation;
+ for example, blocking such packets coming in an interface will prevent
+ incoming TCP connections, but outgoing TCP connections will be
+@@ -438,9 +440,9 @@
+ .BR "--icmpv6-type " "[!] \fItypename\fP"
+ This allows specification of the ICMP type, which can be a numeric
+ IPv6-ICMP type, or one of the IPv6-ICMP type names shown by the command
+-.br
++.nf
+  ip6tables -p ipv6-icmp -h
+-.br
++.fi
+ .SS mac
+ .TP
+ .BR "--mac-source " "[!] \fIaddress\fP"
+@@ -607,15 +609,17 @@
+ returned:
+ .TP
+ .BI "--reject-with " "type"
+-The type given can be 
+-.BR icmp6-no-route ,
+-.BR no-route ,
+-.BR icmp6-adm-prohibited ,
+-.BR adm-prohibited ,
+-.BR icmp6-addr-unreachable ,
+-.BR addr-unreach ,
+-.BR icmp6-port-unreachable ,
+-.BR port-unreach ,
++The type given can be
++.nf
++.B " icmp6-no-route"
++.B " no-route"
++.B " icmp6-adm-prohibited"
++.B " adm-prohibited"
++.B " icmp6-addr-unreachable"
++.B " addr-unreach"
++.B " icmp6-port-unreachable"
++.B " port-unreach"
++.fi
+ which return the appropriate IPv6-ICMP error message (\fBport-unreach\fP is
+ the default). Finally, the option
+ .B tcp-reset
+@@ -751,7 +755,8 @@
+ .B OUTPUT
+ are only traversed for packets coming into the local host and
+ originating from the local host respectively.  Hence every packet only
+-passes through one of the three chains; previously a forwarded packet
++passes through one of the three chains (except loopback traffic, which
++involves both INPUT and OUTPUT chains); previously a forwarded packet
+ would pass through all three.
+ .PP
+ The other main difference is that 
+@@ -805,12 +810,11 @@
+ .PP
+ Harald Welte wrote the ULOG target, TTL match+target and libipulog.
+ .PP
+-The Netfilter Core Team is: Marc Boucher, Jozsef Kadlecsik, James Morris,
+-Harald Welte and Rusty Russell.
++The Netfilter Core Team is: Marc Boucher, Martin Josefsson, Jozsef Kadlecsik,
++James Morris, Harald Welte and Rusty Russell.
+ .PP
+ ip6tables man page created by Andras Kis-Szabo, based on
+ iptables man page written by Herve Eychenne <rv@wallfire.org>.
+-
+ .\" .. and did I mention that we are incredibly cool people?
+ .\" .. sexy, too ..
+ .\" .. witty, charming, powerful ..
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/ip6tables.c userspace/ip6tables.c
+--- iptables-1.2.8/ip6tables.c	Wed Mar  5 08:46:15 2003
++++ userspace/ip6tables.c	Tue Jul 15 15:29:20 2003
+@@ -578,10 +578,13 @@
+ static char *
+ mask_to_numeric(const struct in6_addr *addrp)
+ {
+-	static char buf[20];
++	static char buf[50+2];
+ 	int l = ipv6_prefix_length(addrp);
+-	if (l == -1)
+-		return addr_to_numeric(addrp);
++	if (l == -1) {
++		strcpy(buf, "/");
++		strcat(buf, addr_to_numeric(addrp));
++		return buf;
++	}
+ 	sprintf(buf, "/%d", l);
+ 	return buf;
+ }
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/iptables-restore.c userspace/iptables-restore.c
+--- iptables-1.2.8/iptables-restore.c	Thu Mar  6 12:56:31 2003
++++ userspace/iptables-restore.c	Thu May 22 16:33:34 2003
+@@ -4,7 +4,7 @@
+  *
+  * This code is distributed under the terms of GNU GPL v2
+  *
+- * $Id$
++ * $Id$
+  */
+ 
+ #include <getopt.h>
+@@ -99,7 +99,7 @@
+ 
+ int main(int argc, char *argv[])
+ {
+-	iptc_handle_t handle;
++	iptc_handle_t handle = NULL;
+ 	char buffer[10240];
+ 	int c;
+ 	char curtable[IPT_TABLE_MAXNAMELEN + 1];
+@@ -180,6 +180,9 @@
+ 			}
+ 			strncpy(curtable, table, IPT_TABLE_MAXNAMELEN);
+ 
++			if (handle)
++				iptc_free(&handle);
++
+ 			handle = create_handle(table, modprobe);
+ 			if (noflush == 0) {
+ 				DEBUGP("Cleaning all chains of table '%s'\n",
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/iptables-save.c userspace/iptables-save.c
+--- iptables-1.2.8/iptables-save.c	Wed Aug  7 11:07:41 2002
++++ userspace/iptables-save.c	Thu May 22 16:33:34 2003
+@@ -304,6 +304,8 @@
+ 		exit_error(OTHER_PROBLEM, "Binary NYI\n");
+ 	}
+ 
++	iptc_free(&h);
++
+ 	return 1;
+ }
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/iptables.8 userspace/iptables.8
+--- iptables-1.2.8/iptables.8	Mon Mar  3 23:23:22 2003
++++ userspace/iptables.8	Tue Jul 15 15:29:20 2003
+@@ -25,7 +25,7 @@
+ .SH NAME
+ iptables \- administration tool for IPv4 packet filtering and NAT
+ .SH SYNOPSIS
+-.BR "iptables [-t table] -[ADC] " "chain rule-specification [options]"
++.BR "iptables [-t table] -[AD] " "chain rule-specification [options]"
+ .br
+ .BR "iptables [-t table] -I " "chain [rulenum] rule-specification [options]"
+ .br
+@@ -91,8 +91,9 @@
+ that table if it is not already there.
+ 
+ The tables are as follows:
+-.TP
+-.B "filter"
++.RS
++.TP .4i
++.BR "filter" :
+ This is the default table (if no -t option is passed).  It contains
+ the built-in chains
+ .B INPUT
+@@ -102,7 +103,7 @@
+ .B OUTPUT
+ (for locally-generated packets).
+ .TP
+-.B "nat"
++.BR "nat" :
+ This table is consulted when a packet that creates a new
+ connection is encountered.  It consists of three built-ins:
+ .B PREROUTING
+@@ -112,7 +113,7 @@
+ .B POSTROUTING
+ (for altering packets as they are about to go out).
+ .TP
+-.B "mangle"
++.BR "mangle" :
+ This table is used for specialized packet alteration.  Until kernel
+ 2.4.17 it had two built-in chains:
+ .B PREROUTING
+@@ -126,6 +127,7 @@
+ (for altering packets being routed through the box), and
+ .B POSTROUTING
+ (for altering packets as they are about to go out).
++.RE
+ .SH OPTIONS
+ The options that are recognized by
+ .B iptables
+@@ -166,9 +168,9 @@
+ List all rules in the selected chain.  If no chain is selected, all
+ chains are listed.  As every other iptables command, it applies to the
+ specified table (filter is the default), so NAT rules get listed by
+-.br
++.nf
+  iptables -t nat -n -L
+-.br
++.fi
+ Please note that it is often used with the
+ .B -n
+ option, in order to avoid long reverse DNS lookups.
+@@ -177,9 +179,9 @@
+ (zero) option as well, in which case the chain(s) will be atomically
+ listed and zeroed.  The exact output is affected by the other
+ arguments given. The exact rules are suppressed until you use
+-.br
++.nf
+  iptables -L -v
+-.br
++.fi
+ .TP
+ .BR "-F, --flush " "[\fIchain\fP]"
+ Flush the selected chain (all the chains in the table if none is given).
+@@ -450,12 +452,13 @@
+ .TP
+ .BI "--helper " "string"
+ Matches packets related to the specified conntrack-helper.
+-.TP
++.RS
++.PP
+ string can be "ftp" for packets related to a ftp-session on default port.
+ For other ports append -portnr to the value, ie. "ftp-2121".
+-.br
++.PP
+ Same rules apply for other conntrack-helpers.
+-.br
++.RE
+ .SS icmp
+ This extension is loaded if `--protocol icmp' is specified.  It
+ provides the following option:
+@@ -463,9 +466,9 @@
+ .BR "--icmp-type " "[!] \fItypename\fP"
+ This allows specification of the ICMP type, which can be a numeric
+ ICMP type, or one of the ICMP type names shown by the command
+-.br
++.nf
+  iptables -p icmp -h
+-.br
++.fi
+ .SS length
+ This module matches the length of a packet against a specific value
+ or range of values.
+@@ -557,8 +560,7 @@
+ supporting this feature)
+ .SS physdev
+ This module matches on the bridge port input and output devices enslaved
+-to a bridge device. This is only useful if the input device or output device
+-is a bridge device. This module is a part of the infrastructure that enables
++to a bridge device. This module is a part of the infrastructure that enables
+ a transparent bridging IP firewall and is only useful for kernel versions
+ above version 2.5.44.
+ .TP
+@@ -570,7 +572,8 @@
+ and
+ .B PREROUTING
+ chains). If the interface name ends in a "+", then any
+-interface which begins with this name will match.
++interface which begins with this name will match. If the packet didn't arrive
++through a bridge device, this packet won't match this option, unless '!' is used.
+ .TP
+ .B --physdev-out name
+ Name of a bridge port via which a packet is going to be sent (for packets
+@@ -585,7 +588,19 @@
+ .B OUTPUT
+ chains one cannot match on the bridge output port, however one can in the
+ .B "filter OUTPUT"
+-chain.
++chain. If the packet won't leave by a bridge device or it is yet unknown what
++the output device will be, then the packet won't match this option, unless
++'!' is used.
++.TP
++.B --physdev-is-in
++Matches if the packet has entered through a bridge interface.
++.TP
++.B --physdev-is-out
++Matches if the packet will leave through a bridge interface.
++.TP
++.B --physdev-is-bridged
++Matches if the packet is being bridged and therefore is not being routed.
++This is only useful in the FORWARD and POSTROUTING chains.
+ .SS pkttype
+ This module matches the link-layer packet type.
+ .TP
+@@ -598,7 +613,9 @@
+ Where state is a comma separated list of the connection states to
+ match.  Possible states are
+ .B INVALID
+-meaning that the packet is associated with no known connection,
++meaning that the packet could not be identified for some reason which
++includes running out of memory and ICMP errors which don't correspond to any
++known connection,
+ .B ESTABLISHED
+ meaning that the packet is associated with a connection which has seen
+ packets in both directions,
+@@ -638,9 +655,9 @@
+ set.  Flags are:
+ .BR "SYN ACK FIN RST URG PSH ALL NONE" .
+ Hence the command
+-.br
++.nf
+  iptables -A FORWARD -p tcp --tcp-flags SYN,ACK,FIN,RST SYN
+-.br
++.fi
+ will only match packets with the SYN flag set, and the ACK, FIN and
+ RST flags unset.
+ .TP
+@@ -718,7 +735,8 @@
+ .BR "-p udp" ).
+ If no port range is specified, then the destination port will never be
+ modified.
+-.TP
++.RS
++.PP
+ You can add several --to-destination options.  If you specify more
+ than one destination address, either via an address range or multiple
+ --to-destination options, a simple round-robin (one after another in
+@@ -848,12 +866,15 @@
+ .TP
+ .BI "--reject-with " "type"
+ The type given can be
+-.BR icmp-net-unreachable ,
+-.BR icmp-host-unreachable ,
+-.BR icmp-port-unreachable ,
+-.BR icmp-proto-unreachable ,
+-.BR "icmp-net-prohibited or"
+-.BR icmp-host-prohibited ,
++.nf
++.B " icmp-net-unreachable"
++.B " icmp-host-unreachable"
++.B " icmp-port-unreachable"
++.B " icmp-proto-unreachable"
++.B " icmp-net-prohibited"
++.B " icmp-host-prohibited or"
++.B " icmp-admin-prohibited (*)"
++.fi
+ which return the appropriate ICMP error message (\fBport-unreachable\fP is
+ the default).  The option
+ .B tcp-reset
+@@ -862,6 +883,8 @@
+ .I ident
+ (113/tcp) probes which frequently occur when sending mail to broken mail
+ hosts (which won't accept your mail otherwise).
++.TP
++(*) Using icmp-admin-prohibited with kernels that do not support it will result in a plain DROP instead of REJECT
+ .SS SNAT
+ This target is only valid in the
+ .B nat
+@@ -883,7 +906,8 @@
+ mapped to other ports below 512: those between 512 and 1023 inclusive
+ will be mapped to ports below 1024, and other ports will be mapped to
+ 1024 or above. Where possible, no port alteration will occur.
+-.TP
++.RS
++.PP
+ You can add several --to-source options.  If you specify more
+ than one source address, either via an address range or multiple
+ --to-source options, a simple round-robin (one after another in
+@@ -900,19 +924,25 @@
+ problem are that everything works fine from your Linux
+ firewall/router, but machines behind it can never exchange large
+ packets:
+-.br
+- 1) Web browsers connect, then hang with no data received.
+-.br
+- 2) Small mail works fine, but large emails hang.
+-.br
+- 3) ssh works fine, but scp hangs after initial handshaking.
+-.br
++.PD 0
++.RS 0.1i
++.TP 0.3i
++1)
++Web browsers connect, then hang with no data received.
++.TP
++2)
++Small mail works fine, but large emails hang.
++.TP
++3)
++ssh works fine, but scp hangs after initial handshaking.
++.RE
++.PD
+ Workaround: activate this option and add a rule to your firewall
+ configuration like:
+-.br
++.nf
+  iptables -A FORWARD -p tcp --tcp-flags SYN,RST SYN \\
+-.br
+              -j TCPMSS --clamp-mss-to-pmtu
++.fi
+ .TP
+ .BI "--set-mss " "value"
+ Explicitly set MSS option to specified value.
+@@ -929,9 +959,9 @@
+ .TP
+ .BI "--set-tos " "tos"
+ You can use a numeric TOS values, or use
+-.br
++.nf
+  iptables -j TOS -h
+-.br
++.fi
+ to see the list of valid TOS names.
+ .SS ULOG
+ This target provides userspace logging of matching packets.  When this
+@@ -979,7 +1009,8 @@
+ .B OUTPUT
+ are only traversed for packets coming into the local host and
+ originating from the local host respectively.  Hence every packet only
+-passes through one of the three chains; previously a forwarded packet
++passes through one of the three chains (except loopback traffic, which
++involves both INPUT and OUTPUT chains); previously a forwarded packet
+ would pass through all three.
+ .PP
+ The other main difference is that
+@@ -996,13 +1027,11 @@
+ optional extension modules.  This should simplify much of the previous
+ confusion over the combination of IP masquerading and packet filtering
+ seen previously.  So the following options are handled differently:
+-.br
++.nf
+  -j MASQ
+-.br
+  -M -S
+-.br
+  -M -L
+-.br
++.fi
+ There are several other changes in iptables.
+ .SH SEE ALSO
+ .BR iptables-save (8),
+@@ -1033,11 +1062,10 @@
+ .PP
+ Harald Welte wrote the ULOG target, TTL, DSCP, ECN matches and targets.
+ .PP
+-The Netfilter Core Team is: Marc Boucher, Jozsef Kadlecsik, James Morris,
+-Harald Welte and Rusty Russell.
++The Netfilter Core Team is: Marc Boucher, Martin Josefsson, Jozsef Kadlecsik, 
++James Morris, Harald Welte and Rusty Russell.
+ .PP
+ Man page written by Herve Eychenne <rv@wallfire.org>.
+-
+ .\" .. and did I mention that we are incredibly cool people?
+ .\" .. sexy, too ..
+ .\" .. witty, charming, powerful ..
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/iptables.c userspace/iptables.c
+--- iptables-1.2.8/iptables.c	Mon Mar 31 14:11:55 2003
++++ userspace/iptables.c	Tue Jun  3 20:18:04 2003
+@@ -337,7 +337,7 @@
+ exit_tryhelp(int status)
+ {
+ 	if (line != -1)
+-		fprintf(stderr, "Error occured at line: %d\n", line);
++		fprintf(stderr, "Error occurred at line: %d\n", line);
+ 	fprintf(stderr, "Try `%s -h' or '%s --help' for more information.\n",
+ 			program_name, program_name );
+ 	exit(status);
+@@ -1254,14 +1254,14 @@
+ 
+ 	fputc(fw->ip.invflags & IPT_INV_DSTIP ? '!' : ' ', stdout);
+ 	if (fw->ip.dmsk.s_addr == 0L && !(format & FMT_NUMERIC))
+-		printf(FMT("%-19s","-> %s"), "anywhere");
++		printf(FMT("%-19s ","-> %s"), "anywhere");
+ 	else {
+ 		if (format & FMT_NUMERIC)
+ 			sprintf(buf, "%s", addr_to_dotted(&(fw->ip.dst)));
+ 		else
+ 			sprintf(buf, "%s", addr_to_anyname(&(fw->ip.dst)));
+ 		strcat(buf, mask_to_dotted(&(fw->ip.dmsk)));
+-		printf(FMT("%-19s","-> %s"), buf);
++		printf(FMT("%-19s ","-> %s"), buf);
+ 	}
+ 
+ 	if (format & FMT_NOTABLE)
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/libiptc/libip4tc.c userspace/libiptc/libip4tc.c
+--- iptables-1.2.8/libiptc/libip4tc.c	Wed Jun 12 21:22:29 2002
++++ userspace/libiptc/libip4tc.c	Thu May 22 16:33:35 2003
+@@ -91,6 +91,7 @@
+ #define TC_SET_POLICY		iptc_set_policy
+ #define TC_GET_RAW_SOCKET	iptc_get_raw_socket
+ #define TC_INIT			iptc_init
++#define TC_FREE			iptc_free
+ #define TC_COMMIT		iptc_commit
+ #define TC_STRERROR		iptc_strerror
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/libiptc/libip6tc.c userspace/libiptc/libip6tc.c
+--- iptables-1.2.8/libiptc/libip6tc.c	Thu Feb 14 00:13:23 2002
++++ userspace/libiptc/libip6tc.c	Tue Jul 15 15:29:20 2003
+@@ -86,6 +86,7 @@
+ #define TC_SET_POLICY		ip6tc_set_policy
+ #define TC_GET_RAW_SOCKET	ip6tc_get_raw_socket
+ #define TC_INIT			ip6tc_init
++#define TC_FREE			ip6tc_free
+ #define TC_COMMIT		ip6tc_commit
+ #define TC_STRERROR		ip6tc_strerror
+ 
+@@ -110,7 +111,7 @@
+ #include "libiptc.c"
+ 
+ #define BIT6(a, l) \
+- (((a->in6_u.u6_addr32[(l) / 32]) >> ((l) & 31)) & 1)
++ ((ntohl(a->in6_u.u6_addr32[(l) / 32]) >> (31 - ((l) & 31))) & 1)
+ 
+ int
+ ipv6_prefix_length(const struct in6_addr *a)
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/libiptc/libiptc.c userspace/libiptc/libiptc.c
+--- iptables-1.2.8/libiptc/libiptc.c	Wed May 29 15:08:16 2002
++++ userspace/libiptc/libiptc.c	Tue Jul 15 15:29:20 2003
+@@ -1,4 +1,4 @@
+-/* Library which manipulates firewall rules.  Version $Revision$ */
++/* Library which manipulates firewall rules.  Version $Revision$ */
+ 
+ /* Architecture of firewall rules is as follows:
+  *
+@@ -8,8 +8,17 @@
+  * and a POLICY for built-ins.
+  */
+ 
+-/* (C)1999 Paul ``Rusty'' Russell - Placed under the GNU GPL (See
+-   COPYING for details). */
++/* (C) 1999 Paul ``Rusty'' Russell - Placed under the GNU GPL (See
++ * COPYING for details). 
++ * (C) 2000-2003 by the Netfilter Core Team <coreteam@netfilter.org>
++ *
++ * 2003-Jun-20: Harald Welte <laforge@netfilter.org>:
++ *	- Reimplementation of chain cache to use offsets instead of entries
++ * 2003-Jun-23: Harald Welte <laforge@netfilter.org>:
++ * 	- performance optimization, sponsored by Astaro AG (http://www.astaro.com/)
++ * 	  don't rebuild the chain cache after every operation, instead fix it
++ * 	  up after a ruleset change.  
++ */
+ 
+ #ifndef IPT_LIB_DIR
+ #define IPT_LIB_DIR "/usr/local/lib/iptables"
+@@ -59,9 +68,9 @@
+ {
+ 	char name[TABLE_MAXNAMELEN];
+ 	/* This is the first rule in chain. */
+-	STRUCT_ENTRY *start;
++	unsigned int start_off;
+ 	/* Last rule in chain */
+-	STRUCT_ENTRY *end;
++	unsigned int end_off;
+ };
+ 
+ STRUCT_TC_HANDLE
+@@ -94,13 +103,6 @@
+ static void
+ set_changed(TC_HANDLE_T h)
+ {
+-	if (h->cache_chain_heads) {
+-		free(h->cache_chain_heads);
+-		h->cache_chain_heads = NULL;
+-		h->cache_num_chains = 0;
+-		h->cache_chain_iteration = NULL;
+-		h->cache_rule_end = NULL;
+-	}
+ 	h->changed = 1;
+ }
+ 
+@@ -171,15 +173,28 @@
+ static inline unsigned long
+ entry2offset(const TC_HANDLE_T h, const STRUCT_ENTRY *e)
+ {
+-	return (char *)e - (char *)h->entries.entrytable;
++	return (void *)e - (void *)h->entries.entrytable;
+ }
+ 
+-static unsigned long
++static inline unsigned long
+ index2offset(TC_HANDLE_T h, unsigned int index)
+ {
+ 	return entry2offset(h, index2entry(h, index));
+ }
+ 
++static inline STRUCT_ENTRY *
++offset2entry(TC_HANDLE_T h, unsigned int offset)
++{
++	return (STRUCT_ENTRY *) ((void *)h->entries.entrytable+offset);
++}
++
++static inline unsigned int
++offset2index(const TC_HANDLE_T h, unsigned int offset)
++{
++	return entry2index(h, offset2entry(h, offset));
++}
++
++
+ static const char *
+ get_errorlabel(TC_HANDLE_T h, unsigned int offset)
+ {
+@@ -234,25 +249,32 @@
+ 
+ 	iptc_fn = TC_INIT;
+ 
+-	if (sockfd != -1)
++	if (sockfd != -1) {
+ 		close(sockfd);
++		sockfd = -1;
++	}
+ 
++	if (strlen(tablename) >= TABLE_MAXNAMELEN) {
++		errno = EINVAL;
++		return NULL;
++	}
++	
+ 	sockfd = socket(TC_AF, SOCK_RAW, IPPROTO_RAW);
+ 	if (sockfd < 0)
+ 		return NULL;
+ 
+ 	s = sizeof(info);
+-	if (strlen(tablename) >= TABLE_MAXNAMELEN) {
+-		errno = EINVAL;
+-		return NULL;
+-	}
++
+ 	strcpy(info.name, tablename);
+ 	if (getsockopt(sockfd, TC_IPPROTO, SO_GET_INFO, &info, &s) < 0)
+ 		return NULL;
+ 
+ 	if ((h = alloc_handle(info.name, info.size, info.num_entries))
+-	    == NULL)
++	    == NULL) {
++		close(sockfd);
++		sockfd = -1;
+ 		return NULL;
++	}
+ 
+ /* Too hard --RR */
+ #if 0
+@@ -284,6 +306,8 @@
+ 
+ 	if (getsockopt(sockfd, TC_IPPROTO, SO_GET_ENTRIES, &h->entries,
+ 		       &tmp) < 0) {
++		close(sockfd);
++		sockfd = -1;
+ 		free(h);
+ 		return NULL;
+ 	}
+@@ -292,6 +316,17 @@
+ 	return h;
+ }
+ 
++void
++TC_FREE(TC_HANDLE_T *h)
++{
++	close(sockfd);
++	sockfd = -1;
++	if ((*h)->cache_chain_heads)
++		free((*h)->cache_chain_heads);
++	free(*h);
++	*h = NULL;
++}
++
+ static inline int
+ print_match(const STRUCT_ENTRY_MATCH *m)
+ {
+@@ -349,7 +384,8 @@
+ 	/* Last entry.  End it. */
+ 	if (entry2offset(h, e) + e->next_offset == h->entries.size) {
+ 		/* This is the ERROR node at end of the table */
+-		h->cache_chain_heads[h->cache_num_chains-1].end = *prev;
++		h->cache_chain_heads[h->cache_num_chains-1].end_off = 
++			entry2offset(h, *prev);
+ 		return 0;
+ 	}
+ 
+@@ -357,24 +393,24 @@
+ 	   target, or a hook entry point */
+ 	if (strcmp(GET_TARGET(e)->u.user.name, ERROR_TARGET) == 0) {
+ 		/* prev was last entry in previous chain */
+-		h->cache_chain_heads[h->cache_num_chains-1].end
+-			= *prev;
++		h->cache_chain_heads[h->cache_num_chains-1].end_off
++			= entry2offset(h, *prev);
+ 
+ 		strcpy(h->cache_chain_heads[h->cache_num_chains].name,
+ 		       (const char *)GET_TARGET(e)->data);
+-		h->cache_chain_heads[h->cache_num_chains].start
+-			= (void *)e + e->next_offset;
++		h->cache_chain_heads[h->cache_num_chains].start_off
++			= entry2offset(h, (void *)e + e->next_offset);
+ 		h->cache_num_chains++;
+ 	} else if ((builtin = is_hook_entry(e, h)) != 0) {
+ 		if (h->cache_num_chains > 0)
+ 			/* prev was last entry in previous chain */
+-			h->cache_chain_heads[h->cache_num_chains-1].end
+-				= *prev;
++			h->cache_chain_heads[h->cache_num_chains-1].end_off
++				= entry2offset(h, *prev);
+ 
+ 		strcpy(h->cache_chain_heads[h->cache_num_chains].name,
+ 		       h->hooknames[builtin-1]);
+-		h->cache_chain_heads[h->cache_num_chains].start
+-			= (void *)e;
++		h->cache_chain_heads[h->cache_num_chains].start_off
++			= entry2offset(h, (void *)e);
+ 		h->cache_num_chains++;
+ 	}
+ 
+@@ -421,6 +457,81 @@
+ 	return 1;
+ }
+ 
++static int 
++correct_cache(TC_HANDLE_T h, unsigned int offset, int delta)
++{
++	int i;		/* needs to be signed because deleting first
++			   chain can make it drop to -1 */
++
++	if (!delta)
++		return 1;
++
++	for (i = 0; i < h->cache_num_chains; i++) {
++		struct chain_cache *cc = &h->cache_chain_heads[i];
++
++		if (delta < 0) {
++			/* take care about deleted chains */
++			if (cc->start_off > offset+delta
++			    && cc->end_off < offset) {
++				/* this chain is within the deleted range,
++				 * let's remove it from the cache */
++				void *start;
++				unsigned int size;
++
++				h->cache_num_chains--;
++
++				/* no need for memmove since we are 
++				 * removing the last entry */
++				if (i >= h->cache_num_chains)
++					continue;
++
++				start = &h->cache_chain_heads[i+1];
++				size = (h->cache_num_chains-i)
++					* sizeof(struct chain_cache);
++				memmove(cc, start, size);
++
++				/* iterate over same index again, since
++				 * it is now a different chain */
++				i--;
++				continue;
++			}
++		}
++
++		if (cc->start_off > offset)
++			cc->start_off += delta;
++
++		if (cc->end_off >= offset)
++			cc->end_off += delta;
++	}
++	/* HW_FIXME: sorting might be needed, but just in case a new chain was
++	 * added */
++
++	return 1;
++}
++
++static int
++add_chain_cache(TC_HANDLE_T h, const char *name, unsigned int start_off,
++		unsigned int end_off)
++{
++	struct chain_cache *ccs = realloc(h->cache_chain_heads, 
++					  (h->new_number / 2 + 4 + 1)
++					   * sizeof(struct chain_cache));
++	struct chain_cache *newcc;
++	
++	if (!ccs)
++		return 0;
++
++	h->cache_chain_heads = ccs;
++	newcc = &h->cache_chain_heads[h->cache_num_chains];
++	h->cache_num_chains++;
++
++	strncpy(newcc->name, name, TABLE_MAXNAMELEN-1);
++	newcc->start_off = start_off;
++	newcc->end_off = end_off;
++
++	return 1;
++}
++
+ /* Returns cache ptr if found, otherwise NULL. */
+ static struct chain_cache *
+ find_label(const char *name, TC_HANDLE_T handle)
+@@ -523,11 +634,11 @@
+ 	}
+ 
+ 	/* Empty chain: single return/policy rule */
+-	if (c->start == c->end)
++	if (c->start_off == c->end_off)
+ 		return NULL;
+ 
+-	(*handle)->cache_rule_end = c->end;
+-	return c->start;
++	(*handle)->cache_rule_end = offset2entry(*handle, c->end_off);
++	return offset2entry(*handle, c->start_off);
+ }
+ 
+ /* Returns NULL when rules run out. */
+@@ -666,7 +777,7 @@
+ 	return target_name(*handle, e);
+ }
+ 
+-static int
++static inline int
+ correct_verdict(STRUCT_ENTRY *e,
+ 		char *base,
+ 		unsigned int offset, int delta_offset)
+@@ -767,8 +878,16 @@
+ 	newh->entries.size = (*handle)->entries.size + rules_size;
+ 	newh->hooknames = (*handle)->hooknames;
+ 
+-	if ((*handle)->cache_chain_heads)
+-		free((*handle)->cache_chain_heads);
++	newh->cache_chain_heads = (*handle)->cache_chain_heads;
++	newh->cache_num_builtins = (*handle)->cache_num_builtins;
++	newh->cache_num_chains = (*handle)->cache_num_chains;
++	newh->cache_rule_end = (*handle)->cache_rule_end;
++	newh->cache_chain_iteration = (*handle)->cache_chain_iteration;
++	if (!correct_cache(newh, offset, rules_size)) {
++		free(newh);
++		return 0;
++	}
++
+ 	free(*handle);
+ 	*handle = newh;
+ 
+@@ -827,6 +946,10 @@
+ 	(*handle)->new_number -= num_rules;
+ 	(*handle)->entries.size -= rules_size;
+ 
++	/* Fix the chain cache */
++	if (!correct_cache(*handle, offset+rules_size, -(int)rules_size))
++		return 0;
++
+ 	return set_verdict(offset, -(int)rules_size, handle);
+ }
+ 
+@@ -884,7 +1007,7 @@
+ 
+ 		c = find_label(t->u.user.name, handle);
+ 		if (c)
+-			return standard_map(e, entry2offset(handle, c->start));
++			return standard_map(e, c->start_off);
+ 	}
+ 
+ 	/* Must be a module?  If not, kernel will reject... */
+@@ -924,10 +1047,10 @@
+ 		return 0;
+ 	}
+ 
+-	chainindex = entry2index(*handle, c->start);
++	chainindex = offset2index(*handle, c->start_off);
+ 
+ 	tmp = index2entry(*handle, chainindex + rulenum);
+-	if (!tmp || tmp > c->end) {
++	if (!tmp || tmp > offset2entry(*handle, c->end_off)) {
+ 		errno = E2BIG;
+ 		return 0;
+ 	}
+@@ -964,10 +1087,10 @@
+ 		return 0;
+ 	}
+ 
+-	chainindex = entry2index(*handle, c->start);
++	chainindex = offset2index(*handle, c->start_off);
+ 
+ 	tmp = index2entry(*handle, chainindex + rulenum);
+-	if (!tmp || tmp >= c->end) {
++	if (!tmp || tmp >= offset2entry(*handle, c->end_off)) {
+ 		errno = E2BIG;
+ 		return 0;
+ 	}
+@@ -1005,13 +1128,11 @@
+ 	}
+ 
+ 	if (!map_target(*handle, (STRUCT_ENTRY *)e,
+-			entry2offset(*handle, c->end), &old))
++			c->end_off, &old))
+ 		return 0;
+ 
+-	ret = insert_rules(1, e->next_offset, e,
+-			   entry2offset(*handle, c->end),
+-			   entry2index(*handle, c->end),
+-			   0, handle);
++	ret = insert_rules(1, e->next_offset, e, c->end_off, 
++			   offset2index(*handle, c->end_off), 0, handle);
+ 	unmap_target((STRUCT_ENTRY *)e, &old);
+ 	return ret;
+ }
+@@ -1085,8 +1206,7 @@
+ 		return 0;
+ 	}
+ 
+-	for (offset = entry2offset(*handle, c->start);
+-	     offset < entry2offset(*handle, c->end);
++	for (offset = c->start_off; offset < c->end_off;
+ 	     offset += e->next_offset) {
+ 		STRUCT_ENTRY_TARGET discard;
+ 
+@@ -1135,9 +1255,9 @@
+ 		return 0;
+ 	}
+ 
+-	index = entry2index(*handle, c->start) + rulenum;
++	index = offset2index(*handle, c->start_off) + rulenum;
+ 
+-	if (index >= entry2index(*handle, c->end)) {
++	if (index >= offset2index(*handle, c->end_off)) {
+ 		errno = E2BIG;
+ 		return 0;
+ 	}
+@@ -1169,6 +1289,7 @@
+ TC_FLUSH_ENTRIES(const IPT_CHAINLABEL chain, TC_HANDLE_T *handle)
+ {
+ 	unsigned int startindex, endindex;
++	STRUCT_ENTRY *startentry, *endentry;
+ 	struct chain_cache *c;
+ 	int ret;
+ 
+@@ -1177,12 +1298,14 @@
+ 		errno = ENOENT;
+ 		return 0;
+ 	}
+-	startindex = entry2index(*handle, c->start);
+-	endindex = entry2index(*handle, c->end);
++	startindex = offset2index(*handle, c->start_off);
++	endindex = offset2index(*handle, c->end_off);
++	startentry = offset2entry(*handle, c->start_off);
++	endentry = offset2entry(*handle, c->end_off);
+ 
+ 	ret = delete_rules(endindex - startindex,
+-			   (char *)c->end - (char *)c->start,
+-			   entry2offset(*handle, c->start), startindex,
++			   (char *)endentry - (char *)startentry,
++			   c->start_off, startindex,
+ 			   handle);
+ 	return ret;
+ }
+@@ -1199,8 +1322,8 @@
+ 		return 0;
+ 	}
+ 
+-	i = entry2index(*handle, c->start);
+-	end = entry2index(*handle, c->end);
++	i = offset2index(*handle, c->start_off);
++	end = offset2index(*handle, c->end_off);
+ 
+ 	for (; i <= end; i++) {
+ 		if ((*handle)->counter_map[i].maptype ==COUNTER_MAP_NORMAL_MAP)
+@@ -1228,8 +1351,8 @@
+ 		return NULL;
+ 	}
+ 
+-	chainindex = entry2index(*handle, c->start);
+-	end = entry2index(*handle, c->end);
++	chainindex = offset2index(*handle, c->start_off);
++	end = offset2index(*handle, c->end_off);
+ 
+ 	if (chainindex + rulenum > end) {
+ 		errno = E2BIG;
+@@ -1258,8 +1381,8 @@
+ 		return 0;
+ 	}
+ 
+-	chainindex = entry2index(*handle, c->start);
+-	end = entry2index(*handle, c->end);
++	chainindex = offset2index(*handle, c->start_off);
++	end = offset2index(*handle, c->end_off);
+ 
+ 	if (chainindex + rulenum > end) {
+ 		errno = E2BIG;
+@@ -1297,8 +1420,8 @@
+ 		return 0;
+ 	}
+ 
+-	chainindex = entry2index(*handle, c->start);
+-	end = entry2index(*handle, c->end);
++	chainindex = offset2index(*handle, c->start_off);
++	end = offset2index(*handle, c->end_off);
+ 
+ 	if (chainindex + rulenum > end) {
+ 		errno = E2BIG;
+@@ -1330,6 +1453,7 @@
+ 		STRUCT_ENTRY ret;
+ 		STRUCT_STANDARD_TARGET target;
+ 	} newc;
++	unsigned int destination;
+ 
+ 	iptc_fn = TC_CREATE_CHAIN;
+ 
+@@ -1367,11 +1491,21 @@
+ 		= ALIGN(sizeof(STRUCT_STANDARD_TARGET));
+ 	newc.target.verdict = RETURN;
+ 
++	destination = index2offset(*handle, (*handle)->new_number -1);
++
+ 	/* Add just before terminal entry */
+ 	ret = insert_rules(2, sizeof(newc), &newc.head,
+-			   index2offset(*handle, (*handle)->new_number - 1),
++			   destination,
+ 			   (*handle)->new_number - 1,
+ 			   0, handle);
++
++	set_changed(*handle);
++
++	/* add chain cache info for this chain */
++	add_chain_cache(*handle, chain, 
++			destination+newc.head.next_offset, 
++			destination+newc.head.next_offset);
++
+ 	return ret;
+ }
+ 
+@@ -1405,7 +1539,7 @@
+ 	*ref = 0;
+ 	ENTRY_ITERATE((*handle)->entries.entrytable,
+ 		      (*handle)->entries.size,
+-		      count_ref, entry2offset(*handle, c->start), ref);
++		      count_ref, c->start_off, ref);
+ 	return 1;
+ }
+ 
+@@ -1417,6 +1551,7 @@
+ 	unsigned int references;
+ 	struct chain_cache *c;
+ 	int ret;
++	STRUCT_ENTRY *start;
+ 
+ 	if (!TC_GET_REFERENCES(&references, chain, handle))
+ 		return 0;
+@@ -1438,18 +1573,20 @@
+ 		return 0;
+ 	}
+ 
+-	if ((void *)c->start != c->end) {
++	if (c->start_off != c->end_off) {
+ 		errno = ENOTEMPTY;
+ 		return 0;
+ 	}
+ 
+ 	/* Need label index: preceeds chain start */
+-	labelidx = entry2index(*handle, c->start) - 1;
++	labelidx = offset2index(*handle, c->start_off) - 1;
+ 	labeloff = index2offset(*handle, labelidx);
+ 
++	start = offset2entry(*handle, c->start_off);
++
+ 	ret = delete_rules(2,
+ 			   get_entry(*handle, labeloff)->next_offset
+-			   + c->start->next_offset,
++			   + start->next_offset,
+ 			   labeloff, labelidx, handle);
+ 	return ret;
+ }
+@@ -1488,7 +1625,7 @@
+ 	}
+ 
+ 	/* Need label index: preceeds chain start */
+-	labelidx = entry2index(*handle, c->start) - 1;
++	labelidx = offset2index(*handle, c->start_off) - 1;
+ 	labeloff = index2offset(*handle, labelidx);
+ 
+ 	t = (struct ipt_error_target *)
+@@ -1496,6 +1633,11 @@
+ 
+ 	memset(t->error, 0, sizeof(t->error));
+ 	strcpy(t->error, newname);
++
++	/* update chain cache */
++	memset(c->name, 0, sizeof(c->name));
++	strcpy(c->name, newname);
++
+ 	set_changed(*handle);
+ 
+ 	return 1;
+@@ -1582,11 +1724,13 @@
+ 	STRUCT_REPLACE *repl;
+ 	STRUCT_COUNTERS_INFO *newcounters;
+ 	unsigned int i;
+-	size_t counterlen
+-		= sizeof(STRUCT_COUNTERS_INFO)
+-		+ sizeof(STRUCT_COUNTERS) * (*handle)->new_number;
++	size_t counterlen;
+ 
+ 	CHECK(*handle);
++
++	counterlen = sizeof(STRUCT_COUNTERS_INFO)
++			+ sizeof(STRUCT_COUNTERS) * (*handle)->new_number;
++
+ #if 0
+ 	TC_DUMP_ENTRIES(*handle);
+ #endif
+@@ -1713,10 +1857,7 @@
+ 	free(newcounters);
+ 
+  finished:
+-	if ((*handle)->cache_chain_heads)
+-		free((*handle)->cache_chain_heads);
+-	free(*handle);
+-	*handle = NULL;
++	TC_FREE(handle);
+ 	return 1;
+ }
+ 
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/libipulog/Makefile userspace/libipulog/Makefile
+--- iptables-1.2.8/libipulog/Makefile	Thu Jan  1 01:00:00 1970
++++ userspace/libipulog/Makefile	Fri Mar 16 14:40:52 2001
+@@ -0,0 +1,16 @@
++EXTRAS+=libipulog/libipulog.a
++
++DEVEL_LIBS+=libipulog/libipulog.a
++
++ifndef TOPLEVEL_INCLUDED
++local:
++	cd .. && $(MAKE) $(KERN_TARGETS) $(SHARED_LIBS) $(EXTRAS)
++
++else
++EXTRA_DEPENDS+=echo libipulog/libipulog.d
++
++libipulog/libipulog.a: libipulog/libipulog.a(libipulog/libipulog.o)
++
++libipulog/libipulog.d: %.d: %.c
++	@-$(CC) -M -MG $(CFLAGS) $< | sed -e 's@^.*\.o:@$*.d $*.a($*.o):@' > $@
++endif
+diff -urN -x CVS -x .cvsignore iptables-1.2.8/libipulog/libipulog.c userspace/libipulog/libipulog.c
+--- iptables-1.2.8/libipulog/libipulog.c	Thu Jan  1 01:00:00 1970
++++ userspace/libipulog/libipulog.c	Tue Jan 30 13:05:43 2001
+@@ -0,0 +1,249 @@
++/* 
++ * libipulog.c, 1.6
++ *
++ * netfilter ULOG userspace library.
++ *
++ * (C) 2000 by Harald Welte <laforge@gnumonks.org>
++ * released under the terms of GNU GPL
++ *
++ * This library is still under development, so be aware of sudden interface
++ * changes
++ *
++ * libipulog.c,v 1.6 2001/01/30 09:28:04 laforge Exp
++ */
++
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++#include <unistd.h>
++#include <net/if.h>
++#include <libipulog/libipulog.h>
++
++struct ipulog_handle
++{
++	int fd;
++	u_int8_t blocking;
++	struct sockaddr_nl local;
++	struct sockaddr_nl peer;
++	struct nlmsghdr* last_nlhdr;
++};
++
++/* internal */
++
++enum 
++{
++	IPULOG_ERR_NONE = 0,
++	IPULOG_ERR_IMPL,
++	IPULOG_ERR_HANDLE,
++	IPULOG_ERR_SOCKET,
++	IPULOG_ERR_BIND,
++	IPULOG_ERR_RECVBUF,
++	IPULOG_ERR_RECV,
++	IPULOG_ERR_NLEOF,
++	IPULOG_ERR_TRUNC,
++	IPULOG_ERR_INVGR,
++	IPULOG_ERR_INVNL,
++};
++
++#define IPULOG_MAXERR IPULOG_ERR_INVNL
++
++static int ipulog_errno = IPULOG_ERR_NONE;
++
++struct ipulog_errmap_t 
++{
++	int errcode;
++	char *message;
++} ipulog_errmap[] = 
++{
++	{ IPULOG_ERR_NONE, "No error" },
++	{ IPULOG_ERR_IMPL, "Not implemented yet" },
++	{ IPULOG_ERR_HANDLE, "Unable to create netlink handle" },
++	{ IPULOG_ERR_SOCKET, "Unable to create netlink socket" },
++	{ IPULOG_ERR_BIND, "Unable to bind netlink socket" },
++	{ IPULOG_ERR_RECVBUF, "Receive buffer size invalid" },
++	{ IPULOG_ERR_RECV, "Error during netlink receive" },
++	{ IPULOG_ERR_NLEOF, "Received EOF on netlink socket" },
++	{ IPULOG_ERR_TRUNC, "Receive message truncated" },
++	{ IPULOG_ERR_INVGR, "Invalid group specified" },
++	{ IPULOG_ERR_INVNL, "Invalid netlink message" },
++};
++
++static ssize_t ipulog_netlink_recvfrom(const struct ipulog_handle *h,
++			unsigned char *buf, size_t len)
++{
++	int addrlen, status;
++	struct nlmsghdr *nlh;
++	
++	if (len < sizeof(struct nlmsgerr)) {
++		ipulog_errno = IPULOG_ERR_RECVBUF;
++		return -1; 
++	}
++	addrlen = sizeof(h->peer);
++	status = recvfrom(h->fd, buf, len, 0, (struct sockaddr *)&h->peer,	
++			&addrlen);
++	if (status < 0) 
++	{
++		ipulog_errno = IPULOG_ERR_RECV;
++		return status;
++	}
++	if (addrlen != sizeof (h->peer))
++	{
++		ipulog_errno = IPULOG_ERR_RECV;
++		return -1;
++	}	
++	if (status == 0)
++	{
++		ipulog_errno = IPULOG_ERR_NLEOF;
++		return -1;
++	}
++	nlh = (struct nlmsghdr *)buf;
++	if (nlh->nlmsg_flags & MSG_TRUNC || status > len)
++	{
++		ipulog_errno = IPULOG_ERR_TRUNC;
++		return -1;
++	}
++	return status;
++}
++
++static char *ipulog_strerror(int errcode)
++{
++	if (errcode < 0 || errcode > IPULOG_MAXERR)
++		errcode = IPULOG_ERR_IMPL;
++	return ipulog_errmap[errcode].message;
++}
++
++
++/* public */
++
++/* convert a netlink group (1-32) to a group_mask suitable for create_handle */
++u_int32_t ipulog_group2gmask(u_int32_t group)
++{
++	if (group < 1 || group > 32)
++	{
++		ipulog_errno = IPULOG_ERR_INVGR;
++		return 0;
++	}
++	return (1 << (group - 1));
++}
++
++/* create a ipulog handle for the reception of packets sent to gmask */
++struct ipulog_handle *ipulog_create_handle(unsigned int gmask)
++{
++	struct ipulog_handle *h;
++	int status;
++
++	h = (struct ipulog_handle *) malloc(sizeof(struct ipulog_handle));
++	if (h == NULL)
++	{
++		ipulog_errno = IPULOG_ERR_HANDLE;
++		return NULL;
++	}
++	memset(h, 0, sizeof(struct ipulog_handle));
++	h->fd = socket(PF_NETLINK, SOCK_RAW, NETLINK_NFLOG);
++	if (h->fd == -1)
++	{
++		ipulog_errno = IPULOG_ERR_SOCKET;
++		close(h->fd);
++		free(h);
++		return NULL;
++	}
++	memset(&h->local, 0, sizeof(struct sockaddr_nl));
++	h->local.nl_family = AF_NETLINK;
++	h->local.nl_pid = getpid();
++	h->local.nl_groups = gmask;
++	status = bind(h->fd, (struct sockaddr *)&h->local, sizeof(h->local));
++	if (status == -1)
++	{
++		ipulog_errno = IPULOG_ERR_BIND;
++		close(h->fd);
++		free(h);
++		return NULL;
++	}
++	memset(&h->peer, 0, sizeof(struct sockaddr_nl));
++	h->peer.nl_family = AF_NETLINK;
++	h->peer.nl_pid = 0;
++	h->peer.nl_groups = gmask;
++
++	return h;
++} 
++
++/* destroy a ipulog handle */
++void ipulog_destroy_handle(struct ipulog_handle *h)
++{
++	close(h->fd);
++	free(h);
++}
++
++#if 0
++int ipulog_set_mode()
++{
++}
++#endif
++
++/* do a BLOCKING read on an ipulog handle */
++ssize_t ipulog_read(struct ipulog_handle *h, unsigned char *buf,
++		    size_t len, int timeout)
++{
++	return ipulog_netlink_recvfrom(h, buf, len);
++}
++
++/* get a pointer to the actual start of the ipulog packet,
++   use this to strip netlink header */
++ulog_packet_msg_t *ipulog_get_packet(struct ipulog_handle *h,
++				     const unsigned char *buf, 
++				     size_t len)
++{
++	struct nlmsghdr *nlh;
++	size_t remain_len;
++
++	/* if last header in handle not inside this buffer,
++	 * drop reference to last header */
++	if ((unsigned char *)h->last_nlhdr > (buf + len) || 
++	    (unsigned char *)h->last_nlhdr < buf) {
++		h->last_nlhdr = NULL;
++	}
++	
++	if (!h->last_nlhdr) {
++		/* fist message in buffer */
++		nlh = (struct nlmsghdr *) buf;
++		if (!NLMSG_OK(nlh, len)) {
++			/* ERROR */
++			ipulog_errno = IPULOG_ERR_INVNL;
++			return NULL;
++		}
++	} else {
++		/* we are in n-th part of multilink message */
++		if (h->last_nlhdr->nlmsg_type == NLMSG_DONE) {
++			/* if last part in multilink message, return */
++			h->last_nlhdr = NULL;
++			return NULL;
++		}
++
++		/* calculate remaining lenght from lasthdr to end of buffer */
++		remain_len = (len - 
++				((unsigned char *)h->last_nlhdr - buf));
++		nlh = NLMSG_NEXT(h->last_nlhdr, remain_len);
++	}
++
++	/* update last_nlhdr field */
++	if (nlh->nlmsg_flags & NLM_F_MULTI) {
++			h->last_nlhdr = nlh;
++	}
++
++	return NLMSG_DATA(nlh);
++}
++
++/* print a human readable description of the last error to stderr */
++void ipulog_perror(const char *s)
++{
++	if (s)
++		fputs(s, stderr);
++	else
++		fputs("ERROR", stderr);
++	if (ipulog_errno)
++		fprintf(stderr, ": %s", ipulog_strerror(ipulog_errno));
++	if (errno)
++		fprintf(stderr, ": %s", strerror(errno));
++	fputc('\n', stderr);
++}
++
