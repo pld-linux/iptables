@@ -3,8 +3,8 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		netfilter_snap		20040608
-%define		iptables_version	1.2.10
+%define		netfilter_snap		20040629
+%define		iptables_version	1.2.11
 %define		llh_version		7:2.6.6.0-3
 %define		name6			ip6tables
 #
@@ -20,7 +20,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2.1
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -35,9 +35,10 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-1.2.9-ipt_imq.patch
-Patch2:		%{name}-libipt_time.patch
+Patch0:		%{name}-netfilter.patch
+Patch1:		%{name}-Makefile.patch
+Patch2:		%{name}-1.2.9-ipt_imq.patch
+Patch3:		%{name}-libipt_time.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -120,6 +121,7 @@ iptables(8).
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
