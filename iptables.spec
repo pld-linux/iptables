@@ -40,7 +40,7 @@ Patch1:		%{name}-1.2.9-ipt_p2p.patch
 %{?!_without_howto:BuildRequires:	tetex-latex}
 %{?!_without_howto:BuildRequires:	tetex-tex-babel}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
-BuildRequires:	perl
+BuildRequires:	perl-base
 %if %{netfilter_snap} != 0
 %{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
 %endif
