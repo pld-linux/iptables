@@ -27,8 +27,8 @@ License:	GPL
 Group:		Networking/Daemons
 #Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/iptables-%{version}-%{_snap}.tar.bz2
 Source0:	%{name}-%{iptables_version}_%{_snap}.tar.bz2
+# Source0-md5:	ebfa2eeb9d4435f6b79a5e3664ac5ce7
 # Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-## Source0-md5:	c3358a3bd0d7755df0b64a5063db296b
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
