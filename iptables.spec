@@ -3,8 +3,8 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-#%define		netfilter_snap	0
-%define		netfilter_snap	20030827
+%define		netfilter_snap	0
+#%%define		netfilter_snap	20030827
 %define		iptables_version	1.2.8
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -24,7 +24,8 @@ License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+Source0:	http://www.netfilter.org/files/%{name}-%{iptables_version}.tar.bz2
+# Source0-md5:	4eda3f086da423b7fe35802b5b833db0
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 %{?!_without_howto:BuildRequires:	sgml-tools}
@@ -35,7 +36,7 @@ BuildRequires:	perl
 #%%if %{netfilter_snap} != 0
 #%%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
 #%%else
-%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
+#%%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
 #%%endif
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
@@ -43,7 +44,7 @@ Obsoletes:	ipchains
 #%%if %{netfilter_snap} != 0
 #%%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}-%{netfilter_snap}}
 #%%else
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
+#%%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
 #%%endif
 
 Provides:	firewall-userspace-tool
