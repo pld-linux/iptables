@@ -2,7 +2,7 @@ Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.1.0
-Release:	3
+Release:	4
 License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
@@ -11,7 +11,7 @@ Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://netfilter.kernelnotes.org/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/iptables-howtos.tar.bz2
 Source2:	rc.firewall
-Patch:		iptables-ipv6-CVS-20000628.patch.gz
+Patch:		iptables-ipv6-CVS-20000703.patch.gz
 BuildRequires:	sgml-tools
 #Requires:	kernel >= 2.3.99
 Obsoletes:	netfilter
@@ -35,7 +35,9 @@ Wydajny system translacji adresów (NAT) oraz system filtrowania pakietów.
 %{__make} -C iptables-howtos NAT-HOWTO.html packet-filtering-HOWTO.html \
 	# netfilter-hacking-HOWTO.html networking-concepts-HOWTO.html
 %{__make} depend 2> /dev/null || :
-%{__make} COPT_FLAGS="$RPM_OPT_FLAGS" LIBDIR="%{_libdir}" all
+%{__make} COPT_FLAGS="$RPM_OPT_FLAGS -DIP6T_LIB_DIR=\\\"%{_libdir}/iptables\\\"" \
+	LIBDIR="%{_libdir}" \
+	all
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -45,6 +47,8 @@ install -d $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc{0,1,2,3,4,5,6}.d
 	BINDIR=%{_sbindir} \
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
+
+install ip6tables $RPM_BUILD_ROOT%{_sbindir}/
 
 install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/
 ln -s ../rc.firewall $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc0.d/K91firewall
