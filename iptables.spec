@@ -20,6 +20,7 @@ Patch0:		%{name}-ulogd.patch
 Patch1:		iptables-ulog_MYSQL.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
+BuildRequires:	mysql-devel
 #Requires:	kernel >= 2.4.0test9
 Obsoletes:	netfilter
 Obsoletes:	ipchains
