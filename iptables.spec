@@ -25,7 +25,6 @@ Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	cf62ebdabf05ccc5479334cc04fa993c
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 %{?!_without_howto:BuildRequires:	sgml-tools}
