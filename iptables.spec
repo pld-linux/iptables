@@ -112,6 +112,8 @@ chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
+ln -s %{_kernelsrcdir}/include/asm-%{_arch} include/asm
+
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
