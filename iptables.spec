@@ -6,8 +6,12 @@
 %define		netfilter_snap	0
 # % define		netfilter_snap	20030616
 %define		iptables_version	1.2.8
-Summary:	extensible packet filtering system && extensible NAT system
-Summary(pl):	system filtrowania pakietСw oraz system translacji adresСw (NAT)
+Summary:	Extensible packet filtering system && extensible NAT system
+Summary(pl):	System filtrowania pakietСw oraz system translacji adresСw (NAT)
+Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
+Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
+Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
+Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 %if %{netfilter_snap} != 0
 Version:	%{iptables_version}_%{netfilter_snap}
@@ -21,7 +25,9 @@ Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+# Source0-md5:	cf62ebdabf05ccc5479334cc04fa993c
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
+# Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Patch0:		%{name}-man.patch
 Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
@@ -63,6 +69,22 @@ Replacement of ipchains in 2.4 kernels.
 %description -l pl
 Wydajny system translacji adresСw (NAT) oraz system filtrowania
 pakietСw. Zamiennik ipchains w j╠drach 2.4
+
+%description -l pt_BR
+Esta И a ferramenta que controla o cСdigo de filtragem de pacotes do
+kernel 2.4, obsoletando ipchains. Com esta ferramenta vocЙ pode
+configurar filtros de pacotes, NAT, mascaramento (masquerading),
+regras dinБmicas (stateful inspection), etc.
+
+%description -l ru
+iptables управляют кодом фильтрации сетевых пакетов в ядре Linux. Они
+позволяют вам устанавливать межсетевые экраны (firewalls) и IP
+маскарадинг, и т.п.
+
+%description -l uk
+iptables управляють кодом ф╕льтрац╕╖ пакет╕в мереж╕ в ядр╕ Linux. Вони
+дозволяють вам встановлювати м╕жмережев╕ екрани (firewalls) та IP
+маскарадинг, тощо.
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
