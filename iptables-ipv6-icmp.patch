@@ -1,0 +1,74 @@
+diff -ur iptables-1.2/extensions/libip6t_icmp.c iptables-1.2.icmp6/extensions/libip6t_icmp.c
+--- iptables-1.2/extensions/libip6t_icmp.c	Sat Jul  1 10:19:16 2000
++++ iptables-1.2.icmp6/extensions/libip6t_icmp.c	Sun Feb 18 14:55:37 2001
+@@ -231,7 +231,7 @@
+ {
+ 	const struct ip6t_icmp *icmp = (struct ip6t_icmp *)match->data;
+ 
+-	printf("icmp ");
++	printf("ipv6-icmp ");
+ 	print_icmptype(icmp->type, icmp->code[0], icmp->code[1],
+ 		       icmp->invflags & IP6T_ICMP_INV,
+ 		       numeric);
+@@ -262,7 +262,7 @@
+ 
+ struct ip6tables_match icmp
+ = { NULL,
+-    "icmp",
++    "ipv6-icmp",
+     NETFILTER_VERSION,
+     IP6T_ALIGN(sizeof(struct ip6t_icmp)),
+     IP6T_ALIGN(sizeof(struct ip6t_icmp)),
+diff -ur iptables-1.2/ip6tables.c iptables-1.2.icmp6/ip6tables.c
+--- iptables-1.2/ip6tables.c	Sun Feb 18 15:05:46 2001
++++ iptables-1.2.icmp6/ip6tables.c	Sun Feb 18 14:59:25 2001
+@@ -189,7 +189,9 @@
+ static const struct pprot chain_protos[] = {
+ 	{ "tcp", IPPROTO_TCP },
+ 	{ "udp", IPPROTO_UDP },
++	{ "ipv6-icmp", IPPROTO_ICMPV6 },
+ 	{ "icmpv6", IPPROTO_ICMPV6 },
++	{ "icmp6", IPPROTO_ICMPV6 },
+ 	{ "all", 0 },
+ };
+ 
+@@ -628,19 +630,6 @@
+ 	return ptr;
+ }
+ 
+-/* Christophe Burki wants `-p 6' to imply `-m tcp'.  */
+-static struct ip6tables_match *
+-find_proto(const char *pname, enum ip6t_tryload tryload, int nolookup)
+-{
+-	int proto;
+-
+-	proto = string_to_number(pname, 0, 255);
+-	if (proto != -1) 
+-		return find_match(proto_to_name(proto, nolookup), tryload);
+-
+-	return find_match(pname, tryload);
+-}
+-
+ static u_int16_t
+ parse_protocol(const char *s)
+ {
+@@ -669,6 +658,19 @@
+ 	}
+ 
+ 	return (u_int16_t)proto;
++}
++
++/* Christophe Burki wants `-p 6' to imply `-m tcp'.  */
++static struct ip6tables_match *
++find_proto(const char *pname, enum ip6t_tryload tryload, int nolookup)
++{
++	int proto;
++
++	proto = parse_protocol(pname);
++	if (proto != -1) 
++		return find_match(proto_to_name(proto, nolookup), tryload);
++
++	return find_match(pname, tryload);
+ }
+ 
+ static void
