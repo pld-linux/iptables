@@ -36,7 +36,7 @@ BuildRequires:	groff
 BuildConflicts:	kernel-headers < 2.5.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-BuildConflicts:	kernel < 2.5.0
+Conflicts:	kernel < 2.5.0
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
