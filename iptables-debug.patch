@@ -1,27 +1,6 @@
---- iptables-1.2.11_20040629/iptables.c.orig	2004-05-26 18:04:48.000000000 +0200
-+++ iptables-1.2.11_20040629/iptables.c	2004-07-03 19:06:42.829072752 +0200
-@@ -147,7 +147,7 @@
-  * magic number of -1 */
- int line = -1;
- 
--#ifndef __OPTIMIZE__
-+#if 0
- struct ipt_entry_target *
- ipt_get_target(struct ipt_entry *e)
- {
---- iptables-1.2.11_20040629/libiptc/libiptc.c.orig	2004-05-26 18:04:49.000000000 +0200
-+++ iptables-1.2.11_20040629/libiptc/libiptc.c	2004-07-03 19:11:53.422855320 +0200
-@@ -27,7 +27,7 @@
- #define IPT_LIB_DIR "/usr/local/lib/iptables"
- #endif
- 
--#ifndef __OPTIMIZE__
-+#if 0
- STRUCT_ENTRY_TARGET *
- GET_TARGET(STRUCT_ENTRY *e)
- {
---- iptables-1.2.11_20040629/ip6tables.c.orig	2004-05-26 18:04:48.000000000 +0200
-+++ iptables-1.2.11_20040629/ip6tables.c	2004-07-03 19:14:28.307309304 +0200
+diff -uNr iptables-1.3.0-20041118.orig/ip6tables.c iptables-1.3.0-20041118/ip6tables.c
+--- iptables-1.3.0-20041118.orig/ip6tables.c	2004-10-22 10:14:07.000000000 +0200
++++ iptables-1.3.0-20041118/ip6tables.c	2004-12-11 10:40:06.329513416 +0100
 @@ -148,7 +148,7 @@
   * magic number of -1 */
  int line = -1;
@@ -30,4 +9,28 @@
 +#if 0
  struct ip6t_entry_target *
  ip6t_get_target(struct ip6t_entry *e)
+ {
+diff -uNr iptables-1.3.0-20041118.orig/iptables.c iptables-1.3.0-20041118/iptables.c
+--- iptables-1.3.0-20041118.orig/iptables.c	2004-12-11 10:24:54.000000000 +0100
++++ iptables-1.3.0-20041118/iptables.c	2004-12-11 10:40:06.312516000 +0100
+@@ -148,7 +148,7 @@
+  * magic number of -1 */
+ int line = -1;
+ 
+-#ifndef __OPTIMIZE__
++#if 0
+ struct ipt_entry_target *
+ ipt_get_target(struct ipt_entry *e)
+ {
+diff -uNr iptables-1.3.0-20041118.orig/libiptc/libiptc.c iptables-1.3.0-20041118/libiptc/libiptc.c
+--- iptables-1.3.0-20041118.orig/libiptc/libiptc.c	2004-10-25 00:27:31.000000000 +0200
++++ iptables-1.3.0-20041118/libiptc/libiptc.c	2004-12-11 10:40:06.318515088 +0100
+@@ -44,7 +44,7 @@
+ #define IPT_LIB_DIR "/usr/local/lib/iptables"
+ #endif
+ 
+-#ifndef __OPTIMIZE__
++#if 0
+ STRUCT_ENTRY_TARGET *
+ GET_TARGET(STRUCT_ENTRY *e)
  {
