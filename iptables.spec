@@ -3,7 +3,7 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap	20030924
+%define		netfilter_snap	20030605
 %define		iptables_version	1.2.8
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
@@ -31,6 +31,8 @@ Patch11:	mark-bitwise-ops.patch.userspace
 Patch12:	raw.patch.userspace
 Patch13:	raw.patch.ipv6.userspace
 Patch14:	40_nf-log.patch.userspace
+Patch15:	%{name}-name-fix.patch
+Patch16:	%{name}-1.2.8-ipt_p2p.patch
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-latex}
@@ -86,6 +88,8 @@ iptables.
 %{!?_without_patchedkernel:%patch12 -p1}
 %{!?_without_patchedkernel:%patch13 -p1}
 %{!?_without_patchedkernel:%patch14 -p1}
+%{!?_without_patchedkernel:%patch15 -p1}
+%{!?_without_patchedkernel:%patch16 -p1}
 
 chmod 755 extensions/.*-test*
 ##mv -f extensions/.NETLINK.test extensions/.NETLINK-test
