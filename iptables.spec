@@ -16,6 +16,7 @@ Patch2:		%{name}-man.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
+BuildRequires:	tetex-dvips
 #Requires:	kernel >= 2.4.2-2
 Obsoletes:	netfilter
 Obsoletes:	ipchains
