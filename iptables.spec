@@ -30,6 +30,7 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 
 Source2:	%{name}.init
 Patch0:		%{name}-man.patch
+Patch1:		%{name}-include_path.patch
 Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
 Patch5:		iptables-1.2.9-ipt_p2p.patch
@@ -118,6 +119,7 @@ iptables(8).
 %prep
 %setup -q -a1 -n %{name}-%{iptables_version}-%{netfilter_snap}
 %patch0 -p1
+%patch1 -p1
 %{?with_patchedkernel:%patch3 -p1}
 %{?with_patchedkernel:patch -p1 < userspace/IMQ.patch.userspace}
 %{?with_patchedkernel:%patch4 -p1}
