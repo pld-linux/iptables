@@ -191,4 +191,4 @@ fi
 
 %files init
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_initrddir}/iptables
+%attr(750,root,root) %{_initrddir}/iptables
