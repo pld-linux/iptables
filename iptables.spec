@@ -3,10 +3,10 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		netfilter_snap		20040907
-%define		iptables_version	1.3.0
-##%define		kernel_version		3:2.6.7-2
-%define		llh_version		7:2.6.8.1-2
+%define		netfilter_snap		20040629
+%define		iptables_version	1.2.11
+%define		kernel_version		3:2.6.7-2
+%define		llh_version		7:2.6.7.0-6
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -21,7 +21,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2
+%define		_rel	4
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -36,13 +36,13 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-##Patch0:		%{name}-netfilter.patch
+Patch0:		%{name}-netfilter.patch
 Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-1.2.9-ipt_imq.patch
 Patch3:		%{name}-libipt_time.patch
 Patch4:		%{name}-debug.patch
 # http://l7-filter.sourceforge.net/
-##Patch5:		%{name}-ipt_layer7.patch
+Patch5:		%{name}-ipt_layer7.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -54,7 +54,7 @@ BuildRequires:	sed >= 4.0
 %endif
 %if %{with dist_kernel} && %{netfilter_snap} != 0
 BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}
-##BuildRequires:	kernel-source >= %{kernel_version}
+BuildRequires:	kernel-source >= %{kernel_version}
 Requires:	kernel(netfilter) = %{netfilter_snap}
 %endif
 BuildRequires:	linux-libc-headers >= %{llh_version}
@@ -122,15 +122,15 @@ iptables(8).
 
 %prep
 %setup -q -a1
-##%patch0 -p1
+%patch0 -p1
 %patch1 -p1
 %patch2 -p1
-##%patch3 -p1
+%patch3 -p1
 %patch4 -p1
-##%patch5 -p1
+%patch5 -p1
 
 # removed broken ...
-rm -f extensions/.account-test
+#%rm -f extensions/.set-test
 
 chmod 755 extensions/.*-test*
 
