@@ -43,6 +43,7 @@ Patch3:		%{name}-libipt_time.patch
 Patch4:		%{name}-debug.patch
 # http://l7-filter.sourceforge.net/
 Patch5:		%{name}-ipt_layer7.patch
+Patch6:		%{name}-connbyteh.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -128,6 +129,7 @@ iptables(8).
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
