@@ -24,8 +24,6 @@ Version:	%{iptables_version}
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
-URL:		http://www.netfilter.org/
-Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{netfilter_snap} != 0
 Source0:	%{name}-%{iptables_version}_%{netfilter_snap}.tar.bz2
 %else
@@ -40,12 +38,14 @@ Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-1.2.9-ipt_imq.patch
 Patch3:		%{name}-libipt_time.patch
 Patch4:		%{name}-debug.patch
+URL:		http://www.netfilter.org/
+Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-dvips
-BuildRequires:	tetex-latex
 BuildRequires:	tetex-format-latex
+BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 BuildRequires:	sed >= 4.0
 %endif
@@ -145,7 +145,7 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_initrddir},%{_includedir},%{_libdir},%{_mandir}/man3,}
+install -d $RPM_BUILD_ROOT{%{_initrddir},%{_includedir},%{_libdir},%{_mandir}/man3}
 
 echo ".so iptables-save.8" > %{name6}-save.8
 echo ".so iptables-restore.8" > %{name6}-restore.8
