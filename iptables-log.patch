@@ -1,114 +1,7 @@
---- userspace/iptables.c.orig	Sun Mar 25 21:55:04 2001
-+++ userspace/iptables.c	Thu May 10 23:28:04 2001
-@@ -97,9 +97,10 @@
- #define OPT_FRAGMENT    0x00200U
- #define OPT_LINENUMBERS 0x00400U
- #define OPT_COUNTERS	0x00800U
--#define NUMBER_OF_OPT	12
-+#define OPT_LOG		0x01000U
-+#define NUMBER_OF_OPT	13
- static const char optflags[NUMBER_OF_OPT]
--= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', 'f', '3', 'c'};
-+= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', 'f', '3', 'c', 'l'};
- 
- static struct option original_opts[] = {
- 	{ "append", 1, 0, 'A' },
-@@ -132,6 +133,7 @@
- 	{ "line-numbers", 0, 0, '0' },
- 	{ "modprobe", 1, 0, 'M' },
- 	{ "set-counters", 1, 0, 'c' },
-+	{ "log", 0, 0, 'l' },
- 	{ 0 }
- };
- 
-@@ -158,20 +160,20 @@
- static char commands_v_options[NUMBER_OF_CMD][NUMBER_OF_OPT] =
- /* Well, it's better than "Re: Linux vs FreeBSD" */
- {
--	/*     -n  -s  -d  -p  -j  -v  -x  -i  -o  -f  --line */
--/*INSERT*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x'},
--/*DELETE*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x'},
--/*DELETE_NUM*/{'x','x','x','x','x',' ','x','x','x','x','x'},
--/*REPLACE*/   {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x'},
--/*APPEND*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x'},
--/*LIST*/      {' ','x','x','x','x',' ',' ','x','x','x',' '},
--/*FLUSH*/     {'x','x','x','x','x',' ','x','x','x','x','x'},
--/*ZERO*/      {'x','x','x','x','x',' ','x','x','x','x','x'},
--/*NEW_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x','x'},
--/*DEL_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x','x'},
--/*SET_POLICY*/{'x','x','x','x','x',' ','x','x','x','x','x'},
--/*CHECK*/     {'x','+','+','+','x',' ','x',' ',' ',' ','x'},
--/*RENAME*/    {'x','x','x','x','x',' ','x','x','x','x','x'}
-+	/*     -n  -s  -d  -p  -j  -v  -x  -i  -o  -f  --line -c  -l */
-+/*INSERT*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x',   ' ',' '},
-+/*DELETE*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x',   'x',' '},
-+/*DELETE_NUM*/{'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
-+/*REPLACE*/   {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x',   ' ',' '},
-+/*APPEND*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x',   ' ',' '},
-+/*LIST*/      {' ','x','x','x','x',' ',' ','x','x','x',' ',   'x','x'},
-+/*FLUSH*/     {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
-+/*ZERO*/      {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
-+/*NEW_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
-+/*DEL_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
-+/*SET_POLICY*/{'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
-+/*CHECK*/     {'x','+','+','+','x',' ','x',' ',' ',' ','x',   'x','x'},
-+/*RENAME*/    {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'}
- };
- 
- static int inverse_for_options[NUMBER_OF_OPT] =
-@@ -186,7 +188,9 @@
- /* -i */ IPT_INV_VIA_IN,
- /* -o */ IPT_INV_VIA_OUT,
- /* -f */ IPT_INV_FRAG,
--/*--line*/ 0
-+/*--line*/ 0,
-+/* -c */ 0,
-+/* -l */ 0,
- };
- 
- const char *program_version;
-@@ -389,6 +393,8 @@
- "  --table	-t table	table to manipulate (default: `filter')\n"
- "  --verbose	-v		verbose mode\n"
- "  --line-numbers		print line numbers when listing\n"
-+"  --log		-l		turn on kernel logging of matched packets\n"
-+"				for rule-debugging purposes\n"
- "  --exact	-x		expand numbers (display exact values)\n"
- "[!] --fragment	-f		match second or further fragments only\n"
- "  --modprobe=<command>		try to insert modules using this command\n"
-@@ -1151,6 +1157,7 @@
- 			fputs("opt ", stdout);
- 		fputc(fw->ip.invflags & IPT_INV_FRAG ? '!' : '-', stdout);
- 		fputc(flags & IPT_F_FRAG ? 'f' : '-', stdout);
-+		fputc(flags & IPT_F_LOG ? 'l' : '-', stdout);
- 		fputc(' ', stdout);
- 	}
- 
-@@ -1675,7 +1682,7 @@
- 	opterr = 0;
- 
- 	while ((c = getopt_long(argc, argv,
--	   "-A:C:D:R:I:L::F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xc:",
-+	   "-A:C:D:R:I:L::F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xc:l",
- 					   opts, NULL)) != -1) {
- 		switch (c) {
- 			/*
-@@ -1951,6 +1958,12 @@
- 		case '0':
- 			set_option(&options, OPT_LINENUMBERS, &fw.ip.invflags,
- 				   invert);
-+			break;
-+
-+		case 'l':
-+			set_option(&options, OPT_LOG, &fw.ip.invflags,
-+				   invert);
-+			fw.ip.flags |= IPT_F_LOG;
- 			break;
- 
- 		case 'M':
---- userspace/ip6tables.c.orig	Thu Mar 14 12:02:26 2002
-+++ userspace/ip6tables.c	Wed May  8 15:26:28 2002
-@@ -98,9 +98,10 @@
+diff -urN iptables-1.2.7a.org/ip6tables.c iptables-1.2.7a/ip6tables.c
+--- iptables-1.2.7a.org/ip6tables.c	Tue Aug 27 11:53:42 2002
++++ iptables-1.2.7a/ip6tables.c	Tue Aug 27 11:53:51 2002
+@@ -105,9 +105,10 @@
  #define OPT_VIANAMEOUT	0x00100U
  #define OPT_LINENUMBERS 0x00200U
  #define OPT_COUNTERS	0x00400U
@@ -121,7 +14,7 @@
  
  static struct option original_opts[] = {
  	{ "append", 1, 0, 'A' },
-@@ -133,6 +133,7 @@
+@@ -139,6 +140,7 @@
  	{ "line-numbers", 0, 0, '0' },
  	{ "modprobe", 1, 0, 'M' },
  	{ "set-counters", 1, 0, 'c' },
@@ -129,7 +22,7 @@
  	{ 0 }
  };
  
-@@ -159,20 +160,20 @@
+@@ -165,20 +167,20 @@
  static char commands_v_options[NUMBER_OF_CMD][NUMBER_OF_OPT] =
  /* Well, it's better than "Re: Linux vs FreeBSD" */
  {
@@ -164,7 +57,7 @@
  };
  
  static int inverse_for_options[NUMBER_OF_OPT] =
-@@ -186,7 +187,8 @@
+@@ -192,7 +194,8 @@
  /* -x */ 0,
  /* -i */ IP6T_INV_VIA_IN,
  /* -o */ IP6T_INV_VIA_OUT,
@@ -174,7 +67,7 @@
  };
  
  const char *program_version;
-@@ -338,6 +340,8 @@
+@@ -343,6 +346,8 @@
  "  --table	-t table	table to manipulate (default: `filter')\n"
  "  --verbose	-v		verbose mode\n"
  "  --line-numbers		print line numbers when listing\n"
@@ -183,7 +76,7 @@
  "  --exact	-x		expand numbers (display exact values)\n"
  /*"[!] --fragment	-f		match second or further fragments only\n"*/
  "  --modprobe=<command>		try to insert modules using this command\n"
-@@ -1187,7 +1191,7 @@
+@@ -1196,7 +1201,7 @@
  	if (format & FMT_OPTIONS) {
  		if (format & FMT_NOTABLE)
  			fputs("opt ", stdout);
@@ -192,16 +85,7 @@
  		fputc(' ', stdout); /* -f */
  		fputc(' ', stdout);
  	}
-@@ -1709,7 +1713,7 @@
- 	opterr = 0;
- 
- 	while ((c = getopt_long(argc, argv,
--	   "-A:C:D:R:I:L::F::Z::N:X::E:P:Vh::o:p:s:d:j:i:bvnt:m:xc:",
-+	   "-A:C:D:R:I:L::F::Z::N:X::E:P:Vh::o:p:s:d:j:i:bvnt:m:xcl:",
- 					   opts, NULL)) != -1) {
- 		switch (c) {
- 			/*
-@@ -1978,6 +1982,12 @@
+@@ -1960,6 +1965,12 @@
  				   invert);
  			break;
  
@@ -214,9 +98,10 @@
  		case 'M':
  			modprobe = optarg;
  			break;
---- userspace/iptables.8.orig	Fri Feb 23 10:08:13 2001
-+++ userspace/iptables.8	Thu May 10 23:24:42 2001
-@@ -312,6 +312,23 @@
+diff -urN iptables-1.2.7a.org/iptables.8 iptables-1.2.7a/iptables.8
+--- iptables-1.2.7a.org/iptables.8	Tue Aug 27 11:53:42 2002
++++ iptables-1.2.7a/iptables.8	Tue Aug 27 11:53:51 2002
+@@ -352,6 +352,23 @@
  When adding or inserting rules into a chain, use
  .B command
  to load any necessary modules (targets, match extensions, etc).
@@ -240,3 +125,112 @@
  .SH MATCH EXTENSIONS
  iptables can use extended packet matching modules.  These are loaded
  in two ways: implicitly, when
+diff -urN iptables-1.2.7a.org/iptables.c iptables-1.2.7a/iptables.c
+--- iptables-1.2.7a.org/iptables.c	Tue Aug 27 11:53:42 2002
++++ iptables-1.2.7a/iptables.c	Tue Aug 27 11:54:20 2002
+@@ -103,9 +103,10 @@
+ #define OPT_FRAGMENT    0x00200U
+ #define OPT_LINENUMBERS 0x00400U
+ #define OPT_COUNTERS	0x00800U
+-#define NUMBER_OF_OPT	12
++#define OPT_LOG		0x01000U
++#define NUMBER_OF_OPT	13
+ static const char optflags[NUMBER_OF_OPT]
+-= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', 'f', '3', 'c'};
++= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', 'f', '3', 'c', 'l'};
+ 
+ static struct option original_opts[] = {
+ 	{ "append", 1, 0, 'A' },
+@@ -138,6 +139,7 @@
+ 	{ "line-numbers", 0, 0, '0' },
+ 	{ "modprobe", 1, 0, 'M' },
+ 	{ "set-counters", 1, 0, 'c' },
++	{ "log", 0, 0, 'l' },
+ 	{ 0 }
+ };
+ 
+@@ -164,20 +166,20 @@
+ static char commands_v_options[NUMBER_OF_CMD][NUMBER_OF_OPT] =
+ /* Well, it's better than "Re: Linux vs FreeBSD" */
+ {
+-	/*     -n  -s  -d  -p  -j  -v  -x  -i  -o  -f  --line */
+-/*INSERT*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x'},
+-/*DELETE*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x'},
+-/*DELETE_NUM*/{'x','x','x','x','x',' ','x','x','x','x','x'},
+-/*REPLACE*/   {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x'},
+-/*APPEND*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x'},
+-/*LIST*/      {' ','x','x','x','x',' ',' ','x','x','x',' '},
+-/*FLUSH*/     {'x','x','x','x','x',' ','x','x','x','x','x'},
+-/*ZERO*/      {'x','x','x','x','x',' ','x','x','x','x','x'},
+-/*NEW_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x','x'},
+-/*DEL_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x','x'},
+-/*SET_POLICY*/{'x','x','x','x','x',' ','x','x','x','x','x'},
+-/*CHECK*/     {'x','+','+','+','x',' ','x',' ',' ',' ','x'},
+-/*RENAME*/    {'x','x','x','x','x',' ','x','x','x','x','x'}
++	/*     -n  -s  -d  -p  -j  -v  -x  -i  -o  -f  --line -c  -l */
++/*INSERT*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x',   ' ',' '},
++/*DELETE*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x',   'x',' '},
++/*DELETE_NUM*/{'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
++/*REPLACE*/   {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x',   ' ',' '},
++/*APPEND*/    {'x',' ',' ',' ',' ',' ','x',' ',' ',' ','x',   ' ',' '},
++/*LIST*/      {' ','x','x','x','x',' ',' ','x','x','x',' ',   'x','x'},
++/*FLUSH*/     {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
++/*ZERO*/      {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
++/*NEW_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
++/*DEL_CHAIN*/ {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
++/*SET_POLICY*/{'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'},
++/*CHECK*/     {'x','+','+','+','x',' ','x',' ',' ',' ','x',   'x','x'},
++/*RENAME*/    {'x','x','x','x','x',' ','x','x','x','x','x',   'x','x'}
+ };
+ 
+ static int inverse_for_options[NUMBER_OF_OPT] =
+@@ -192,7 +194,9 @@
+ /* -i */ IPT_INV_VIA_IN,
+ /* -o */ IPT_INV_VIA_OUT,
+ /* -f */ IPT_INV_FRAG,
+-/*--line*/ 0
++/*--line*/ 0,
++/* -c */ 0,
++/* -l */ 0,
+ };
+ 
+ const char *program_version;
+@@ -395,6 +399,8 @@
+ "  --table	-t table	table to manipulate (default: `filter')\n"
+ "  --verbose	-v		verbose mode\n"
+ "  --line-numbers		print line numbers when listing\n"
++"  --log		-l		turn on kernel logging of matched packets\n"
++"				for rule-debugging purposes\n"
+ "  --exact	-x		expand numbers (display exact values)\n"
+ "[!] --fragment	-f		match second or further fragments only\n"
+ "  --modprobe=<command>		try to insert modules using this command\n"
+@@ -1199,6 +1205,7 @@
+ 			fputs("opt ", stdout);
+ 		fputc(fw->ip.invflags & IPT_INV_FRAG ? '!' : '-', stdout);
+ 		fputc(flags & IPT_F_FRAG ? 'f' : '-', stdout);
++		fputc(flags & IPT_F_LOG ? 'l' : '-', stdout);
+ 		fputc(' ', stdout);
+ 	}
+ 
+@@ -1687,7 +1694,7 @@
+ 	opterr = 0;
+ 
+ 	while ((c = getopt_long(argc, argv,
+-	   "-A:D:R:I:L::M:F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xc:",
++	   "-A:D:R:I:L::M:F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xc:l",
+ 					   opts, NULL)) != -1) {
+ 		switch (c) {
+ 			/*
+@@ -1962,6 +1969,12 @@
+ 				   invert);
+ 			break;
+ 
++		case 'l':
++			set_option(&options, OPT_LOG, &fw.ip.invflags,
++				   invert);
++			fw.ip.flags |= IPT_F_LOG;
++			break;
++
+ 		case 'M':
+ 			modprobe = optarg;
+ 			break;
