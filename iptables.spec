@@ -6,8 +6,8 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.7a
-%define		_rel	6
+Version:	1.2.8
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -17,7 +17,7 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
 Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
-Patch4:		grsecurity-1.2.7a-iptables.patch
+Patch4:		grsecurity-1.2.8-iptables.patch
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
@@ -27,11 +27,15 @@ Patch12:	raw.patch.userspace
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7a}
+%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = 1.2.8}
+BuildRequires: groff
+BuildRequires: tetex-format-latex
+BuildRequires: tetex-tex-babel
+
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%{!?_without_patchedkernel:Requires:	kernel_netfilter = 1.2.7a}
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.8}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
