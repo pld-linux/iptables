@@ -17,18 +17,17 @@
 . /etc/sysconfig/network
 
 iptables=/usr/sbin/iptables
+ip6tables=/usr/sbin/ip6tables
+
 show "Loading iptables module"
 busy
-/sbin/modprobe -k ip_tables      || exit 1
-/sbin/modprobe -k iptable_filter || exit 1
-/sbin/modprobe -k iptable_nat    || exit 1
+/sbin/modprobe -k ip_tables || exit 1
 if [ "$IPV6_NETWORKING" = "yes" ]; then
-	/sbin/modprobe -k ip6_tables      || exit 1
-	/sbin/modprobe -k ip6table_filter || exit 1
+	/sbin/modprobe -k ip6_tables || exit 1
 fi
 deltext ; ok
 
-show "Flush standard tables"
+show "Flush standard tables and deny everything"
 busy
 $iptables --flush INPUT
 $iptables --flush OUTPUT
@@ -36,16 +35,23 @@ $iptables --flush FORWARD
 $iptables --table nat --flush OUTPUT
 $iptables --table nat --flush PREROUTING
 $iptables --table nat --flush POSTROUTING
-deltext ; ok
-show "Deny everything until firewall setup is completed"
-busy
 $iptables --policy INPUT   DROP
 $iptables --policy OUTPUT  DROP
 $iptables --policy FORWARD DROP
+if [ "$IPV6_NETWORKING" = "yes" ]; then
+	$ip6tables --flush INPUT
+	$ip6tables --flush OUTPUT
+	$ip6tables --flush FORWARD
+#	$ip6tables --table nat --flush OUTPUT
+#	$ip6tables --table nat --flush PREROUTING
+#	$ip6tables --table nat --flush POSTROUTING
+	$ip6tables --policy INPUT   DROP
+	$ip6tables --policy OUTPUT  DROP
+	$ip6tables --policy FORWARD DROP
+fi
 deltext ; ok
 
 
-#CHAINS=`iptables -n -L |perl -n -e '/Chain\s+(\S+)/ && !($1 =~ /^(INPUT|FORWARD|OUTPUT)$/) && print "$1 "'`
 CHAINS=`$iptables -n -L | awk '($1 ~ /^Chain/) && !($2 ~ /^(INPUT|OUTPUT|FORWARD)$/) {print $2}'`
 show "Remove remaining chains %s:" $CHAINS
 busy
@@ -64,6 +70,24 @@ done
 for chain in $CHAINS; do
   $iptables -t nat --delete-chain $chain
 done
+if [ "$IPV6_NETWORKING" = "yes" ]; then
+	CHAINS=`$ip6tables -n -L | awk '($1 ~ /^Chain/) && !($2 ~ /^(INPUT|OUTPUT|FORWARD)$/) {print $2}'`
+	for chain in $CHAINS; do
+	  $ip6tables --flush $chain
+	done
+	# 2nd step cause of dependencies
+	for chain in $CHAINS; do
+	  $ip6tables --delete-chain $chain
+	done
+#	CHAINS=`$ip6tables -t nat -n -L | awk '($1 ~ /^Chain/) && !($2 ~ /^(OUTPUT|PREROUTING|POSTROUTING)$/) {print $2}'`
+#	for chain in $CHAINS; do
+#	  $ip6tables -t nat --flush $chain
+#	done
+#	# 2nd step cause of dependencies
+#	for chain in $CHAINS; do
+#	  $ip6tables -t nat --delete-chain $chain
+#	done
+fi
 deltext ; ok
 
 # now this is tricky with ipchains you just had to deny forward and set
@@ -73,37 +97,17 @@ show "Turn off rp_filter for all interfaces"
 busy
 echo 1 > /proc/sys/net/ipv4/ip_forward
 echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
+if [ "$IPV6_NETWORKING" = "yes" ]; then
+	echo 1 > /proc/sys/net/ipv6/conf/all/forwarding
+fi
 deltext ; ok
 
 show "Load modules for masquerading"
 busy
-/sbin/modprobe -k ip_conntrack     || exit 1
-/sbin/modprobe -k ip_conntrack_ftp || exit 1
-/sbin/modprobe -k ip_nat_ftp       || exit 1
-deltext ; ok
-
-show "Load neccessary extension modules"
-busy
-/sbin/modprobe -k ipt_limit      || exit 1
-/sbin/modprobe -k ipt_mac        || exit 1
-/sbin/modprobe -k ipt_mark       || exit 1
-/sbin/modprobe -k ipt_multiport  || exit 1
-/sbin/modprobe -k ipt_owner      || exit 1
-/sbin/modprobe -k ipt_state      || exit 1
-/sbin/modprobe -k ipt_tos        || exit 1
-/sbin/modprobe -k ipt_unclean    || exit 1
-/sbin/modprobe -k ipt_LOG        || exit 1
-/sbin/modprobe -k ipt_MARK       || exit 1
-/sbin/modprobe -k ipt_MASQUERADE || exit 1
-/sbin/modprobe -k ipt_MIRROR     || exit 1
-/sbin/modprobe -k ipt_REDIRECT   || exit 1
-/sbin/modprobe -k ipt_REJECT     || exit 1
-/sbin/modprobe -k ipt_TOS        || exit 1
-if [ "$IPV6_NETWORKING" = "yes" ]; then
-	/sbin/modprobe -k ipt_mark  || exit 1
-	/sbin/modprobe -k ipt_limit || exit 1
-	/sbin/modprobe -k ipt_MARK  || exit 1
-fi
+/sbin/modprobe -k ip_conntrack      || exit 1
+/sbin/modprobe -k ip_conntrack_ftp  || exit 1
+/sbin/modprobe -k ip_nat_ftp        || exit 1
+/sbin/modprobe -k ip_nat_snmp_basic || exit 1
 deltext ; ok
 
 show "Create a target for logging and dropping packets"
@@ -115,6 +119,15 @@ $iptables -A LDROP --proto icmp -j LOG --log-level info --log-prefix "ICMP Drop 
 $iptables -A LDROP --proto gre -j LOG --log-level info --log-prefix "GRE Drop "
 $iptables -A LDROP -f -j LOG --log-level emerg --log-prefix "FRAG. Drop "
 $iptables -A LDROP -j DROP
+if [ "$IPV6_NETWORKING" = "yes" ]; then
+	$ip6tables --new LDROP 2>/dev/null
+#	$ip6tables -A LDROP --proto tcp -j LOG --log-level info --log-prefix "TCP Drop "
+#	$ip6tables -A LDROP --proto udp -j LOG --log-level info --log-prefix "UDP Drop "
+#	$ip6tables -A LDROP --proto icmp -j LOG --log-level info --log-prefix "ICMP Drop "
+#	$ip6tables -A LDROP --proto gre -j LOG --log-level info --log-prefix "GRE Drop "
+#	$ip6tables -A LDROP -f -j LOG --log-level emerg --log-prefix "FRAG. Drop "
+	$ip6tables -A LDROP -j DROP
+fi
 deltext ; ok
 
 show "Create a target for watching some accepting rules"
@@ -122,6 +135,11 @@ busy
 $iptables --new WATCH 2>/dev/null
 $iptables -A WATCH -m limit -j LOG --log-level warn --log-prefix "ACCEPT "
 $iptables -A WATCH -j ACCEPT
+if [ "$IPV6_NETWORKING" = "yes" ]; then
+	$ip6tables --new WATCH 2>/dev/null
+#	$ip6tables -A WATCH -m limit -j LOG --log-level warn --log-prefix "ACCEPT "
+	$ip6tables -A WATCH -j ACCEPT
+fi
 deltext ; ok
 
 show "Enforcing up ICMP policies, use iptables -L ICMP to check"
@@ -178,4 +196,11 @@ $iptables --policy OUTPUT ACCEPT
 $iptables --table nat --policy PREROUTING ACCEPT
 $iptables --table nat --policy POSTROUTING ACCEPT
 $iptables --table nat --policy OUTPUT ACCEPT
+if [ "$IPV6_NETWORKING" = "yes" ]; then
+	$ip6tables --policy INPUT ACCEPT
+	$ip6tables --policy OUTPUT ACCEPT
+#	$ip6tables --table nat --policy PREROUTING ACCEPT
+#	$ip6tables --table nat --policy POSTROUTING ACCEPT
+#	$ip6tables --table nat --policy OUTPUT ACCEPT
+fi
 deltext ; ok
