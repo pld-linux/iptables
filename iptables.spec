@@ -23,12 +23,11 @@ License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-#%if %{netfilter_snap} != 0
-Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/%{name}-%{iptables_version}-%{netfilter_snap}.tar.bz2
-# Source0-md5:	d09f26620c133711cdd735ce2720fcbc
-#%else
-#Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-#%endif
+%if %{netfilter_snap} != 0
+Source0:	%{name}-%{iptables_version}_%{netfilter_snap}.tar.bz2
+%else
+Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+%endif
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Patch1:		%{name}-1.2.9-ipt_p2p.patch
@@ -97,7 +96,7 @@ Biblioteki i pliki nag³ówkowe niezbêdne do tworzenia rozszerzeñ dla
 iptables.
 
 %prep
-%setup -q -a1 -n %{name}-%{iptables_version}-%{netfilter_snap}
+%setup -q -a1
 %patch1 -p1
 
 %patch10 -p0
@@ -107,7 +106,7 @@ iptables.
 #%%patch4 -p1
 
 # removed broken ...
-rm -rf ipset
+rm -f extensions/.set-test
 
 chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
