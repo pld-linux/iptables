@@ -108,7 +108,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%doc iptables-howtos/netfilter-hacking-HOWTO*.gz
+%doc iptables-howtos/netfilter-hacking-HOWTO*
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
