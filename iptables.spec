@@ -18,7 +18,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -98,6 +98,7 @@ PreReq:		rc-scripts
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name} = %{version}-%{release}
 Obsoletes:	firewall-init
+Obsoletes:	firewall-init-ipchains
 
 %description init
 Iptables-init is meant to provide an alternate way than firewall-init
