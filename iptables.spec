@@ -5,6 +5,7 @@
 #
 %define		netfilter_snap		20040629
 %define		iptables_version	1.2.11
+%define		kernel_version		3:2.6.7-2
 %define		llh_version		7:2.6.7.0-6
 %define		name6			ip6tables
 #
@@ -53,7 +54,7 @@ BuildRequires:	sed >= 4.0
 %endif
 %if %{with dist_kernel} && %{netfilter_snap} != 0
 BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}
-BuildRequires:	kernel-source
+BuildRequires:	kernel-source >= %{kernel_version}
 Requires:	kernel(netfilter) = %{netfilter_snap}
 %endif
 BuildRequires:	linux-libc-headers >= %{llh_version}
