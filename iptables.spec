@@ -42,8 +42,10 @@ Patch13:	raw.patch.ipv6.userspace
 Patch14:	40_nf-log.patch.userspace
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
-%{?!_without_howto:BuildRequires:	tetex-latex}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
+%{?!_without_howto:BuildRequires:	tetex-format-latex}
+%{?!_without_howto:BuildRequires:	tetex-latex}
+%{?!_without_howto:BuildRequires:	tetex-tex-babel}
 BuildRequires:	perl
 %if %{netfilter_snap} != 0
 %{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
@@ -52,6 +54,7 @@ BuildRequires:	perl
 %endif
 %{!?_without_patchedkernel:BuildRequires:       kernel-source}
 BuildConflicts:	kernel-headers < 2.3.0
+Provides:	firewall-userspace-tool
 Obsoletes:	netfilter
 Obsoletes:	ipchains
 %if %{netfilter_snap} != 0
@@ -59,11 +62,7 @@ Obsoletes:	ipchains
 %else
 %{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
 %endif
-
-Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-%define		_sysconfdir	/etc
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
@@ -124,7 +123,7 @@ iptables(8).
 %setup -q -a1
 %patch0 -p1
 %{!?_without_patchedkernel:%patch3 -p1}
-patch -p1 < userspace/IMQ.patch.userspace
+%{!?_without_patchedkernel:patch -p1 < userspace/IMQ.patch.userspace}
 %{!?_without_patchedkernel:%patch4 -p1}
 %{!?_without_patchedkernel:%patch9 -p1}
 %{!?_without_patchedkernel:%patch10 -p1}
@@ -134,16 +133,17 @@ patch -p1 < userspace/IMQ.patch.userspace
 %{!?_without_patchedkernel:%patch14 -p1}
 
 chmod 755 extensions/.*-test*
-perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
+%{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	LIBDIR="%{_libdir}" \
+	LDLIBS="-ldl" \
 	all experimental
 
-%{?!_without_howto:%{__make} -C iptables-howtos}
+%{!?_without_howto:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -183,21 +183,19 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc KNOWN_BUGS
-%{?!_without_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
-
+%doc KNOWN_BUGS %{!?_without_howto:iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
-
 %{_mandir}/man8/*
 
 %files devel
 %defattr(644,root,root,755)
-%{?!_without_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
+%{!?_without_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
 
 %files init
+%defattr(644,root,root,755)
 %attr(755,root,root) %{_initrddir}/iptables
