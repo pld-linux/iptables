@@ -1,6 +1,7 @@
 #
+# NOTE: This is 2.5 suff now.
+#
 # Conditional build:
-# _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_tex - without TeX documentation (HOWTOS)
 #
 Summary:	extensible packet filtering system && extensible NAT system
@@ -16,18 +17,12 @@ Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
-Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
-Patch4:		grsecurity-1.2.8-iptables.patch
-# patches from netfilter
-Patch10:	ipt_REJECT-fake-source.patch.userspace
-Patch11:	mark-bitwise-ops.patch.userspace
-Patch12:	raw.patch.userspace
+Patch1:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
 %{?!_without_tex:BuildRequires:	sgml-tools}
 %{?!_without_tex:BuildRequires:	sgmls}
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = 1.2.8}
 BuildRequires: groff
 BuildRequires: tetex-format-latex
 BuildRequires: tetex-tex-babel
@@ -35,7 +30,6 @@ BuildRequires: tetex-tex-babel
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.8}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -65,11 +59,7 @@ iptables.
 %prep
 %setup -q -a1
 %patch0 -p1
-%{!?_without_patchedkernel:%patch3 -p1}
-%{!?_without_patchedkernel:%patch4 -p1}
-%{!?_without_patchedkernel:%patch10 -p1}
-%{!?_without_patchedkernel:%patch11 -p1}
-%{!?_without_patchedkernel:%patch12 -p1}
+%patch1 -p1
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
