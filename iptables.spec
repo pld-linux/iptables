@@ -3,7 +3,7 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20031226
+%define		netfilter_snap		20040105
 %define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -31,9 +31,9 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Patch1:		%{name}-1.2.9-ipt_p2p.patch
-Patch2:		ip_queue_vwmark.patch.userspace
-Patch3:		ipt_REJECT-fake-source.patch.userspace
-Patch4:		mark-bitwise-ops.patch.userspace
+#Patch2:		ip_queue_vwmark.patch.userspace
+#Patch3:		ipt_REJECT-fake-source.patch.userspace
+#Patch4:		mark-bitwise-ops.patch.userspace
 
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
