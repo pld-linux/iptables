@@ -29,7 +29,7 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Patch0:		%{name}-man.patch
-Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
+Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
@@ -37,7 +37,6 @@ Patch11:	mark-bitwise-ops.patch.userspace
 Patch12:	raw.patch.userspace
 Patch13:	raw.patch.ipv6.userspace
 Patch14:	40_nf-log.patch.userspace
-Patch15:	%{name}-IPMARK-fix.patch
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-latex}
@@ -109,7 +108,6 @@ iptables.
 %{!?_without_patchedkernel:%patch12 -p1}
 %{!?_without_patchedkernel:%patch13 -p1}
 %{!?_without_patchedkernel:%patch14 -p1}
-%{!?_without_patchedkernel:%patch15 -p1}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
