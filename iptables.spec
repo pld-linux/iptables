@@ -36,6 +36,7 @@ Patch1:		%{name}-1.2.9-ipt_p2p.patch
 Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-include_path.patch
 Patch4:		%{name}-gkh-fix.patch
+Patch5:		%{name}-1.2.9-ipt_ipp2p.patch
 %if %{with howto}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -117,6 +118,7 @@ iptables(8).
 %patch2 -p1
 %patch3 -p1
 %patch4 -p0
+%patch5 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
