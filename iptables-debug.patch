@@ -1,0 +1,33 @@
+--- iptables-1.2.11_20040629/iptables.c.orig	2004-05-26 18:04:48.000000000 +0200
++++ iptables-1.2.11_20040629/iptables.c	2004-07-03 19:06:42.829072752 +0200
+@@ -147,7 +147,7 @@
+  * magic number of -1 */
+ int line = -1;
+ 
+-#ifndef __OPTIMIZE__
++#if 0
+ struct ipt_entry_target *
+ ipt_get_target(struct ipt_entry *e)
+ {
+--- iptables-1.2.11_20040629/libiptc/libiptc.c.orig	2004-05-26 18:04:49.000000000 +0200
++++ iptables-1.2.11_20040629/libiptc/libiptc.c	2004-07-03 19:11:53.422855320 +0200
+@@ -27,7 +27,7 @@
+ #define IPT_LIB_DIR "/usr/local/lib/iptables"
+ #endif
+ 
+-#ifndef __OPTIMIZE__
++#if 0
+ STRUCT_ENTRY_TARGET *
+ GET_TARGET(STRUCT_ENTRY *e)
+ {
+--- iptables-1.2.11_20040629/ip6tables.c.orig	2004-05-26 18:04:48.000000000 +0200
++++ iptables-1.2.11_20040629/ip6tables.c	2004-07-03 19:14:28.307309304 +0200
+@@ -148,7 +148,7 @@
+  * magic number of -1 */
+ int line = -1;
+ 
+-#ifndef __OPTIMIZE__
++#if 0
+ struct ip6t_entry_target *
+ ip6t_get_target(struct ip6t_entry *e)
+ {
