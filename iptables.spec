@@ -38,6 +38,7 @@ Patch4:		mark-bitwise-ops.patch.userspace
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-latex}
+%{?!_without_howto:BuildRequires:	tetex-tex-babel}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
 %if %{netfilter_snap} != 0
