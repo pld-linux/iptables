@@ -51,29 +51,25 @@ start() {
 	if [ -f $IPTABLES_CONFIG ]; then
 	    # If we don't clear these first, we might be adding to
 	    #  pre-existing rules.
-	    chains=`cat /proc/net/ip6_tables_names 2>/dev/null`
+	    tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
 	    show "Flushing all current rules and user defined chains:"
 	    let ret=0
-            for i in $chains; do ip6tables -t $i -F; let ret+=$?; done
-            ip6tables -F
-            let ret+=$?
+            for i in $tables; do ip6tables -t $i -F; let ret+=$?; done
             if [ $ret -eq 0 ]; then
-              ok
+        	ok
             else
-              fail
+        	fail
             fi
             show "Clearing all current rules and user defined chains:"
             let ret=0
-            for i in $chains; do ip6tables -t $i -X; let ret+=$?; done
-            ip6tables -X
-            let ret+=$?
+            for i in $tables; do ip6tables -t $i -X; let ret+=$?; done
             if [ $ret -eq 0 ]; then
-              ok
+        	ok
             else
-              fail
+        	fail
             fi
 
-            for i in $chains; do ip6tables -t $i -Z; done
+            for i in $tables; do ip6tables -t $i -Z; done
 
 	    show "Applying ip6tables firewall rules:"
 		grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /usr/sbin/ip6tables-restore -c && \
@@ -84,11 +80,10 @@ start() {
 }
 
 stop() {
-	chains=`cat /proc/net/ip6_tables_names 2>/dev/null`
+	tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
         show "Flushing all chains:"
         let ret=0
-        for i in $chains; do ip6tables -t $i -F; let ret+=$?; done
-        ip6tables -F; let ret+=$?
+        for i in $tables; do ip6tables -t $i -F; let ret+=$?; done
         if [ $ret -eq 0 ]; then
                 ok
         else
@@ -97,8 +92,7 @@ stop() {
 
         show "Removing user defined chains:"
         let ret=0
-        for i in $chains; do ip6tables -t $i -X; let ret+=$?; done
-        ip6tables -X; let ret+=$?
+        for i in $tables; do ip6tables -t $i -X; let ret+=$?; done
         if [ $ret -eq 0 ]; then
                 ok
         else
