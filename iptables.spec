@@ -1,16 +1,14 @@
 #
 # Conditional build:
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
+# _without_tex - without TeX documentation (HOWTOS)
 #
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietСw oraz system translacji adresСw (NAT)
-Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
-Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
-Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
-Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
-Version:	1.2.6a
-Release:	2
+Version:	1.2.7a
+%define		_rel	5
+Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
@@ -18,16 +16,22 @@ Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
-Patch1:		%{name}-log.patch
-Patch2:		%{name}-prestate.patch
+Patch3:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
+Patch4:		grsecurity-1.2.7a-iptables.patch
+# patches from netfilter
+Patch10:	ipt_REJECT-fake-source.patch.userspace
+Patch11:	mark-bitwise-ops.patch.userspace
+Patch12:	raw.patch.userspace
+%{?!_without_tex:BuildRequires:	sgml-tools}
+%{?!_without_tex:BuildRequires:	sgmls}
+%{?!_without_tex:BuildRequires:	tetex-latex}
+%{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-BuildRequires:	sgml-tools
-BuildRequires:	sgmls
-BuildRequires:	tetex-latex
-BuildRequires:	tetex-dvips
+%{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7a}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
+%{!?_without_patchedkernel:Requires:	kernel_netfilter = 1.2.7a}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -40,22 +44,6 @@ Replacement of ipchains in 2.4 kernels.
 %description -l pl
 Wydajny system translacji adresСw (NAT) oraz system filtrowania
 pakietСw. Zamiennik ipchains w j╠drach 2.4
-
-%description -l pt_BR
-Esta И a ferramenta que controla o cСdigo de filtragem de pacotes do
-kernel 2.4, obsoletando ipchains. Com esta ferramenta vocЙ pode
-configurar filtros de pacotes, NAT, mascaramento (masquerading),
-regras dinБmicas (stateful inspection), etc.
-
-%description -l ru
-iptables управляют кодом фильтрации сетевых пакетов в ядре Linux. Они
-позволяют вам устанавливать межсетевые экраны (firewalls) и IP
-маскарадинг, и т.п.
-
-%description -l uk
-iptables управляють кодом ф╕льтрац╕╖ пакет╕в мереж╕ в ядр╕ Linux. Вони
-дозволяють вам встановлювати м╕жмережев╕ екрани (firewalls) та IP
-маскарадинг, тощо.
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
@@ -73,8 +61,11 @@ iptables.
 %prep
 %setup -q -a1
 %patch0 -p1
-%{!?_without_patchedkernel:%patch1 -p1}
-%{!?_without_patchedkernel:%patch2 -p1}
+%{!?_without_patchedkernel:%patch3 -p1}
+%{!?_without_patchedkernel:%patch4 -p1}
+%{!?_without_patchedkernel:%patch10 -p1}
+%{!?_without_patchedkernel:%patch11 -p1}
+%{!?_without_patchedkernel:%patch12 -p1}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
@@ -87,7 +78,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 	LIBDIR="%{_libdir}" \
 	all experimental
 
-%{__make} -C iptables-howtos
+%{?!_without_tex:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -118,17 +109,16 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc KNOWN_BUGS
-%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*
+%{?!_without_tex:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 
 %attr(755,root,root) %{_sbindir}/*
-%dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
 
 %{_mandir}/man8/*
 
 %files devel
 %defattr(644,root,root,755)
-%doc iptables-howtos/netfilter-hacking-HOWTO*
+%{?!_without_tex:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
