@@ -1,7 +1,7 @@
 #
 # Conditional build:
-# _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
-# _without_howto - without documentation (HOWTOS) which needed TeX.
+%bcond_without patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
+%bcond_without howto 		# without documentation (HOWTOS) which needed TeX.
 #
 %define		netfilter_snap		20040130
 %define		iptables_version	1.2.9
@@ -37,20 +37,20 @@ Patch1:		%{name}-1.2.9-ipt_p2p.patch
 
 Patch10:	%{name}-gkh-fix.patch
 
-%{?!_without_howto:BuildRequires:	sgml-tools}
-%{?!_without_howto:BuildRequires:	sgmls}
-%{?!_without_howto:BuildRequires:	tetex-latex}
-%{?!_without_howto:BuildRequires:	tetex-tex-babel}
-%{?!_without_howto:BuildRequires:	tetex-dvips}
+%{?with_howto:BuildRequires:	sgml-tools}
+%{?with_howto:BuildRequires:	sgmls}
+%{?with_howto:BuildRequires:	tetex-latex}
+%{?with_howto:BuildRequires:	tetex-tex-babel}
+%{?with_howto:BuildRequires:	tetex-dvips}
 BuildRequires:	perl-base
 %if %{netfilter_snap} != 0
-%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
+%{?with_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
 %endif
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
 %if %{netfilter_snap} != 0
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{netfilter_snap}}
+%{?with_patchedkernel:Requires:	kernel(netfilter) = %{netfilter_snap}}
 %endif
 
 Provides:	firewall-userspace-tool
@@ -118,7 +118,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 	LIBDIR="%{_libdir}" \
 	all experimental
 
-%{?!_without_howto:%{__make} -C iptables-howtos}
+%{?with_howto:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -149,7 +149,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc 
-%{?!_without_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
+%{?with_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
@@ -159,7 +159,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%{?!_without_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
+%{?_with_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 #%%{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
