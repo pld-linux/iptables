@@ -1,7 +1,7 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.1a
+Version:	1.2.2
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
@@ -27,10 +27,11 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
+Replacement of ipchains in 2.4 kernels.
 
 %description -l pl
 Wydajny system translacji adresów (NAT) oraz system filtrowania
-pakietów.
+pakietów. Zamiennik ipchains w j±drach 2.4
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
