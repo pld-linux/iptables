@@ -1,6 +1,7 @@
 #
 # Conditional build:
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
+# _without_tex - without TeX documentation (HOWTOS)
 #
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
@@ -20,10 +21,10 @@ Patch4:		grsecurity-1.2.7a-iptables.patch
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
 Patch12:	raw.patch.userspace
-BuildRequires:	sgml-tools
-BuildRequires:	sgmls
-BuildRequires:	tetex-latex
-BuildRequires:	tetex-dvips
+%{?!_without_tex:	BuildRequires:	sgml-tools}
+%{?!_without_tex:	BuildRequires:	sgmls}
+%{?!_without_tex:	BuildRequires:	tetex-latex}
+%{?!_without_tex:	BuildRequires:	tetex-dvips}
 BuildRequires:	perl
 %{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7a}
 BuildConflicts:	kernel-headers < 2.3.0
@@ -76,7 +77,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 	LIBDIR="%{_libdir}" \
 	all experimental
 
-%{__make} -C iptables-howtos
+%{?!_without_tex:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -101,24 +102,22 @@ install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 #%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
 #%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
-gzip -9nf KNOWN_BUGS iptables-howtos/*.txt
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc KNOWN_BUGS.gz
-%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*.gz
+%doc KNOWN_BUGS
+%{?!_without_tex:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 
 %attr(755,root,root) %{_sbindir}/*
 %attr(755,root,root) %{_libdir}/iptables/*.so
 
-%{_mandir}/man*/*
+%{_mandir}/man8/*
 
 %files devel
 %defattr(644,root,root,755)
-%doc iptables-howtos/netfilter-hacking-HOWTO*.gz
+%{?!_without_tex:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
