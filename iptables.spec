@@ -108,7 +108,7 @@ Iptables-init is meant to provide an alternate way than firewall-init
 to start and stop packet filtering through iptables(8).
 
 %description init -l pl
-Iptablea-init ma na celu udostêpnienie alternatywnego w stosunku do
+Iptables-init ma na celu udostêpnienie alternatywnego w stosunku do
 firewall-init sposobu w³±czania i wy³±czania filtrów IP j±dra poprzez
 iptables(8).
 
