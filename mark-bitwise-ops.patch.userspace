@@ -19,7 +19,7 @@
  	{0}
  };
  
-@@ -41,48 +45,60 @@
+@@ -41,45 +45,60 @@
        struct ipt_entry_match **match)
  {
  	struct ipt_mark_info *markinfo = (struct ipt_mark_info *)(*match)->data;
@@ -83,11 +83,8 @@
  }
  
 -static void
--print_mark(unsigned long mark, unsigned long mask, int invert, int numeric)
+-print_mark(unsigned long mark, unsigned long mask, int numeric)
 -{
--	if (invert)
--		fputc('!', stdout);
--
 -	if(mask != 0xffffffff)
 -		printf("0x%lx/0x%lx ", mark, mask);
 -	else
@@ -105,51 +102,3 @@
  }
  
  /* Prints out the matchinfo. */
-@@ -91,20 +107,39 @@
-       const struct ipt_entry_match *match,
-       int numeric)
- {
--	printf("MARK match ");
--	print_mark(((struct ipt_mark_info *)match->data)->mark,
--		  ((struct ipt_mark_info *)match->data)->mask,
--		  ((struct ipt_mark_info *)match->data)->invert, numeric);
-+	struct ipt_mark_info *info = (struct ipt_mark_info *)match->data;
-+
-+	printf("MARK ");
-+	if (info->bit_op == IPT_MARK_BIT_OP_AND)
-+		printf("& 0x%lx ", info->mask);
-+	else
-+		if (info->bit_op == IPT_MARK_BIT_OP_OR)
-+			printf("| 0x%lx ", info->mask);
-+	if (info->invert)
-+		printf("! ");
-+	printf("match 0x%lx ", info->mark);
- }
- 
- /* Saves the union ipt_matchinfo in parsable form to stdout. */
- static void
- save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
- {
--	printf("--mark ");
--	print_mark(((struct ipt_mark_info *)match->data)->mark,
--		  ((struct ipt_mark_info *)match->data)->mask,
--		  ((struct ipt_mark_info *)match->data)->invert, 0);
-+	struct ipt_mark_info *info = (struct ipt_mark_info *)match->data;
-+
-+	if (info->invert)
-+		printf("! ");
-+	switch (info->bit_op)
-+	{
-+	case IPT_MARK_BIT_OP_AND :
-+		printf("--markand 0x%lx/0x%lx ", info->mark, info->mask);
-+		break;
-+	case IPT_MARK_BIT_OP_OR :
-+		printf("--markor 0x%lx/0x%lx ", info->mark, info->mask);
-+		break;
-+	case IPT_MARK_BIT_OP_NONE :
-+		printf("--mark 0x%lx ", info->mark);
-+		break;
-+	}
- }
- 
- static
