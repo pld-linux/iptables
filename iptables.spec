@@ -35,6 +35,7 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Source2:	%{name}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-1.2.9-ipt_imq.patch
+Patch2:		%{name}-libipt_time.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -115,6 +116,7 @@ iptables(8).
 %setup -q -a1
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
