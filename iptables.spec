@@ -3,11 +3,12 @@ Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.0.0alpha
 Release:	1
-Copyright:	GPL
+License:	GPL
 Group:		Networking/Daemons
+Group(pl):	Sieciowe/Serwery
 URL:		http://netfilter.kernelnotes.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-Source0:	http://netfilter.kernelnotes.org/FIXME/%{name}-%{version}.tar.bz2
+Source0:	http://netfilter.kernelnotes.org/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/iptables-howtos.tar.bz2
 Source2:	rc.firewall
 BuildRequires:	sgml-tools
