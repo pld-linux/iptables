@@ -1,28 +1,28 @@
-diff -urN --exclude CVS netfilter.old/userspace/extensions/libipt_NETMAP.c netfilter/userspace/extensions/libipt_NETMAP.c
---- netfilter.old/userspace/extensions/libipt_NETMAP.c	Sat May 12 12:42:18 2001
-+++ netfilter/userspace/extensions/libipt_NETMAP.c	Sat May 12 03:24:27 2001
+diff -urN iptables-1.2.3/extensions/libipt_NETMAP.c iptables-1.2.3.my/extensions/libipt_NETMAP.c
+--- iptables-1.2.3/extensions/libipt_NETMAP.c	Mon Aug  6 10:53:41 2001
++++ iptables-1.2.3.my/extensions/libipt_NETMAP.c	Sun Sep 23 15:46:54 2001
 @@ -1,5 +1,6 @@
  /* Shared library add-on to iptables to add static NAT support.
     Author: Svenning Soerensen <svenning@post5.tele.dk>
 +   Corrections and Molto mode modifications: Damien Clermonte <damien.clermonte@free.fr>
  */
-
+ 
  #include <stdio.h>
 @@ -10,11 +11,14 @@
  #include <iptables.h>
  #include <linux/netfilter_ipv4/ip_tables.h>
  #include <linux/netfilter_ipv4/ip_nat_rule.h>
 +#include <linux/netfilter_ipv4/ipt_NETMAP.h>
-
+ 
  #define MODULENAME "NETMAP"
-
+ 
  static struct option opts[] = {
  	{ "to", 1, 0, '1' },
 +	{ "molto", 0, 0, '2' },
 +	{ "mlt", 0, 0, '2' },
  	{ 0 }
  };
-
+ 
 @@ -24,8 +28,11 @@
  {
  	printf(MODULENAME" v%s options:\n"
@@ -35,7 +35,7 @@ diff -urN --exclude CVS netfilter.old/userspace/extensions/libipt_NETMAP.c netfi
 +	       "				Reversed src-dst static mapping.\n\n",
 +	       NETFILTER_VERSION, opts[0].name, opts[1].name, opts[2].name);
  }
-
+ 
  static u_int32_t
 @@ -58,10 +65,13 @@
  static void
@@ -43,16 +43,16 @@ diff -urN --exclude CVS netfilter.old/userspace/extensions/libipt_NETMAP.c netfi
  {
 -	struct ip_nat_multi_range *mr = (struct ip_nat_multi_range *)t->data;
 +	struct ipt_NETMAP_info *info = (struct ipt_NETMAP_info *) t->data;
-
-	/* Actually, it's 0, but it's ignored at the moment. */
+ 
+ 	/* Actually, it's 0, but it's ignored at the moment. */
 -	mr->rangesize = 1;
 +	info->mr.rangesize = 1;
 +
 +	/* Normal mode by default */
 +	info->molto = 0;
-
-	/* Can't cache this */
-	*nfcache |= NFC_UNKNOWN;
+ 
+ 	/* Can't cache this */
+ 	*nfcache |= NFC_UNKNOWN;
 @@ -123,8 +133,8 @@
        const struct ipt_entry *entry,
        struct ipt_entry_target **target)
@@ -61,26 +61,26 @@ diff -urN --exclude CVS netfilter.old/userspace/extensions/libipt_NETMAP.c netfi
 -		= (struct ip_nat_multi_range *)(*target)->data;
 +	struct ipt_NETMAP_info *info =
 +		(struct ipt_NETMAP_info *) (*target)->data;
-
-	switch (c) {
-	case '1':
+ 
+ 	switch (c) {
+ 	case '1':
 @@ -132,10 +142,15 @@
-			exit_error(PARAMETER_PROBLEM,
-				   "Unexpected `!' after --%s", opts[0].name);
-
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Unexpected `!' after --%s", opts[0].name);
+ 
 -		parse_to(optarg, &mr->range[0]);
 +		parse_to(optarg, &info->mr.range[0]);
-		*flags = 1;
-		return 1;
-
+ 		*flags = 1;
+ 		return 1;
+ 
 +	case '2':
 +		info->molto = 1;
 +		*flags = 2;
 +		return 1;
 +
-	default:
-		return 0;
-	}
+ 	default:
+ 		return 0;
+ 	}
 @@ -155,9 +170,9 @@
        const struct ipt_entry_target *target,
        int numeric)
@@ -93,22 +93,23 @@ diff -urN --exclude CVS netfilter.old/userspace/extensions/libipt_NETMAP.c netfi
 +	struct ip_nat_range *r = &info->mr.range[0];
  	struct in_addr a;
  	int bits;
-
-@@ -175,16 +190,22 @@
+ 
+@@ -175,8 +190,14 @@
  static void
  save(const struct ipt_ip *ip, const struct ipt_entry_target *target)
  {
 +	struct ipt_NETMAP_info *info =
 +		(struct ipt_NETMAP_info *) target->data;
 +
-	printf("--%s ", opts[0].name);
-	print(ip, target, 0);
+ 	printf("--%s ", opts[0].name);
+ 	print(ip, target, 0);
 +
 +	if(info->molto)
 +		printf("--%s ", opts[1].name);
  }
-
- struct iptables_target target_module
+ 
+ static
+@@ -184,8 +205,8 @@
  = { NULL,
      MODULENAME,
      NETFILTER_VERSION,
@@ -119,9 +120,9 @@ diff -urN --exclude CVS netfilter.old/userspace/extensions/libipt_NETMAP.c netfi
      &help,
      &init,
      &parse,
-diff -urN --exclude CVS netfilter.old/userspace/include/linux/netfilter_ipv4/ipt_NETMAP.h netfilter/userspace/include/linux/netfilter_ipv4/ipt_NETMAP.h
---- netfilter.old/userspace/include/linux/netfilter_ipv4/ipt_NETMAP.h	Thu Jan  1 01:00:00 1970
-+++ netfilter/userspace/include/linux/netfilter_ipv4/ipt_NETMAP.h	Sat May 12 03:05:14 2001
+diff -urN iptables-1.2.3/include/linux/netfilter_ipv4/ipt_NETMAP.h iptables-1.2.3.my/include/linux/netfilter_ipv4/ipt_NETMAP.h
+--- iptables-1.2.3/include/linux/netfilter_ipv4/ipt_NETMAP.h	Thu Jan  1 01:00:00 1970
++++ iptables-1.2.3.my/include/linux/netfilter_ipv4/ipt_NETMAP.h	Sun Sep 23 15:38:42 2001
 @@ -0,0 +1,14 @@
 +/* NETMAP modification module for IP tables
 +   Author: Svenning Soerensen <svenning@post5.tele.dk>
@@ -137,9 +138,9 @@ diff -urN --exclude CVS netfilter.old/userspace/include/linux/netfilter_ipv4/ipt
 +};
 +
 +#endif
-diff -urN --exclude CVS netfilter.old/userspace/patch-o-matic/NETMAP.patch netfilter/userspace/patch-o-matic/NETMAP.patch
---- netfilter.old/userspace/patch-o-matic/NETMAP.patch	Sat May 12 12:42:18 2001
-+++ netfilter/userspace/patch-o-matic/NETMAP.patch	Sun May 20 00:53:54 2001
+diff -urN iptables-1.2.3/patch-o-matic/NETMAP.patch iptables-1.2.3.my/patch-o-matic/NETMAP.patch
+--- iptables-1.2.3/patch-o-matic/NETMAP.patch	Thu May  3 03:15:09 2001
++++ iptables-1.2.3.my/patch-o-matic/NETMAP.patch	Sun Sep 23 15:38:42 2001
 @@ -1,12 +1,31 @@
 +diff -uN linux.orig/include/linux/netfilter_ipv4/ipt_NETMAP.h linux/include/linux/netfilter_ipv4/ipt_NETMAP.h
 +--- linux.orig/include/linux/netfilter_ipv4/ipt_NETMAP.h	Thu Jan 1 01:00:00 1970
@@ -264,28 +265,28 @@ diff -urN --exclude CVS netfilter.old/userspace/patch-o-matic/NETMAP.patch netfi
  +}
  +
  +static struct ipt_target target_module
-diff -urN --exclude CVS netfilter.old/userspace/patch-o-matic/NETMAP.patch.configure.help netfilter/userspace/patch-o-matic/NETMAP.patch.configure.help
---- netfilter.old/userspace/patch-o-matic/NETMAP.patch.configure.help	Sat May 12 12:42:18 2001
-+++ netfilter/userspace/patch-o-matic/NETMAP.patch.configure.help	Sat May 12 03:26:11 2001
+diff -urN iptables-1.2.3/patch-o-matic/NETMAP.patch.configure.help iptables-1.2.3.my/patch-o-matic/NETMAP.patch.configure.help
+--- iptables-1.2.3/patch-o-matic/NETMAP.patch.configure.help	Thu May  3 03:15:09 2001
++++ iptables-1.2.3.my/patch-o-matic/NETMAP.patch.configure.help	Sun Sep 23 15:38:42 2001
 @@ -5,6 +5,8 @@
    addresses. It maps the network address part, while keeping the
    host address part intact. It is similar to Fast NAT, except that
    Netfilter's connection tracking doesn't work well with Fast NAT.
 +  Additional option allows reverse behavior: Mapping of source based
 +  on destination and vice versa.
-
+ 
    If you want to compile it as a module, say M here and read
    Documentation/modules.txt.  The module will be called
-diff -urN --exclude CVS netfilter.old/userspace/patch-o-matic/NETMAP.patch.help netfilter/userspace/patch-o-matic/NETMAP.patch.help
---- netfilter.old/userspace/patch-o-matic/NETMAP.patch.help	Sat May 12 12:42:18 2001
-+++ netfilter/userspace/patch-o-matic/NETMAP.patch.help	Sat May 12 03:25:28 2001
+diff -urN iptables-1.2.3/patch-o-matic/NETMAP.patch.help iptables-1.2.3.my/patch-o-matic/NETMAP.patch.help
+--- iptables-1.2.3/patch-o-matic/NETMAP.patch.help	Thu May  3 03:15:09 2001
++++ iptables-1.2.3.my/patch-o-matic/NETMAP.patch.help	Sun Sep 23 15:38:42 2001
 @@ -1,4 +1,5 @@
  Author: Svenning Soerensen <svenning@post5.tele.dk>
 +Corrections and Molto mode modifications: Damien Clermonte <damien.clermonte@free.fr>
  Status: Experimental
-
+ 
  This adds CONFIG_IP_NF_TARGET_NETMAP option, which provides a target for
-@@ -7,10 +8,16 @@
+@@ -7,6 +8,10 @@
  PREROUTING chain to alter the destination of incoming connections,
  to the POSTROUTING chain to alter the source of outgoing connections,
  or both (with separate rules).
@@ -293,14 +294,12 @@ diff -urN --exclude CVS netfilter.old/userspace/patch-o-matic/NETMAP.patch.help 
 +destination and destination mapping is based on source).
 +It allows to use destination based load-balancing with source based
 +load-balancers in the POSTROUTING case and vice versa.
-
+ 
  Examples:
-
- iptables -t nat -A PREROUTING -d 1.2.3.0/24 -j NETMAP --to 5.6.7.0/24
-
+ 
+@@ -14,3 +19,5 @@
+ 
  iptables -t nat -A POSTROUTING -s 5.6.7.0/24 -j NETMAP --to 1.2.3.0/24
-+
+ 
 +iptables -t nat -A POSTROUTING -d 5.6.7.0/24 -j NETMAP --molto --to 1.2.3.0/24
-
-
-
++
