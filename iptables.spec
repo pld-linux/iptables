@@ -15,7 +15,6 @@ Patch1:		%{name}-ip6libdir.patch
 Patch2:		%{name}-ipv6-icmp.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
-BuildRequires:	mysql-devel
 #Requires:	kernel >= 2.4.0test9
 Obsoletes:	netfilter
 Obsoletes:	ipchains
