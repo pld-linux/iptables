@@ -127,16 +127,16 @@ case "$1" in
 	stop
 	;;
 
-  restart)
+  restart|force-reload)
 	# "restart" is really just "start" as this isn't a daemon,
 	#  and "start" clears any pre-defined rules anyway.
 	#  This is really only here to make those who expect it happy
 	start
 	;;
 
-  condrestart)
-	[ -e /var/lock/subsys/iptables ] && start
-	;;
+#  condrestart)
+#	[ -e /var/lock/subsys/iptables ] && start
+#	;;
 
   status)
 	tables=`cat /proc/net/ip_tables_names 2>/dev/null`
@@ -190,8 +190,8 @@ case "$1" in
 	;;
 
   *)
-	echo "Usage: $0 {start|stop|restart|condrestart|status|panic|save}"
-	exit 1
+	echo "Usage: $0 {start|stop|restart|force-reload|status|panic|save}"
+	exit 3
 esac
 
 exit 0
