@@ -1,11 +1,11 @@
 #
-# NOTE: This is 2.5 suff now.
+# NOTE: This is 2.5 stuff now.
 #
 # Conditional build:
 # _without_tex - without TeX documentation (HOWTOS)
 #
-Summary:	extensible packet filtering system && extensible NAT system
-Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
+Summary:	Extensible packet filtering system && extensible NAT system
+Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.2.8
 %define		_rel	1
@@ -31,8 +31,6 @@ Obsoletes:	netfilter
 Obsoletes:	ipchains
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-
-%define		_sysconfdir	/etc
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
@@ -69,6 +67,7 @@ mv -f extensions/.NETLINK.test extensions/.NETLINK-test
 %{__make} CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	LIBDIR="%{_libdir}" \
+	LDLIBS="-ldl" \
 	all experimental
 
 %{?!_without_tex:%{__make} -C iptables-howtos}
