@@ -18,8 +18,11 @@ License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
+# Source0-md5:	cf62ebdabf05ccc5479334cc04fa993c
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
+# Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
+Source1:	http://ep09.kernel.pl/~djrzulf/%{name}-howtos.tar.bz2
+#Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
 Patch1:		http://luxik.cdi.cz/~patrick/imq/iptables-1.2.6a-imq.diff-3
 %{?!_without_tex:BuildRequires:	sgml-tools}
