@@ -18,7 +18,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -119,7 +119,6 @@ iptables(8).
 %prep
 %setup -q -a1 -n %{name}-%{iptables_version}-%{netfilter_snap}
 %patch0 -p1
-%patch1 -p1
 %{?with_patchedkernel:%patch3 -p1}
 %{?with_patchedkernel:patch -p1 < userspace/IMQ.patch.userspace}
 %{?with_patchedkernel:%patch4 -p1}
@@ -130,11 +129,13 @@ chmod 755 extensions/.*-test*
 %{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
-%{__make} depend 2> /dev/null || :
+%{__make} KERNEL_DIR=%{_kernelsrcdir} \
+	depend 2>/dev/null || :
 %{__make} CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	LIBDIR="%{_libdir}" \
 	LDLIBS="-ldl" \
+	KERNEL_DIR=%{_kernelsrcdir} \
 	all experimental
 
 %{?with_doc:%{__make} -C iptables-howtos}
@@ -156,6 +157,7 @@ echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/ip6tables.8
 
 # Devel stuff
 cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
+patch -p2 -d $RPM_BUILD_ROOT%{_includedir}/iptables < %{PATCH1}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
