@@ -6,8 +6,8 @@
 %bcond_without	dist_kernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20040330
-%define		iptables_version	1.2.9
+%define		netfilter_snap		20040415
+%define		iptables_version	1.2.10
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -21,7 +21,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	3
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -119,10 +119,12 @@ iptables(8).
 %prep
 %setup -q -a1
 %patch1 -p0
-%patch2 -p1
+# in this moment included in source file.
+#%patch2 -p1
 %patch3 -p1
 %patch4 -p1
-%patch5 -p1
+# in this moment included in source file.
+#%patch5 -p1
 %patch6 -p1
 
 chmod 755 extensions/.*-test*
