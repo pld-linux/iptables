@@ -22,10 +22,10 @@ Patch4:		grsecurity-1.2.7a-iptables.patch
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
 Patch12:	raw.patch.userspace
-%{?!_without_tex:	BuildRequires:	sgml-tools}
-%{?!_without_tex:	BuildRequires:	sgmls}
-%{?!_without_tex:	BuildRequires:	tetex-latex}
-%{?!_without_tex:	BuildRequires:	tetex-dvips}
+%{?!_without_tex:BuildRequires:	sgml-tools}
+%{?!_without_tex:BuildRequires:	sgmls}
+%{?!_without_tex:BuildRequires:	tetex-latex}
+%{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
 %{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7a}
 BuildConflicts:	kernel-headers < 2.3.0
@@ -65,7 +65,7 @@ iptables.
 %{!?_without_patchedkernel:%patch4 -p1}
 %{!?_without_patchedkernel:%patch10 -p1}
 %{!?_without_patchedkernel:%patch11 -p1}
-%{!?_without_patchedkernel:%patch12 -p1}
+%{!?_without_patchedkernel:%patch12 -p0}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
