@@ -5,12 +5,12 @@
 #
 %define		netfilter_snap		20040629
 %define		iptables_version	1.2.11
-%define		llh_version		7:2.6.7.0-2
+%define		llh_version		7:2.6.7.0-3
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietСw oraz system translacji adresСw (NAT)
-Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
+Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
 Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
 Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
@@ -39,6 +39,7 @@ Patch0:		%{name}-netfilter.patch
 Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-1.2.9-ipt_imq.patch
 Patch3:		%{name}-libipt_time.patch
+Patch4:		%{name}-debug.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -62,11 +63,11 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
-Replacement of ipchains in 2.4 kernels.
+Replacement of ipchains in 2.4 and higher kernels.
 
 %description -l pl
 Wydajny system translacji adresСw (NAT) oraz system filtrowania
-pakietСw. Zamiennik ipchains w j╠drach 2.4
+pakietСw. Zamiennik ipchains w j╠drach 2.4 i nowszych.
 
 %description -l pt_BR
 Esta И a ferramenta que controla o cСdigo de filtragem de pacotes do
@@ -122,6 +123,7 @@ iptables(8).
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
@@ -133,7 +135,8 @@ chmod 755 extensions/.*-test*
 	CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	KERNEL_DIR="%{_kernelsrcdir}" \
-	LIBDIR="%{_libdir}"
+	LIBDIR="%{_libdir}" \
+	LDLIBS="-ldl"
 
 %if %{with doc}
 %{__make} -C iptables-howtos
