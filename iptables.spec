@@ -3,7 +3,7 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20031221
+%define		netfilter_snap		20031222
 %define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
