@@ -4,7 +4,7 @@
 %bcond_without howto		# without documentation (HOWTOS) which needed TeX.
 #
 #%define		netfilter_snap	0
-%define		netfilter_snap	20031206
+%define		netfilter_snap	20031210
 %define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -25,21 +25,16 @@ Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/%{name}-%{iptables_version}-%{netfilter_snap}.tar.bz2
-# Source0-md5:	6f6070d1b489a684d622b901fa307290
+# Source0-md5:	2c3f34dd81ee73e5727db73f848b8343
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 
 Source2:	%{name}.init
 Patch0:		%{name}-man.patch
 Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
-# CVS up-to-date
-#Patch9:		iptables-1.2.8-CVS-20030715.patch
-# patches from netfilter
-#Patch10:	ipt_REJECT-fake-source.patch.userspace
-#Patch11:	mark-bitwise-ops.patch.userspace
-Patch12:	iptables-1.2.9-ipt_p2p.patch
+Patch5:		iptables-1.2.9-ipt_p2p.patch
 # http://rnvs.informatik.uni-leipzig.de/ipp2p/index_en.html
-Patch13:	ipp2p-0.5a_vs_iptables-1.2.9.patch.gz
+Patch6:		ipp2p-0.5a_vs_iptables-1.2.9.patch.gz
 
 %{?with_howto:BuildRequires:	sgml-tools}
 %{?with_howto:BuildRequires:	sgmls}
@@ -126,11 +121,8 @@ iptables(8).
 %{?with_patchedkernel:%patch3 -p1}
 %{?with_patchedkernel:patch -p1 < userspace/IMQ.patch.userspace}
 %{?with_patchedkernel:%patch4 -p1}
-# % {!?_without_patchedkernel:%patch9 -p1}
-#%{?with_patchedkernel:%patch10 -p1}
-#%{?with_patchedkernel:%patch11 -p1}
-%{?with_patchedkernel:%patch12 -p1}
-%{?with_patchedkernel:%patch13 -p1}
+%{?with_patchedkernel:%patch5 -p1}
+%{?with_patchedkernel:%patch6 -p1}
 
 chmod 755 extensions/.*-test*
 %{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
