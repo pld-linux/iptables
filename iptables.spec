@@ -1,6 +1,6 @@
 #
 # TODO:
-#		- update kernel-net-(ipt_)p2p and remove 1.2.9-ipt_p2p.patch
+#		- update kernel-net-(ipt_)p2p
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
@@ -37,7 +37,7 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Source2:	%{name}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-dstlimit.patch
-Patch2:		%{name}-1.2.9-ipt_p2p.patch
+Patch2:		%{name}-1.2.9-ipt_imq.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -136,7 +136,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3,%{_initrddir}}
+install -d $RPM_BUILD_ROOT{%{_initrddir},%{_includedir},%{_libdir},%{_mandir}/man3,}
 
 echo ".so iptables-save.8" > ip6tables-save.8
 echo ".so iptables-restore.8" > ip6tables-restore.8
