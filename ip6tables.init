@@ -51,7 +51,7 @@ start() {
 	if [ -f $IPTABLES_CONFIG ]; then
 	    # If we don't clear these first, we might be adding to
 	    #  pre-existing rules.
-	    chains=`cat /proc/net/ip_tables_names 2>/dev/null`
+	    chains=`cat /proc/net/ip6_tables_names 2>/dev/null`
 	    show "Flushing all current rules and user defined chains:"
 	    let ret=0
             for i in $chains; do ip6tables -t $i -F; let ret+=$?; done
@@ -84,7 +84,7 @@ start() {
 }
 
 stop() {
-	chains=`cat /proc/net/ip_tables_names 2>/dev/null`
+	chains=`cat /proc/net/ip6_tables_names 2>/dev/null`
         show "Flushing all chains:"
         let ret=0
         for i in $chains; do ip6tables -t $i -F; let ret+=$?; done
@@ -139,7 +139,7 @@ case "$1" in
 #	;;
 
   status)
-	tables=`cat /proc/net/ip_tables_names 2>/dev/null`
+	tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
 	for table in $tables; do
 		echo "Table: $table"
 		ip6tables -t $table -n --list
