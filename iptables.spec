@@ -21,6 +21,7 @@ Patch2:		%{name}-man.patch
 Patch3:		%{name}-NETMAP-fix.patch
 Patch4:		%{name}-log.patch
 Patch5:		%{name}-prestate.patch
+Patch6:		%{name}-string.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
@@ -60,6 +61,7 @@ Libraries and headers for developing iptables extensions.
 %patch3 -p2
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
