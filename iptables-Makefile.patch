@@ -1,0 +1,22 @@
+diff -uNr iptables-1.2.9_20040304.orig/Makefile iptables-1.2.9_20040304/Makefile
+--- iptables-1.2.9_20040304.orig/Makefile	2004-01-22 16:04:24.000000000 +0100
++++ iptables-1.2.9_20040304/Makefile	2004-03-04 16:46:43.483787600 +0100
+@@ -11,9 +11,7 @@
+ # Standard part of Makefile for topdir.
+ TOPLEVEL_INCLUDED=YES
+ 
+-ifndef KERNEL_DIR
+ KERNEL_DIR=/usr/src/linux
+-endif
+ IPTABLES_VERSION:=1.2.9
+ OLD_IPTABLES_VERSION:=1.2.8
+ 
+@@ -32,7 +30,7 @@
+ endif
+ 
+ COPT_FLAGS:=-O2
+-CFLAGS:=$(COPT_FLAGS) -Wall -Wunused -I$(KERNEL_DIR)/include -Iinclude/ -DIPTABLES_VERSION=\"$(IPTABLES_VERSION)\" #-g -DDEBUG #-pg # -DIPTC_DEBUG
++CFLAGS:=$(COPT_FLAGS) -Wall -Wunused -Iinclude/ -DIPTABLES_VERSION=\"$(IPTABLES_VERSION)\"
+ 
+ ifdef NO_SHARED_LIBS
+ CFLAGS += -DNO_SHARED_LIBS=1

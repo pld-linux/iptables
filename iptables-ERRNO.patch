@@ -1,0 +1,181 @@
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/extensions/libip6t_ah.c iptables-1.2.9_20040225/extensions/libip6t_ah.c
+--- iptables-1.2.9_20040225.org/extensions/libip6t_ah.c	2003-08-23 20:41:47.000000000 +0200
++++ iptables-1.2.9_20040225/extensions/libip6t_ah.c	2004-03-03 23:54:38.008304088 +0100
+@@ -7,6 +7,8 @@
+ #include <errno.h>
+ #include <ip6tables.h>
+ #include <linux/netfilter_ipv6/ip6t_ah.h>
++
++#include <asm-generic/errno-base.h>
+                                         
+ /* Function which prints out usage message. */
+ static void
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/extensions/libip6t_dst.c iptables-1.2.9_20040225/extensions/libip6t_dst.c
+--- iptables-1.2.9_20040225.org/extensions/libip6t_dst.c	2003-09-04 23:55:10.000000000 +0200
++++ iptables-1.2.9_20040225/extensions/libip6t_dst.c	2004-03-04 00:02:15.688726088 +0100
+@@ -11,6 +11,8 @@
+ #include <sys/socket.h>
+ #include <arpa/inet.h>
+ 
++#include <asm-generic/errno-base.h>
++
+ #ifdef HOPBYHOP
+ #define UNAME "HBH"
+ #define LNAME "hbh"
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/extensions/libip6t_esp.c iptables-1.2.9_20040225/extensions/libip6t_esp.c
+--- iptables-1.2.9_20040225.org/extensions/libip6t_esp.c	2003-08-23 20:41:47.000000000 +0200
++++ iptables-1.2.9_20040225/extensions/libip6t_esp.c	2004-03-03 23:55:04.979203888 +0100
+@@ -8,6 +8,8 @@
+ #include <ip6tables.h>
+ #include <linux/netfilter_ipv6/ip6t_esp.h>
+ 
++#include <asm-generic/errno-base.h>
++
+ /* Function which prints out usage message. */
+ static void
+ help(void)
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/extensions/libip6t_frag.c iptables-1.2.9_20040225/extensions/libip6t_frag.c
+--- iptables-1.2.9_20040225.org/extensions/libip6t_frag.c	2003-09-05 14:53:44.000000000 +0200
++++ iptables-1.2.9_20040225/extensions/libip6t_frag.c	2004-03-03 23:56:40.792638032 +0100
+@@ -7,6 +7,8 @@
+ #include <errno.h>
+ #include <ip6tables.h>
+ #include <linux/netfilter_ipv6/ip6t_frag.h>
++
++#include <asm-generic/errno-base.h>
+                                         
+ /* Function which prints out usage message. */
+ static void
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/extensions/libip6t_hbh.c iptables-1.2.9_20040225/extensions/libip6t_hbh.c
+--- iptables-1.2.9_20040225.org/extensions/libip6t_hbh.c	2002-06-14 09:38:16.000000000 +0200
++++ iptables-1.2.9_20040225/extensions/libip6t_hbh.c	2004-03-04 00:01:41.606907312 +0100
+@@ -11,6 +11,8 @@
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <arpa/inet.h>
++
++#include <asm-generic/errno-base.h>
+                                         
+ #define DEBUG		0
+ #define HOPBYHOP	1
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/extensions/libip6t_rt.c iptables-1.2.9_20040225/extensions/libip6t_rt.c
+--- iptables-1.2.9_20040225.org/extensions/libip6t_rt.c	2002-06-14 09:38:16.000000000 +0200
++++ iptables-1.2.9_20040225/extensions/libip6t_rt.c	2004-03-04 00:02:55.364694424 +0100
+@@ -11,6 +11,8 @@
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ #include <arpa/inet.h>
++
++#include <asm-generic/errno-base.h>
+                                         
+ /*#define DEBUG	1*/
+ 
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/extensions/libipt_ah.c iptables-1.2.9_20040225/extensions/libipt_ah.c
+--- iptables-1.2.9_20040225.org/extensions/libipt_ah.c	2002-05-29 15:08:16.000000000 +0200
++++ iptables-1.2.9_20040225/extensions/libipt_ah.c	2004-03-03 23:52:29.958770576 +0100
+@@ -8,6 +8,8 @@
+ #include <iptables.h>
+ #include <linux/netfilter_ipv4/ipt_ah.h>
+                                         
++#include <asm-generic/errno-base.h>
++
+ /* Function which prints out usage message. */
+ static void
+ help(void)
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/extensions/libipt_esp.c iptables-1.2.9_20040225/extensions/libipt_esp.c
+--- iptables-1.2.9_20040225.org/extensions/libipt_esp.c	2002-05-29 15:08:16.000000000 +0200
++++ iptables-1.2.9_20040225/extensions/libipt_esp.c	2004-03-03 23:53:56.869558128 +0100
+@@ -8,6 +8,8 @@
+ #include <iptables.h>
+ #include <linux/netfilter_ipv4/ipt_esp.h>
+ 
++#include <asm-generic/errno-base.h>
++
+ /* Function which prints out usage message. */
+ static void
+ help(void)
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/include/libiptc/libip6tc.h iptables-1.2.9_20040225/include/libiptc/libip6tc.h
+--- iptables-1.2.9_20040225.org/include/libiptc/libip6tc.h	2004-03-03 23:51:40.175338808 +0100
++++ iptables-1.2.9_20040225/include/libiptc/libip6tc.h	2004-03-03 23:53:09.820710640 +0100
+@@ -2,7 +2,7 @@
+ #define _LIBIP6TC_H
+ /* Library which manipulates firewall rules. Version 0.2. */
+ 
+-#include <iptables/libiptc/ipt_kernel_headers.h>
++#include <libiptc/ipt_kernel_headers.h>
+ #include <linux/netfilter_ipv6/ip6_tables.h>
+ 
+ #ifndef IP6T_MIN_ALIGN
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/include/libiptc/libiptc.h iptables-1.2.9_20040225/include/libiptc/libiptc.h
+--- iptables-1.2.9_20040225.org/include/libiptc/libiptc.h	2004-03-03 23:51:40.175338808 +0100
++++ iptables-1.2.9_20040225/include/libiptc/libiptc.h	2004-03-03 23:53:15.680819768 +0100
+@@ -2,7 +2,7 @@
+ #define _LIBIPTC_H
+ /* Library which manipulates filtering rules. */
+ 
+-#include <iptables/libiptc/ipt_kernel_headers.h>
++#include <libiptc/ipt_kernel_headers.h>
+ #include <linux/netfilter_ipv4/ip_tables.h>
+ 
+ #ifdef __cplusplus
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/ip6tables.c iptables-1.2.9_20040225/ip6tables.c
+--- iptables-1.2.9_20040225.org/ip6tables.c	2004-02-02 21:02:10.000000000 +0100
++++ iptables-1.2.9_20040225/ip6tables.c	2004-03-04 00:09:23.339713256 +0100
+@@ -43,6 +43,8 @@
+ #include <sys/types.h>
+ #include <sys/socket.h>
+ 
++#include <asm-generic/errno-base.h>
++
+ #ifndef TRUE
+ #define TRUE 1
+ #endif
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/iptables.c iptables-1.2.9_20040225/iptables.c
+--- iptables-1.2.9_20040225.org/iptables.c	2004-02-21 10:20:34.000000000 +0100
++++ iptables-1.2.9_20040225/iptables.c	2004-03-04 00:03:33.086959768 +0100
+@@ -40,6 +40,8 @@
+ #include <fcntl.h>
+ #include <sys/wait.h>
+ 
++#include <asm-generic/errno-base.h>
++
+ #ifndef TRUE
+ #define TRUE 1
+ #endif
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/libipq/libipq.c iptables-1.2.9_20040225/libipq/libipq.c
+--- iptables-1.2.9_20040225.org/libipq/libipq.c	2003-11-14 20:17:45.000000000 +0100
++++ iptables-1.2.9_20040225/libipq/libipq.c	2004-03-04 00:09:54.979903216 +0100
+@@ -33,6 +33,8 @@
+ 
+ #include <libipq/libipq.h>
+ 
++#include <asm-generic/errno.h>
++
+ /****************************************************************************
+  *
+  * Private interface
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/libiptc/libip4tc.c iptables-1.2.9_20040225/libiptc/libip4tc.c
+--- iptables-1.2.9_20040225.org/libiptc/libip4tc.c	2003-10-07 20:55:13.000000000 +0200
++++ iptables-1.2.9_20040225/libiptc/libip4tc.c	2004-03-04 00:04:53.702704312 +0100
+@@ -18,6 +18,8 @@
+ #include <stdio.h>
+ #include <unistd.h>
+ 
++#include <asm-generic/errno-base.h>
++
+ #ifdef DEBUG_CONNTRACK
+ #define inline
+ #endif
+diff -Nur --exclude '*.d' iptables-1.2.9_20040225.org/libiptc/libiptc.c iptables-1.2.9_20040225/libiptc/libiptc.c
+--- iptables-1.2.9_20040225.org/libiptc/libiptc.c	2004-01-31 16:33:55.000000000 +0100
++++ iptables-1.2.9_20040225/libiptc/libiptc.c	2004-03-04 00:08:49.373876848 +0100
+@@ -20,6 +20,9 @@
+  * 	  up after a ruleset change.  
+  */
+ 
++#include <asm-generic/errno-base.h>
++#include <asm-generic/errno.h>
++
+ #ifndef IPT_LIB_DIR
+ #define IPT_LIB_DIR "/usr/local/lib/iptables"
+ #endif
