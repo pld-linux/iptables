@@ -106,13 +106,13 @@ iptables.
 #%%patch4 -p1
 
 # removed broken ...
-echo "Module SET not included in kernel ..."
-rm -f extensions/.set-test
+rm -rf ipset
 
 chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
+rm -f include/asm
 ln -s %{_kernelsrcdir}/include/asm-%{_arch} include/asm
 
 %{__make} depend 2> /dev/null || :
