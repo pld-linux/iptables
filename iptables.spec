@@ -3,11 +3,16 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_tex - without TeX documentation (HOWTOS)
 #
-%define		netfilter_snap	20030326
+%define		netfilter_snap	0
+%define		iptables_version	1.2.8
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.7a_%{netfilter_snap}
+%if %netfilter_snap} != 0
+Version:	%{iptables_version}_%{netfilter_snap}
+%else
+Version:	%{iptables_version}
+%endif
 %define		_rel	8
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
@@ -28,11 +33,20 @@ Patch12:	raw.patch.userspace
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = 1.2.7a-%{netfilter_snap}}
+%if %{netfilter_snap} != 0
+%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
+%else
+%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
+%endif
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.7a-%{netfilter_snap}}
+%if %{netfilter_snap} != 0
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}-%{netfilter_snap}}
+%else
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
+%endif
+
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
