@@ -3,9 +3,8 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap	0
-%define		netfilter_snap	20031009
-%define		iptables_version	1.2.9rc1
+%define		netfilter_snap		20040105
+%define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
@@ -18,50 +17,44 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-Source0:	http://www.netfilter.org/files/%{name}-%{iptables_version}.tar.bz2
-# Source0-md5:	4eda3f086da423b7fe35802b5b833db0
+%if %{netfilter_snap} != 0
+Source0:	%{name}-%{version}.tar.bz2
+%else
+Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+%endif
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
-Source2:	%{name}.init
-Patch0:		%{name}-man.patch
-Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
-Patch4:		grsecurity-%{iptables_version}-iptables.patch
-# CVS up-to-date
-#Patch9:		iptables-1.2.8-CVS-20030715.patch
-# patches from netfilter
-Patch10:	ipt_REJECT-fake-source.patch.userspace
-Patch11:	mark-bitwise-ops.patch.userspace
-Patch12:	raw.patch.ipv6.userspace
-Patch13:	iptables-1.2.9rc1-ipt_p2p.patch
+Patch1:		%{name}-1.2.9-ipt_p2p.patch
+#Patch2:		ip_queue_vwmark.patch.userspace
+#Patch3:		ipt_REJECT-fake-source.patch.userspace
+#Patch4:		mark-bitwise-ops.patch.userspace
+
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
-%{?!_without_howto:BuildRequires:	tetex-dvips}
-%{?!_without_howto:BuildRequires:	tetex-format-latex}
 %{?!_without_howto:BuildRequires:	tetex-latex}
 %{?!_without_howto:BuildRequires:	tetex-tex-babel}
+%{?!_without_howto:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
 %if %{netfilter_snap} != 0
-%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
-%else
-%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
+%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
 %endif
-%{!?_without_patchedkernel:BuildRequires:       kernel-source}
 BuildConflicts:	kernel-headers < 2.3.0
-Provides:	firewall-userspace-tool
 Obsoletes:	netfilter
 Obsoletes:	ipchains
 %if %{netfilter_snap} != 0
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}-%{netfilter_snap}}
-%else
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{netfilter_snap}}
 %endif
+
+Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		_sysconfdir	/etc
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
@@ -100,52 +93,29 @@ Libraries and headers for developing iptables extensions.
 Biblioteki i pliki nag³ówkowe niezbêdne do tworzenia rozszerzeñ dla
 iptables.
 
-%package init
-Summary:	Iptables init (RedHat style)
-Summary(pl):	Iptables init (w stylu RedHata)
-Group:		Networking/Admin
-PreReq:		rc-scripts
-Requires(post,preun):   /sbin/chkconfig
-Requires:	%{name}
-Obsoletes:	firewall-init
-
-%description init
-Iptables-init is meant to provide an alternate way than firewall-init
-to start and stop packet filtering through iptables(8).
-
-%description init -l pl
-Iptablea-init ma na celu udostêpnienie alternatywnego w stosunku do
-firewall-init sposobu w³±czania i wy³±czania filtrów IP j±dra poprzez
-iptables(8).
-
 %prep
-%setup -q -a1 -n %{name}-%{iptables_version}
-%patch0 -p1
-%{!?_without_patchedkernel:%patch3 -p1}
-%{!?_without_patchedkernel:patch -p1 < userspace/IMQ.patch.userspace}
-%{!?_without_patchedkernel:%patch4 -p1}
-# % {!?_without_patchedkernel:%patch9 -p1}
-%{!?_without_patchedkernel:%patch10 -p1}
-%{!?_without_patchedkernel:%patch11 -p1}
-%{!?_without_patchedkernel:%patch12 -p1}
-%{!?_without_patchedkernel:%patch13 -p1}
+%setup -q -a1
+%patch1 -p1
+
+#%%patch2 -p1
+#%%patch3 -p1
+#%%patch4 -p1
 
 chmod 755 extensions/.*-test*
-%{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
+perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	LIBDIR="%{_libdir}" \
-	LDLIBS="-ldl" \
 	all experimental
 
-%{!?_without_howto:%{__make} -C iptables-howtos}
+%{?!_without_howto:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3,%{_initrddir}}
+install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3}
 
 echo ".so iptables-save.8" > ip6tables-save.8
 echo ".so iptables-restore.8" > ip6tables-restore.8
@@ -160,40 +130,29 @@ echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/ip6tables.8
 
 # Devel stuff
 cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
-install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
+#install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
-
-install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/iptables
+##%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+##%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post init
-/sbin/chkconfig --add %{name}
-
-%preun init
-if [ "$1" = "0" ]; then
-	/sbin/chkconfig --del %{name}
-fi
-
 %files
 %defattr(644,root,root,755)
-%doc %{!?_without_howto:iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
+%doc 
+%{?!_without_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
+
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
+
 %{_mandir}/man8/*
 
 %files devel
 %defattr(644,root,root,755)
-%{!?_without_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
-%{_libdir}/lib*.a
+%{?!_without_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
+#%%{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
-
-%files init
-%defattr(644,root,root,755)
-%attr(755,root,root) %{_initrddir}/iptables
