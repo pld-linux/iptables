@@ -5,7 +5,7 @@
 #
 %define		netfilter_snap		20040629
 %define		iptables_version	1.2.11
-%define		llh_version		7:2.6.7.0-4
+%define		llh_version		7:2.6.7.0-6
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -20,7 +20,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -40,6 +40,8 @@ Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-1.2.9-ipt_imq.patch
 Patch3:		%{name}-libipt_time.patch
 Patch4:		%{name}-debug.patch
+# http://l7-filter.sourceforge.net/
+Patch5:		%{name}-ipt_layer7.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -124,6 +126,7 @@ iptables(8).
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
