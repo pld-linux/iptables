@@ -210,7 +210,7 @@ diff -urN -x CVS -x .cvsignore iptables-1.2/extensions/libipt_psd.c userspace/ex
 +}
 diff -urN -x CVS -x .cvsignore iptables-1.2/patch-o-matic/psd.patch userspace/patch-o-matic/psd.patch
 --- iptables-1.2/patch-o-matic/psd.patch	Thu Jan  1 01:00:00 1970
-+++ userspace/patch-o-matic/psd.patch	Mon Feb  5 19:25:36 2001
++++ userspace/patch-o-matic/psd.patch	Tue Feb  6 16:33:32 2001
 @@ -0,0 +1,404 @@
 +--- /dev/null	Tue May  5 22:32:27 1998
 ++++ linux/include/linux/netfilter_ipv4/ipt_psd.h	Sun Feb  4 19:04:06 2001
@@ -431,8 +431,8 @@ diff -urN -x CVS -x .cvsignore iptables-1.2/patch-o-matic/psd.patch userspace/pa
 ++	if (curr) {
 ++
 ++		/* We know this address, and the entry isn't too old. Update it. */
-++		if (now - curr->timestamp <= psdinfo->delay_threshold &&
-++		    now >= curr->timestamp) {
+++		if (now - curr->timestamp <= (psdinfo->delay_threshold*HZ)/100 &&
+++		    time_after_eq(now, curr->timestamp)) {
 ++
 ++			/* Just update the appropriate list entry if we've seen this port already */
 ++			for (index = 0; index < curr->count; index++) {
@@ -637,7 +637,7 @@ diff -urN -x CVS -x .cvsignore iptables-1.2/patch-o-matic/psd.patch.configure.he
 +
 diff -urN -x CVS -x .cvsignore iptables-1.2/patch-o-matic/psd.patch.help userspace/patch-o-matic/psd.patch.help
 --- iptables-1.2/patch-o-matic/psd.patch.help	Thu Jan  1 01:00:00 1970
-+++ userspace/patch-o-matic/psd.patch.help	Sun Feb  4 21:49:07 2001
++++ userspace/patch-o-matic/psd.patch.help	Tue Feb  6 16:33:32 2001
 @@ -0,0 +1,29 @@
 +Author: Dennis Koslowski <koslowski@astaro.de>
 +Status: Experimental
@@ -656,9 +656,9 @@ diff -urN -x CVS -x .cvsignore iptables-1.2/patch-o-matic/psd.patch.help userspa
 +
 +--psd-delay-threshold <delay>
 +
-+  Delay (in jiffies) for the packets with different destination ports
-+  coming from the same host to be treated as possible port scan
-+  subsequence.
++  Delay (in hundredths of second) for the packets with different
++  destination ports coming from the same host to be treated as
++  possible port scan subsequence.
 +
 +--psd-lo-ports-weight <weight>
 +
