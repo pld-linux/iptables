@@ -35,10 +35,11 @@ Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-pom-ng-%{_snap}.patch
-Patch2:		%{name}-1.3.0-imq1.diff
-Patch3:		%{name}-debug.patch
-Patch4:		%{name}-layer7-%{l7_version}.patch
-Patch5:		grsecurity-1.2.11-iptables.patch
+Patch2:		%{name}-pom-ng-headers-%{_snap}.patch
+Patch3:		%{name}-1.3.0-imq1.diff
+Patch4:		%{name}-debug.patch
+Patch5:		%{name}-layer7-%{l7_version}.patch
+Patch6:		grsecurity-1.2.11-iptables.patch
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -126,9 +127,10 @@ iptables(8).
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-##%patch3 -p1
+%patch3 -p1
 ##%patch4 -p1
 ##%patch5 -p1
+##%patch6 -p1
 
 # removed broken ...
 #rm -f extensions/.{set,quota,geoip}-test
