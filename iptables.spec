@@ -6,6 +6,7 @@
 %define		netfilter_snap		20040608
 %define		iptables_version	1.2.10
 %define		llh_version		7:2.6.5.1-6
+%define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -19,7 +20,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -33,6 +34,7 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
+Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-1.2.9-ipt_imq.patch
 Patch2:		%{name}-libipt_time.patch
@@ -140,8 +142,8 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_initrddir},%{_includedir},%{_libdir},%{_mandir}/man3,}
 
-echo ".so iptables-save.8" > ip6tables-save.8
-echo ".so iptables-restore.8" > ip6tables-restore.8
+echo ".so iptables-save.8" > %{name6}-save.8
+echo ".so iptables-restore.8" > %{name6}-restore.8
 
 %{__make} install install-experimental \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -149,24 +151,27 @@ echo ".so iptables-restore.8" > ip6tables-restore.8
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
-echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/ip6tables.8
+echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
 
 # Devel stuff
 cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/iptables
+install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/%{name}
+install %{SOURCE3} $RPM_BUILD_ROOT%{_initrddir}/%{name6}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %post init
 /sbin/chkconfig --add %{name}
+/sbin/chkconfig --add %{name6}
 
 %preun init
 if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del %{name}
+	/sbin/chkconfig --del %{name6}
 fi
 
 %files
@@ -188,4 +193,4 @@ fi
 
 %files init
 %defattr(644,root,root,755)
-%attr(754,root,root) %{_initrddir}/iptables
+%attr(754,root,root) %{_initrddir}/*
