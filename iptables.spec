@@ -5,7 +5,7 @@
 #
 %define		netfilter_snap		20040518
 %define		iptables_version	1.2.10
-%define		llh_version		7:2.6.5.1-4
+%define		llh_version		7:2.6.5.1-5
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -19,7 +19,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -35,7 +35,6 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Source2:	%{name}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-1.2.9-ipt_imq.patch
-Patch2:		%{name}-pom-ng.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -116,7 +115,6 @@ iptables(8).
 %setup -q -a1
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
