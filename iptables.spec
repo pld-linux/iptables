@@ -6,28 +6,33 @@ Release:	1
 Copyright:	GPL
 Group:		Networking/Daemons
 URL:		http://netfilter.kernelnotes.org/
-Source0:	http://netfilter.kernelnotes.org/0.90/%{name}-%{version}.tar.bz2
-Source1:	rc.firewall
-#Requires:	kernel >= 2.3.99pre2
-BuildRequires:	grep
-BuildRequires:	textutils
-BuildRequires:	/usr/bin/dvips
+Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
+Source0:	http://netfilter.kernelnotes.org/FIXME/%{name}-%{version}.tar.bz2
+Source1:	cvs://cvs.samba.org/netfilter/iptables-howtos.tar.bz2
+Source2:	rc.firewall
+BuildRequires:	sgml-tools
+#Requires:	kernel >= 2.3.99
+Obsoletes:	netfilter
+Obsoletes:	ipchains
 BuildRoot:	/tmp/%{name}-%{version}-root
 
 %define		_sysconfdir	/etc
 
 %description
-An extensible NAT system, and an extensible packet filtering system (iptables).
+An extensible NAT system, and an extensible packet filtering system.
 
 %description -l pl
 Wydajny system translacji adresów (NAT) oraz system filtrowania pakietów.
 
 %prep
 %setup -q
+%setup -q -a1
 
 %build
+make -C iptables-howtos NAT-HOWTO.html packet-filtering-HOWTO.html \
+	# netfilter-hacking-HOWTO.html networking-concepts-HOWTO.html
 make depend 2> /dev/null || :
-make COPT_FLAGS="$RPM_OPT_FLAGS" LIBDIR="%{_libdir}" 
+make COPT_FLAGS="$RPM_OPT_FLAGS" LIBDIR="%{_libdir}" all
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -38,7 +43,7 @@ make install DESTDIR=$RPM_BUILD_ROOT \
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
-install %{SOURCE1} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/
+install %{SOURCE2} $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/
 ln -s ../rc.firewall $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc0.d/K91firewall
 ln -s ../rc.firewall $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc1.d/K91firewall
 ln -s ../rc.firewall $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc2.d/S09firewall
@@ -56,6 +61,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%doc */*.html
 %attr(754,root,root) %config(noreplace) %{_sysconfdir}/rc.d/rc.firewall
 %{_sysconfdir}/rc.d/rc*.d/*firewall
 %attr(755,root,root) %{_sbindir}/*
