@@ -1,0 +1,22 @@
+--- ./extensions/libip6t_length.c.org	Mon Oct 15 12:04:55 2001
++++ ./extensions/libip6t_length.c	Mon Oct 15 12:06:13 2001
+@@ -9,10 +9,6 @@
+ #include <ip6tables.h>
+ #include <linux/netfilter_ipv6/ip6t_length.h>
+ 
+-struct ip6t_length_info {
+-    u_int16_t	min, max;
+-    u_int8_t	invert;
+-};
+ 
+ /* Function which prints out usage message. */
+ static void
+@@ -43,7 +39,7 @@
+ {
+ 	int len;
+ 	
+-	len = string_to_number(s, 0, 0xFFFF);
++	len = string_to_number(s, 0, 0xFFFF, &len);
+ 	
+ 	if (len == -1)
+ 		exit_error(PARAMETER_PROBLEM, "length invalid: `%s'\n", s);
