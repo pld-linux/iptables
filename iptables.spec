@@ -71,7 +71,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 %build
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
-	COPT_FLAGS="%{rpmcflags}" \
+	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	LIBDIR="%{_libdir}" \
 	all experimental
 
