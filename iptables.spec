@@ -1,6 +1,6 @@
 #
 # Conditional build:
-# _without_ippool - without ippool (which requires patched 2.4.x kernel)
+# _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 #
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
@@ -59,8 +59,8 @@ Libraries and headers for developing iptables extensions.
 %patch1 -p1
 %patch2 -p1
 %patch3 -p2
-%patch4 -p1
-%patch5 -p1
+%{!?_without_patchedkernel:%patch4 -p1}
+%{!?_without_patchedkernel:%patch5 -p1}
 %patch6 -p1
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
@@ -94,8 +94,8 @@ cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-%{!?_without_ippool:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-%{!?_without_ippool:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 gzip -9nf KNOWN_BUGS iptables-howtos/*.{txt,ps}
 
