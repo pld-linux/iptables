@@ -22,7 +22,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2
+%define		_rel	3
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -40,6 +40,7 @@ Patch1:		%{name}-1.2.9-ipt_p2p.patch
 Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-include_path.patch
 Patch4:		%{name}-gkh-fix.patch
+Patch5:		%{name}-ERRNO.patch
 %if %{with howto}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -121,6 +122,7 @@ iptables(8).
 %patch2 -p1
 %patch3 -p1
 %patch4 -p0
+%patch5 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
