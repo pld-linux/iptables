@@ -1,0 +1,11 @@
+--- userspace/extensions/libipt_string.c~	Mon Feb 26 18:31:21 2001
++++ userspace/extensions/libipt_string.c	Mon May 21 18:02:22 2001
+@@ -44,7 +44,7 @@
+ static void
+ parse_string(const unsigned char *s, struct ipt_string_info *info)
+ {	
+-        if (strlen(s) <= BM_MAX_LEN) strcpy(info->string, s);
++        if (strlen(s) <= BM_MAX_NLEN) strcpy(info->string, s);
+ 	else exit_error(PARAMETER_PROBLEM, "STRING too long `%s'", s);
+ }
+ 
