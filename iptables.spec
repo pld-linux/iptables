@@ -5,6 +5,7 @@ Version:	1.2.1a
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
+Group(de):	Netzwerkwesen/Server
 Group(pl):	Sieciowe/Serwery
 URL:		http://netfilter.kernelnotes.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
@@ -33,7 +34,11 @@ pakietów.
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
+Summary(pl):	Biblioteki i nag³ówki do tworzenia rozszerzeñ iptables
 Group:		Development/Libraries
+Group(de):	Entwicklung/Libraries
+Group(fr):	Development/Librairies
+Group(pl):	Programowanie/Biblioteki
 Requires:	%{name} = %{version}
 
 %description devel
@@ -50,7 +55,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 
 %build
 %{__make} depend 2> /dev/null || :
-%{__make} COPT_FLAGS="$RPM_OPT_FLAGS" \
+%{__make} COPT_FLAGS="%{rpmcflags}" \
 	LIBDIR="%{_libdir}" \
 	all experimental
 
