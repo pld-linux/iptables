@@ -3,9 +3,10 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_snap			20041118
-%define		iptables_version	1.3.0
-%define		llh_version		7:2.6.10.0-1
+%define		_pomng_snap		20050311
+#
+%define		iptables_version	1.3.1
+%define		llh_version		7:2.6.11.0-2
 %define		name6			ip6tables
 %define		l7_version		1.0
 #
@@ -17,23 +18,22 @@ Summary(uk):	ı‘…Ã¶‘… ƒÃ— À≈“’◊¡ŒŒ— –¡À≈‘Œ…Õ… ∆¶Ãÿ‘“¡Õ… —ƒ“¡ Linux
 Summary(zh_CN):	Linuxƒ⁄∫À∞¸π˝¬Àπ‹¿Ìπ§æﬂ
 Name:		iptables
 Version:	%{iptables_version}
-%define		_rel	1
-Release:	0.%{_snap}.%{_rel}@%{_kernel_ver_str}
+Release:	0.1@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
-Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/iptables-%{version}-%{_snap}.tar.bz2
-# Source0-md5:	f366007c32e887d163ae25f0dc3a7dc5
-#Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
+# Source0-md5:	c3358a3bd0d7755df0b64a5063db296b
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-pom-ng-%{_snap}.patch
-Patch2:		%{name}-1.2.9-imq1.diff
-Patch3:		%{name}-debug.patch
-Patch4:		%{name}-layer7-%{l7_version}.patch
-Patch5:		grsecurity-1.2.11-iptables.patch
+Patch1:		%{name}-pom-ng-%{_pomng_snap}.patch
+Patch2:		%{name}-nat-compat.patch
+Patch3:		%{name}-1.2.9-imq1.diff
+Patch4:		%{name}-debug.patch
+Patch5:		%{name}-layer7-%{l7_version}.patch
+Patch6:		grsecurity-1.2.11-iptables.patch
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -45,10 +45,10 @@ BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 BuildRequires:	sed >= 4.0
 %endif
-%if %{with dist_kernel} && %{_snap} != 0
-BuildRequires:	kernel-headers(netfilter) = %{_snap}
+%if %{with dist_kernel} && %{_pomng_snap} != 0
+BuildRequires:	kernel-headers(netfilter) = %{_pomng_snap}
 BuildRequires:	kernel-source
-Requires:	kernel(netfilter) = %{_snap}
+Requires:	kernel(netfilter) = %{_pomng_snap}
 %endif
 BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
@@ -117,13 +117,13 @@ firewall-init sposobu w≥±czania i wy≥±czania filtrÛw IP j±dra poprzez
 iptables(8).
 
 %prep
-%setup -q -n %{name}-%{version}-%{_snap} -a1
+%setup -q -a1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
+#patch3 -p1
+#patch4 -p1
+#patch5 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
