@@ -5,7 +5,7 @@
 #
 %define		netfilter_snap	0
 #%%define		netfilter_snap	20030827
-%define		iptables_version	1.2.8
+%define		iptables_version	1.2.9rc1
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
