@@ -1428,3 +1428,15 @@ diff -Nur iptables.org/libipq/libipq.c.orig iptables/libipq/libipq.c.orig
 +		fprintf(stderr, ": %s", strerror(errno));
 +	fputc('\n', stderr);
 +}
+diff -ruN iptables-1.2.11_20040629.org/extensions/libipt_connbytes.c iptables-1.2.11_20040629/extensions/libipt_connbytes.c
+--- iptables-1.2.11_20040629.org/extensions/libipt_connbytes.c	2004-05-08 14:02:36.000000000 +0000
++++ iptables-1.2.11_20040629/extensions/libipt_connbytes.c	2004-10-19 08:37:21.000000000 +0000
+@@ -6,7 +6,7 @@
+ #include <getopt.h>
+ #include <iptables.h>
+ #include <linux/netfilter_ipv4/ip_conntrack.h>
+-#include <linux/netfilter_ipv4/ipt_connbytes.h>
++#include </usr/src/linux/include/linux/netfilter_ipv4/ipt_connbytes.h>
+ 
+ /* Function which prints out usage message. */
+ static void
