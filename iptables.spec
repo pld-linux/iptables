@@ -9,7 +9,7 @@
 %define		_pomng_snap		20050311
 #
 %define		iptables_version	1.3.1
-%define		llh_version		7:2.6.11.0-5
+%define		llh_version		7:2.6.11.1-1
 %define		name6			ip6tables
 %define		l7_version		1.0
 #
@@ -32,7 +32,7 @@ Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-pom-ng-%{_pomng_snap}.patch
-Patch2:		%{name}-nat-compat.patch
+
 Patch3:		%{name}-1.3.0-imq1.diff
 Patch4:		%{name}-layer7-%{l7_version}.patch
 Patch5:		grsecurity-1.2.11-iptables.patch
@@ -124,7 +124,7 @@ iptables(8).
 %setup -q -a1
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
+
 %patch3 -p1
 #patch4 -p1	WAITING FOR MEMLEAK FIX
 %patch5 -p1
