@@ -17,7 +17,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -27,6 +27,7 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 # Source0-md5:	8299db6ffbe98496d7f57dbb00f17e7d
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
+Patch1:		%{name}-1.2.9-ipt_p2p.patch
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-latex}
@@ -90,7 +91,7 @@ iptables.
 
 %prep
 %setup -q -a1
-
+%patch1 -p1
 chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
