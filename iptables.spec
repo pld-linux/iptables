@@ -4,8 +4,8 @@
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
 %define		netfilter_snap	0
-# % define		netfilter_snap	20030616
-%define		iptables_version	1.2.8
+%define		netfilter_snap	20031009
+%define		iptables_version	1.2.9rc1
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.4.x
@@ -25,7 +25,7 @@ Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	cf62ebdabf05ccc5479334cc04fa993c
+# Source0-md5:	4eda3f086da423b7fe35802b5b833db0
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -37,9 +37,7 @@ Patch9:		iptables-1.2.8-CVS-20030715.patch
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
-Patch12:	raw.patch.userspace
-Patch13:	raw.patch.ipv6.userspace
-Patch14:	40_nf-log.patch.userspace
+Patch12:	raw.patch.ipv6.userspace
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
@@ -129,8 +127,6 @@ iptables(8).
 %{!?_without_patchedkernel:%patch10 -p1}
 %{!?_without_patchedkernel:%patch11 -p1}
 %{!?_without_patchedkernel:%patch12 -p1}
-%{!?_without_patchedkernel:%patch13 -p1}
-%{!?_without_patchedkernel:%patch14 -p1}
 
 chmod 755 extensions/.*-test*
 %{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
