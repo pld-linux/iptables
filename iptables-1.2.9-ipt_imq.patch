@@ -5,6 +5,17 @@ diff -uNr iptables-1.2.9_20040308.orig/extensions/.IMQ-test iptables-1.2.9_20040
 +#!/bin/sh
 +# True if IMQ target patch is applied.
 +[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_IMQ.c ] && echo IMQ
+--- iptables-1.2.10_20040429/extensions/Makefile.orig	2004-04-07 15:00:43.000000000 +0200
++++ iptables-1.2.10_20040429/extensions/Makefile	2004-04-30 12:44:23.894461072 +0200
+@@ -5,7 +5,7 @@
+ # header files are present in the include/linux directory of this iptables
+ # package (HW)
+ #
+-PF_EXT_SLIB:=ah connlimit connmark conntrack dscp ecn esp helper icmp iprange length limit mac mark multiport owner physdev pkttype realm rpc sctp standard state tcp tcpmss tos ttl udp unclean CLASSIFY CONNMARK DNAT DSCP ECN LOG MARK MASQUERADE MIRROR NETMAP NOTRACK REDIRECT REJECT SAME SNAT TARPIT TCPMSS TOS TRACE TTL ULOG
++PF_EXT_SLIB:=ah connlimit connmark conntrack dscp ecn esp helper icmp iprange length limit mac mark multiport owner physdev pkttype realm rpc sctp standard state tcp tcpmss tos ttl udp unclean CLASSIFY CONNMARK DNAT DSCP ECN LOG MARK MASQUERADE MIRROR NETMAP NOTRACK REDIRECT REJECT SAME SNAT TARPIT TCPMSS TOS TRACE TTL ULOG IMQ
+ PF6_EXT_SLIB:=eui64 hl icmpv6 length limit mac mark multiport owner standard tcp udp HL LOG MARK TRACE
+ 
+ # Optionals
 diff -uNr iptables-1.2.9_20040308.orig/extensions/libipt_IMQ.c iptables-1.2.9_20040308/extensions/libipt_IMQ.c
 --- iptables-1.2.9_20040308.orig/extensions/libipt_IMQ.c	1970-01-01 01:00:00.000000000 +0100
 +++ iptables-1.2.9_20040308/extensions/libipt_IMQ.c	2004-03-14 14:56:05.363681456 +0100
