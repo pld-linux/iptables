@@ -3,7 +3,7 @@
 %bcond_without patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without howto 		# without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20040130
+%define		netfilter_snap		20040216
 %define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -106,7 +106,7 @@ iptables.
 #%%patch4 -p1
 
 # removed broken ...
-rm -f extensions/.time-test
+#rm -f extensions/.time-test
 
 chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
@@ -116,9 +116,9 @@ ln -s %{_kernelsrcdir}/include/asm-%{_arch} include/asm
 
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
-	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	LIBDIR="%{_libdir}" \
 	all experimental
+#	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 
 %{?with_howto:%{__make} -C iptables-howtos}
 
