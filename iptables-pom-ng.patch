@@ -1,0 +1,29 @@
+diff -Nur iptables.org/extensions/libipt_helper.c iptables/extensions/libipt_helper.c
+--- iptables.org/extensions/libipt_helper.c	2004-01-31 15:33:55.000000000 +0000
++++ iptables/extensions/libipt_helper.c	2004-03-22 09:02:25.000000000 +0000
+@@ -45,8 +45,9 @@
+ 	switch (c) {
+ 	case '1':
+ 		check_inverse(optarg, &invert, &invert, 0);
+-		strncpy(info->name, optarg, 29);
+-		info->name[29] = '\0';
++		memset(info->name, 0, sizeof(info->name));
++		if (strcmp(info->name, "any"))
++			strncpy(info->name, optarg, 29);
+ 		if (invert)
+ 			info->invert = 1;
+ 		*flags = 1;
+@@ -74,8 +75,12 @@
+       int numeric)
+ {
+ 	struct ipt_helper_info *info = (struct ipt_helper_info *)match->data;
++	char *name = "any";
+ 
+-	printf("helper match %s\"%s\" ", info->invert ? "! " : "", info->name);
++	if (info->name[0] != '\0')
++		name = info->name;
++
++	printf("helper match %s\"%s\" ", info->invert ? "! " : "", name);
+ }
+ 
+ /* Saves the union ipt_info in parsable form to stdout. */
