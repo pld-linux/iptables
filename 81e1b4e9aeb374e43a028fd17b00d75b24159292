@@ -1,0 +1,3 @@
+- updated to 1.2.8
+- fix Requires (kernel_netfilter -> kernel(netfilter))
+- fix BuildRequires (as above)
