@@ -3,7 +3,8 @@
 #		- update kernel-net-(ipt_)p2p and remove 1.2.9-ipt_p2p.patch
 #
 # Conditional build:
-%bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
+%bcond_without	doc		# without documentation (HOWTOS) which needed TeX
+%bcond_without	dist_kernel	# without distribution kernel
 #
 %define		netfilter_snap		20040308
 %define		iptables_version	1.2.9
@@ -40,19 +41,19 @@ Patch2:		%{name}-1.2.9-ipt_p2p.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
+BuildRequires:	tetex-dvips
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
-BuildRequires:	tetex-dvips
 %endif
 BuildRequires:	perl-base
-%if %{netfilter_snap} != 0
+%if %{with dist_kernel} && %{netfilter_snap} != 0
 BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}
 Requires:	kernel(netfilter) = %{netfilter_snap}
 %endif
 BuildConflicts:	kernel-headers < 2.3.0
+Provides:	firewall-userspace-tool
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -97,7 +98,7 @@ Summary:	Iptables init (RedHat style)
 Summary(pl):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
 PreReq:		rc-scripts
-Requires(post,preun):   /sbin/chkconfig
+Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name} = %{version}-%{release}
 Obsoletes:	firewall-init
 
@@ -123,18 +124,19 @@ chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
-%{__make} depend 2> /dev/null || :
+%{__make} KERNEL_DIR=%{_kernelsrcdir} \
+	depend 2>/dev/null || :
 %{__make} CC="%{__cc}" \
+	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	LIBDIR="%{_libdir}" \
-	all experimental \
-	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG"
+	KERNEL_DIR=%{_kernelsrcdir} \
+	all experimental
 
 %{?with_doc:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_libdir},%{_includedir}/iptables,%{_mandir}/man3,%{_initrddir}}
-install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/iptables
 
 echo ".so iptables-save.8" > ip6tables-save.8
 echo ".so iptables-restore.8" > ip6tables-restore.8
@@ -152,6 +154,8 @@ cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
+install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/iptables
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -165,7 +169,6 @@ fi
 
 %files
 %defattr(644,root,root,755)
-%doc 
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
