@@ -5,7 +5,7 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.5
+Version:	1.2.6a
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
