@@ -1,0 +1,11 @@
+--- iptables-1.2.9-20040229/extensions/libipt_dstlimit.c.org	2004-02-22 21:37:40.000000000 +0100
++++ iptables-1.2.9-20040229/extensions/libipt_dstlimit.c	2004-03-01 11:21:16.561749672 +0100
+@@ -295,7 +295,7 @@
+ 		printf("htable-size %u ", r->cfg.size);
+ 	if (r->cfg.max)
+ 		printf("htable-max %u ", r->cfg.max);
+-	if (r->cfg.gc_interval != IPT_DSTLIMIT_GCINTEVAL)
++	if (r->cfg.gc_interval != IPT_DSTLIMIT_GCINTERVAL)
+ 		printf("htable-gcinterval %u ", r->cfg.gc_interval);
+ 	if (r->cfg.expire != IPT_DSTLIMIT_EXPIRE)
+ 		printf("htable-expire %u ", r->cfg.expire);

@@ -1,14 +1,12 @@
-diff -Nur iptables-1.2.9_20040114.org/Makefile iptables-1.2.9_20040114/Makefile
---- iptables-1.2.9_20040114.org/Makefile	2003-11-02 18:01:09.000000000 +0100
-+++ iptables-1.2.9_20040114/Makefile	2004-01-27 12:24:53.283604712 +0100
-@@ -11,9 +11,8 @@
+--- Makefile~	2004-02-22 17:20:10.037079592 +0100
++++ Makefile	2004-02-22 17:21:50.178855728 +0100
+@@ -11,9 +11,7 @@
  # Standard part of Makefile for topdir.
  TOPLEVEL_INCLUDED=YES
  
 -ifndef KERNEL_DIR
  KERNEL_DIR=/usr/src/linux
 -endif
-+
  IPTABLES_VERSION:=1.2.9
  OLD_IPTABLES_VERSION:=1.2.8
  
