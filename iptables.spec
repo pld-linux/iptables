@@ -7,7 +7,7 @@ Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.2.7a
-%define		_rel	5
+%define		_rel	6
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -27,11 +27,11 @@ Patch12:	raw.patch.userspace
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7a}
+%{!?_without_patchedkernel:BuildRequires:	kernel(netfilter) = 1.2.7a}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%{!?_without_patchedkernel:Requires:	kernel_netfilter = 1.2.7a}
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.7a}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
