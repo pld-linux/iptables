@@ -1,9 +1,9 @@
 #
 # Conditional build:
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
-# _without_tex - without TeX documentation (HOWTOS)
+# _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap	20030518
+%define		netfilter_snap	20030605
 %define		iptables_version	1.2.8
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
@@ -13,7 +13,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	3
+%define		_rel	5
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -29,10 +29,12 @@ Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
 Patch12:	raw.patch.userspace
 Patch13:	raw.patch.ipv6.userspace
-%{?!_without_tex:BuildRequires:	sgml-tools}
-%{?!_without_tex:BuildRequires:	sgmls}
-%{?!_without_tex:BuildRequires:	tetex-latex}
-%{?!_without_tex:BuildRequires:	tetex-dvips}
+Patch14:	40_nf-log.patch.userspace
+Patch15:	%{name}-IPMARK-fix.patch
+%{?!_without_howto:BuildRequires:	sgml-tools}
+%{?!_without_howto:BuildRequires:	sgmls}
+%{?!_without_howto:BuildRequires:	tetex-latex}
+%{?!_without_howto:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
 %if %{netfilter_snap} != 0
 %{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
@@ -83,6 +85,8 @@ iptables.
 %{!?_without_patchedkernel:%patch11 -p1}
 %{!?_without_patchedkernel:%patch12 -p1}
 %{!?_without_patchedkernel:%patch13 -p1}
+%{!?_without_patchedkernel:%patch14 -p1}
+%{!?_without_patchedkernel:%patch15 -p1}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
@@ -95,7 +99,7 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 	LIBDIR="%{_libdir}" \
 	all experimental
 
-%{?!_without_tex:%{__make} -C iptables-howtos}
+%{?!_without_howto:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -126,7 +130,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc KNOWN_BUGS
-%{?!_without_tex:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
+%{?!_without_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
@@ -136,7 +140,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%{?!_without_tex:%doc iptables-howtos/netfilter-hacking-HOWTO*}
+%{?!_without_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
