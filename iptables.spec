@@ -3,7 +3,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_snap			0
+%define		_snap			20041118
 %define		iptables_version	1.3.0
 %define		llh_version		7:2.6.10.0-1
 %define		name6			ip6tables
@@ -17,19 +17,19 @@ Summary(uk):	ı‘…Ã¶‘… ƒÃ— À≈“’◊¡ŒŒ— –¡À≈‘Œ…Õ… ∆¶Ãÿ‘“¡Õ… —ƒ“¡ Linux
 Summary(zh_CN):	Linuxƒ⁄∫À∞¸π˝¬Àπ‹¿Ìπ§æﬂ
 Name:		iptables
 Version:	%{iptables_version}
-%define		_rel	0.1
-Release:	%{_rel}@%{_kernel_ver_str}
+%define		_rel	1
+Release:	0.%{_snap}.%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
-Source0:	ftp://ftp.netfilter.org/pub/iptables/iptables-%{version}.tar.bz2
-# Source0-md5:	a072c0f09f1b289cb7af56f76407d033
+Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/iptables-%{version}-%{_snap}.tar.bz2
+# Source0-md5:	f366007c32e887d163ae25f0dc3a7dc5
 #Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
-#Patch1:		%{name}-pom-ng-%{_snap}.patch
+Patch1:		%{name}-pom-ng-%{_snap}.patch
 Patch2:		%{name}-1.2.9-imq1.diff
 Patch3:		%{name}-debug.patch
 Patch4:		%{name}-layer7-%{l7_version}.patch
@@ -117,9 +117,9 @@ firewall-init sposobu w≥±czania i wy≥±czania filtrÛw IP j±dra poprzez
 iptables(8).
 
 %prep
-%setup -q -n %{name}-%{version} -a1
+%setup -q -n %{name}-%{version}-%{_snap} -a1
 %patch0 -p1
-#%patch1 -p1
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
