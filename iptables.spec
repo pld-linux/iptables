@@ -106,6 +106,7 @@ iptables.
 Summary:	Iptables init (RedHat style)
 Summary(pl):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
+PreReq:		rc-scripts
 Requires(post,preun):   /sbin/chkconfig
 Requires:	%{name}
 Obsoletes:	firewall-init
@@ -115,8 +116,8 @@ Iptables-init is meant to provide an alternate way than firewall-init
 to start and stop packet filtering through iptables(8).
 
 %description init -l pl
-Iptablea-init ma na celu umozliwiæ alternatywny w stosunku do
-firewall-init sposób w³±czania i wy³±czania filtrów IP j±dra poprzez
+Iptablea-init ma na celu udostêpnienie alternatywnego w stosunku do
+firewall-init sposobu w³±czania i wy³±czania filtrów IP j±dra poprzez
 iptables(8).
 
 %prep
@@ -176,7 +177,9 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/chkconfig --add %{name}
 
 %preun init
-/sbin/chkconfig --del %{name}
+if [ "$1" = "0" ]; then
+	/sbin/chkconfig --del %{name}
+fi
 
 %files
 %defattr(644,root,root,755)
