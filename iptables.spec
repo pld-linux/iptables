@@ -32,16 +32,16 @@ Wydajny system translacji adresów (NAT) oraz system filtrowania pakietów.
 %patch -p1
 
 %build
-make -C iptables-howtos NAT-HOWTO.html packet-filtering-HOWTO.html \
+%{__make} -C iptables-howtos NAT-HOWTO.html packet-filtering-HOWTO.html \
 	# netfilter-hacking-HOWTO.html networking-concepts-HOWTO.html
-make depend 2> /dev/null || :
-make COPT_FLAGS="$RPM_OPT_FLAGS" LIBDIR="%{_libdir}" all
+%{__make} depend 2> /dev/null || :
+%{__make} COPT_FLAGS="$RPM_OPT_FLAGS" LIBDIR="%{_libdir}" all
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc{0,1,2,3,4,5,6}.d
 
-make install DESTDIR=$RPM_BUILD_ROOT \
+%{__make} install DESTDIR=$RPM_BUILD_ROOT \
 	BINDIR=%{_sbindir} \
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
