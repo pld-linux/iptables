@@ -31,6 +31,8 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
 Patch3:		http://trash.net/~kaber/imq/pom-20030625.diff
 Patch4:		grsecurity-%{iptables_version}-iptables.patch
+# CVS up-to-date
+Patch9:		iptables-1.2.8-CVS-20030715.patch
 # patches from netfilter
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
@@ -103,6 +105,7 @@ iptables.
 %patch0 -p1
 %{!?_without_patchedkernel:%patch3 -p1}
 %{!?_without_patchedkernel:%patch4 -p1}
+%{!?_without_patchedkernel:%patch9 -p1}
 %{!?_without_patchedkernel:%patch10 -p1}
 %{!?_without_patchedkernel:%patch11 -p1}
 %{!?_without_patchedkernel:%patch12 -p1}
@@ -110,7 +113,6 @@ iptables.
 %{!?_without_patchedkernel:%patch14 -p1}
 
 chmod 755 extensions/.*-test*
-mv -f extensions/.NETLINK.test extensions/.NETLINK-test
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
