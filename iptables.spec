@@ -23,11 +23,12 @@ License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-%if %{netfilter_snap} != 0
+#%if %{netfilter_snap} != 0
 Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/%{name}-%{iptables_version}-%{netfilter_snap}.tar.bz2
-%else
-Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
-%endif
+# Source0-md5:	d09f26620c133711cdd735ce2720fcbc
+#%else
+#Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
+#%endif
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Patch1:		%{name}-1.2.9-ipt_p2p.patch
