@@ -3,7 +3,7 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		0
+%define		netfilter_snap		20031204
 %define		iptables_version	1.2.9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -17,7 +17,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -33,24 +33,24 @@ Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Patch1:		%{name}-1.2.9-ipt_p2p.patch
+Patch2:		ip_queue_vwmark.patch.userspace
+Patch3:		ipt_REJECT-fake-source.patch.userspace
+Patch4:		mark-bitwise-ops.patch.userspace
+
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-latex}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-#%%if %{netfilter_snap} != 0
-#%%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
-#%%else
-#%%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}}
-#%%endif
+%if %{netfilter_snap} != 0
+%{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
+%endif
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-#%%if %{netfilter_snap} != 0
-#%%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}-%{netfilter_snap}}
-#%%else
-#%%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{iptables_version}}
-#%%endif
+%if %{netfilter_snap} != 0
+%{!?_without_patchedkernel:Requires:	kernel(netfilter) = %{netfilter_snap}}
+%endif
 
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -97,6 +97,11 @@ iptables.
 %prep
 %setup -q -a1
 %patch1 -p1
+
+%patch2 -p1
+%patch3 -p1
+%patch4 -p1
+
 chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
