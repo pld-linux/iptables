@@ -3,7 +3,7 @@
 #		- update kernel-net-(ipt_)p2p and remove 1.2.9-ipt_p2p.patch
 #
 # Conditional build:
-%bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
+%bcond_without	dist_kernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
 #
 %define		netfilter_snap		20040330
@@ -49,13 +49,13 @@ BuildRequires:	tetex-dvips
 %endif
 BuildRequires:	perl-base
 %if %{netfilter_snap} != 0
-%{?with_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
+%{?with_dist_kernel:BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}}
 %endif
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
 %if %{netfilter_snap} != 0
-%{?with_patchedkernel:Requires:	kernel(netfilter) = %{netfilter_snap}}
+%{?with_dist_kernel:Requires:	kernel(netfilter) = %{netfilter_snap}}
 %endif
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -158,8 +158,8 @@ cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-##%{?with_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-##%{?with_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+##%{?with_dist_kernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+##%{?with_dist_kernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
