@@ -5,7 +5,7 @@
 #
 %define		_snap			20041118
 %define		iptables_version	1.3.0
-%define		llh_version		7:2.6.9.1-1
+%define		llh_version		7:2.6.9.1-1.4
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -16,7 +16,7 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-%define		_rel	0.1
+%define		_rel	0.2
 Release:	0.%{_snap}.%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
