@@ -15,60 +15,37 @@ diff -ur iptables-1.2/extensions/libip6t_icmp.c iptables-1.2.icmp6/extensions/li
  struct ip6tables_match icmp
  = { NULL,
 -    "icmp",
-+    "ipv6-icmp",
++    "icmp6",
      NETFILTER_VERSION,
      IP6T_ALIGN(sizeof(struct ip6t_icmp)),
      IP6T_ALIGN(sizeof(struct ip6t_icmp)),
-diff -ur iptables-1.2/ip6tables.c iptables-1.2.icmp6/ip6tables.c
---- iptables-1.2/ip6tables.c	Sun Feb 18 15:05:46 2001
-+++ iptables-1.2.icmp6/ip6tables.c	Sun Feb 18 14:59:25 2001
-@@ -189,7 +189,9 @@
- static const struct pprot chain_protos[] = {
- 	{ "tcp", IPPROTO_TCP },
- 	{ "udp", IPPROTO_UDP },
-+	{ "ipv6-icmp", IPPROTO_ICMPV6 },
- 	{ "icmpv6", IPPROTO_ICMPV6 },
-+	{ "icmp6", IPPROTO_ICMPV6 },
-	{ "esp", IPPROTO_ESP },
-	{ "ah", IPPROTO_AH },
- 	{ "all", 0 },
-@@ -628,19 +630,6 @@
- 	return ptr;
- }
- 
--/* Christophe Burki wants `-p 6' to imply `-m tcp'.  */
--static struct ip6tables_match *
--find_proto(const char *pname, enum ip6t_tryload tryload, int nolookup)
--{
--	int proto;
--
--	proto = string_to_number(pname, 0, 255);
--	if (proto != -1) 
--		return find_match(proto_to_name(proto, nolookup), tryload);
--
--	return find_match(pname, tryload);
--}
--
- static u_int16_t
- parse_protocol(const char *s)
+diff -ur iptables-1.2.2/ip6tables.c iptables-1.2.2.icmp6/ip6tables.c
+--- iptables-1.2.2/ip6tables.c	Mon May 21 03:17:20 2001
++++ iptables-1.2.2.icmp6/ip6tables.c	Mon May 21 03:15:14 2001
+@@ -643,16 +643,24 @@
+ find_match(const char *name, enum ip6t_tryload tryload)
  {
-@@ -669,6 +658,19 @@
+ 	struct ip6tables_match *ptr;
++	char *mname;
+ 
++	if (strstr(name, "icmp"))
++		mname = "icmp6";
++	else
++		mname = name;
+ 	for (ptr = ip6tables_matches; ptr; ptr = ptr->next) {
+-		if (strcmp(name, ptr->name) == 0)
++		if (strcmp(mname, ptr->name) == 0)
+ 			break;
  	}
  
- 	return (u_int16_t)proto;
-+}
-+
-+/* Christophe Burki wants `-p 6' to imply `-m tcp'.  */
-+static struct ip6tables_match *
-+find_proto(const char *pname, enum ip6t_tryload tryload, int nolookup)
-+{
-+	int proto;
-+
-+	proto = parse_protocol(pname);
-+	if (proto != -1) 
-+		return find_match(proto_to_name(proto, nolookup), tryload);
-+
-+	return find_match(pname, tryload);
- }
- 
- static void
+ 	if (!ptr && tryload != DONT_LOAD) {
+ 		char path[sizeof(IPT_LIB_DIR) + sizeof("/libip6t_.so")
+ 			 + strlen(name)];
+-		sprintf(path, IPT_LIB_DIR "/libip6t_%s.so", name);
++		if (strstr(name, "icmp"))
++			sprintf(path, IPT_LIB_DIR "/libip6t_icmp.so");
++		else
++			sprintf(path, IPT_LIB_DIR "/libip6t_%s.so", name);
+ 		if (dlopen(path, RTLD_NOW)) {
+ 			/* Found library.  If it didn't register itself,
+ 			   maybe they specified target as match. */
