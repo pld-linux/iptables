@@ -6,7 +6,7 @@ Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.2.6a
-Release:	1
+Release:	2
 License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
@@ -16,11 +16,11 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
 Patch1:		%{name}-log.patch
 Patch2:		%{name}-prestate.patch
+BuildRequires:	perl
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-dvips
-BuildRequires:	perl
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
@@ -92,20 +92,19 @@ install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 #%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
 #%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
-gzip -9nf KNOWN_BUGS iptables-howtos/*.txt
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc KNOWN_BUGS.gz
-%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*.gz
+%doc KNOWN_BUGS
+%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*
 
 %attr(755,root,root) %{_sbindir}/*
+%dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
 
-%{_mandir}/man*/*
+%{_mandir}/man8/*
 
 %files devel
 %defattr(644,root,root,755)
