@@ -6,7 +6,7 @@
 %bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
 %bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20040316
+%define		netfilter_snap		20040322
 %define		iptables_version	1.2.9
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -21,7 +21,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	2
+%define		_rel	1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -39,6 +39,7 @@ Patch1:		%{name}-gkh-fix.patch
 Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-1.2.9-ipt_p2p.patch
 Patch4:		%{name}-1.2.9-ipt_imq.patch
+Patch5:		%{name}-pom-ng.patch
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
@@ -120,9 +121,7 @@ iptables(8).
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-
-# removed broken ...
-#%rm -f extensions/.set-test
+%patch5 -p1
 
 chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
