@@ -3,8 +3,7 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_howto - without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap	0
-#%%define		netfilter_snap	20030827
+%define		netfilter_snap		20031026
 %define		iptables_version	1.2.9rc1
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -24,7 +23,7 @@ License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-Source0:	http://www.netfilter.org/files/%{name}-%{iptables_version}.tar.bz2
+Source0:	http://www.netfilter.org/files/%{name}-%{version}.tar.bz2
 # Source0-md5:	4eda3f086da423b7fe35802b5b833db0
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
