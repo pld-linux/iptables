@@ -19,6 +19,7 @@ Source6:	ulogd.logrotate
 Patch0:		%{name}-ulogd.patch
 Patch1:		iptables-ulog_MYSQL.patch
 BuildRequires:	sgml-tools
+BuildRequires:	sgmls
 #Requires:	kernel >= 2.4.0test9
 Obsoletes:	netfilter
 Obsoletes:	ipchains
