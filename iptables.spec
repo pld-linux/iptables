@@ -4,9 +4,9 @@
 #
 # Conditional build:
 %bcond_without	patchedkernel	# without ippool, prestate, log (which requires patched 2.4.x kernel)
-%bcond_without	doc 		# without documentation (HOWTOS) which needed TeX.
+%bcond_without	howto 		# without documentation (HOWTOS) which needed TeX.
 #
-%define		netfilter_snap		20040308
+%define		netfilter_snap		20040305
 %define		iptables_version	1.2.9
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -36,10 +36,10 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-gkh-fix.patch
+Patch1:		%{name}-llh.patch
 Patch2:		%{name}-dstlimit.patch
 Patch3:		%{name}-1.2.9-ipt_p2p.patch
-%if %{with doc}
+%if %{with howto}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
@@ -116,8 +116,8 @@ iptables(8).
 
 %prep
 %setup -q -a1
-#%%patch0 -p1
-%patch1 -p0
+%patch0 -p1
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 
@@ -128,7 +128,8 @@ chmod 755 extensions/.*-test*
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
-ln -sf %{_kernelsrcdir}/include/asm-%{_arch} include/asm
+#rm -f include/asm
+#ln -s %{_kernelsrcdir}/include/asm-%{_arch} include/asm
 
 %{__make} depend 2> /dev/null || :
 %{__make} CC="%{__cc}" \
@@ -136,7 +137,7 @@ ln -sf %{_kernelsrcdir}/include/asm-%{_arch} include/asm
 	all experimental \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG"
 
-%{?with_doc:%{__make} -C iptables-howtos}
+%{?with_howto:%{__make} -C iptables-howtos}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -176,7 +177,7 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc 
-%{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
+%{?with_howto:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_sbindir}/*
 %dir %{_libdir}/iptables
 %attr(755,root,root) %{_libdir}/iptables/*.so
@@ -184,11 +185,11 @@ fi
 
 %files devel
 %defattr(644,root,root,755)
-%{?with_doc:%doc iptables-howtos/netfilter-hacking-HOWTO*}
+%{?with_howto:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/iptables
 %{_mandir}/man3/*
 
 %files init
 %defattr(644,root,root,755)
-%attr(750,root,root) %{_initrddir}/iptables
+%attr(755,root,root) %{_initrddir}/iptables
