@@ -2,7 +2,7 @@ Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
 Version:	1.2
-Release:	2
+Release:	3
 License:	GPL
 Group:		Networking/Daemons
 Group(pl):	Sieciowe/Serwery
@@ -11,7 +11,8 @@ Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 Source0:	http://netfilter.kernelnotes.org/%{name}-%{version}.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Source2:	rc.firewall
-Patch0:		ftp://ftp.astaro.org/pub/patches/iptables-1.1.2+PSD.patch
+Patch0:		ftp://sith.mimuw.edu.pl/pub/users/baggins/iptables-psd.patch
+Patch1:		%{name}-ip6libdir.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	mysql-devel
@@ -32,15 +33,17 @@ pakietów.
 %prep
 %setup -q -a1
 %patch0 -p1
-chmod 755 extensions/.PSD-test
+%patch1 -p1
+chmod 755 extensions/.psd-test
+perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
-%{__make} -C iptables-howtos NAT-HOWTO.html packet-filtering-HOWTO.html \
-	# netfilter-hacking-HOWTO.html networking-concepts-HOWTO.html
 %{__make} depend 2> /dev/null || :
 %{__make} COPT_FLAGS="$RPM_OPT_FLAGS" \
 	LIBDIR="%{_libdir}" \
 	all
+
+%{__make} -C iptables-howtos
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -63,12 +66,14 @@ ln -s ../rc.firewall $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc4.d/S09firewall
 ln -s ../rc.firewall $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc5.d/S09firewall
 ln -s ../rc.firewall $RPM_BUILD_ROOT%{_sysconfdir}/rc.d/rc6.d/K91firewall
 
+gzip -9 KNOWN_BUGS iptables-howtos/*.{txt,ps}
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc README.ulogd.gz */*.html
+%doc KNOWN_BUGS.gz iptables-howtos/*.gz
 %{_sysconfdir}/rc.d/rc*.d/*firewall
 %attr(754,root,root) %config(noreplace) %verify(not mtime md5 size) %{_sysconfdir}/rc.d/rc.firewall
 
