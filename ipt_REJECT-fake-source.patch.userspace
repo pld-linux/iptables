@@ -17,7 +17,7 @@
  
  /* Function which prints out usage message. */
  static void
-@@ -62,12 +63,16 @@
+@@ -62,14 +63,18 @@
  "REJECT options:\n"
  "--reject-with type              drop input packet and send back\n"
  "                                a reply packet according to type:\n");
@@ -27,6 +27,8 @@
 +"--fake-source                   fake the source address with the destination\n"
 +"                                address of the matched packet (useful for\n"
 +"                                port unreachable ICMP message).\n");
+
+ 	printf("(*) See man page or read the INCOMPATIBILITES file for compatibility issues.\n");
  }
  
  static struct option opts[] = {
