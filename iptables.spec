@@ -18,7 +18,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -38,6 +38,7 @@ Patch4:		grsecurity-%{iptables_version}-iptables.patch
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
 Patch12:	raw.patch.ipv6.userspace
+Patch13:	iptables-1.2.8-ipt_p2p.patch
 %{?!_without_howto:BuildRequires:	sgml-tools}
 %{?!_without_howto:BuildRequires:	sgmls}
 %{?!_without_howto:BuildRequires:	tetex-dvips}
@@ -127,6 +128,7 @@ iptables(8).
 %{!?_without_patchedkernel:%patch10 -p1}
 %{!?_without_patchedkernel:%patch11 -p1}
 %{!?_without_patchedkernel:%patch12 -p1}
+%{!?_without_patchedkernel:%patch13 -p1}
 
 chmod 755 extensions/.*-test*
 %{__perl} -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
