@@ -3,7 +3,7 @@
 # _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
 # _without_tex - without TeX documentation (HOWTOS)
 #
-%define		netfilter_snap	0
+%define		netfilter_snap	20030418
 %define		iptables_version	1.2.8
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
@@ -13,7 +13,7 @@ Version:	%{iptables_version}_%{netfilter_snap}
 %else
 Version:	%{iptables_version}
 %endif
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -28,6 +28,7 @@ Patch4:		grsecurity-1.2.7a-iptables.patch
 Patch10:	ipt_REJECT-fake-source.patch.userspace
 Patch11:	mark-bitwise-ops.patch.userspace
 Patch12:	raw.patch.userspace
+Patch13:	raw.patch.ipv6.userspace
 %{?!_without_tex:BuildRequires:	sgml-tools}
 %{?!_without_tex:BuildRequires:	sgmls}
 %{?!_without_tex:BuildRequires:	tetex-latex}
@@ -81,6 +82,7 @@ iptables.
 %{!?_without_patchedkernel:%patch10 -p1}
 %{!?_without_patchedkernel:%patch11 -p1}
 %{!?_without_patchedkernel:%patch12 -p1}
+%{!?_without_patchedkernel:%patch13 -p1}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
