@@ -43,6 +43,7 @@ Libraries and headers for developing iptables extensions.
 %patch1 -p1
 %patch2 -p1
 chmod 755 extensions/.*-test*
+mv -f extensions/.NETLINK.test extensions/.NETLINK-test
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
 
 %build
