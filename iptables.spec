@@ -50,6 +50,10 @@ Requires:	%{name} = %{version}
 %description devel
 Libraries and headers for developing iptables extensions.
 
+%description devel -l pl
+Biblioteki i pliki nag³ówkowe niezbêdne do tworzenia rozszerzeñ dla
+iptables.
+
 %prep
 %setup -q -a1
 %patch0 -p1
