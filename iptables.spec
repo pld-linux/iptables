@@ -19,6 +19,7 @@ Patch0:		%{name}-man.patch
 Patch1:		%{name}-NETMAP-fix.patch
 Patch2:		%{name}-log.patch
 Patch3:		%{name}-prestate.patch
+Patch4:		%{name}-fix.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
@@ -60,6 +61,7 @@ iptables.
 %patch1 -p1
 %{!?_without_patchedkernel:%patch2 -p1}
 %{!?_without_patchedkernel:%patch3 -p1}
+%patch4 -p1
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
 perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Makefile
