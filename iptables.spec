@@ -45,7 +45,7 @@ Patch13:	iptables-1.2.9rc1-ipt_p2p.patch
 %{?!_without_howto:BuildRequires:	tetex-format-latex}
 %{?!_without_howto:BuildRequires:	tetex-latex}
 %{?!_without_howto:BuildRequires:	tetex-tex-babel}
-BuildRequires:	perl
+BuildRequires:	perl-base
 %if %{netfilter_snap} != 0
 %{!?_without_patchedkernel:BuildRequires:	kernel-headers(netfilter) = %{iptables_version}-%{netfilter_snap}}
 %else
