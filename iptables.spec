@@ -1,6 +1,6 @@
 #
 # Conditional build:
-# _without_patchedkernel - without ippool, prestate, log (which requires patched 2.4.x kernel)
+# _with_patchedkernel - with ippool, prestate, log (which requires patched 2.4.x kernel)
 #
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
@@ -9,8 +9,8 @@ Summary(ru):	õÔÉÌÉÔÙ ÄÌÑ ÕÐÒÁ×ÌÅÎÉÑ ÐÁËÅÔÎÙÍÉ ÆÉÌØÔÒÁÍÉ ÑÄÒÁ Linux
 Summary(uk):	õÔÉÌ¦ÔÉ ÄÌÑ ËÅÒÕ×ÁÎÎÑ ÐÁËÅÔÎÉÍÉ Æ¦ÌØÔÒÁÍÉ ÑÄÒÁ Linux
 Summary(zh_CN):	LinuxÄÚºË°ü¹ýÂË¹ÜÀí¹¤¾ß
 Name:		iptables
-Version:	1.2.6a
-Release:	2
+Version:	1.2.7a
+Release:	1
 License:	GPL
 Group:		Networking/Daemons
 URL:		http://www.netfilter.org/
@@ -73,8 +73,8 @@ iptables.
 %prep
 %setup -q -a1
 %patch0 -p1
-%{!?_without_patchedkernel:%patch1 -p1}
-%{!?_without_patchedkernel:%patch2 -p1}
+%{?_with_patchedkernel:%patch1 -p1}
+%{?_with_patchedkernel:%patch2 -p1}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
@@ -87,7 +87,8 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 	LIBDIR="%{_libdir}" \
 	all experimental
 
-%{__make} -C iptables-howtos
+echo 'all : $(TXT_HOWTOS)  $(HTML_HOWTOS)' >> iptables-howtos/Makefile
+%{__make} all -C iptables-howtos
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -109,8 +110,8 @@ cp -a include/* $RPM_BUILD_ROOT%{_includedir}/iptables
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-#%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
-#%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
+#%{?_with_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
+#%{?_with_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
