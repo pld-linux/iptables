@@ -104,6 +104,7 @@ iptables.
 %setup -q -a1
 %patch0 -p1
 %{!?_without_patchedkernel:%patch3 -p1}
+patch -p1 < userspace/IMQ.patch.userspace
 %{!?_without_patchedkernel:%patch4 -p1}
 %{!?_without_patchedkernel:%patch9 -p1}
 %{!?_without_patchedkernel:%patch10 -p1}
