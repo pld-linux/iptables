@@ -1,0 +1,162 @@
+#!/bin/sh
+#
+# rc.firewall	iptables
+#
+# chkconfig:	2345 9 91
+# description:	Example netfilter setup version 0.1 by Anthony C. Zboralski \
+#		Warning this is experimental, I don't garantee this is 100% \
+#		secure, it just does the work fine for me and i thought \
+#		it could be a good jumpstart for people new to netfilter. \
+#		Now I am waiting for your corrections, suggestions and \
+#		critics :) Also I am gonna write a small addon \
+#		for setting up dynamic rules cause i am tired of all \
+#		these programs with dynamics port like bind, xdm and rpc. \
+#		All mail go to acz@hert.org
+
+. /etc/rc.d/init.d/functions
+
+iptables=/usr/sbin/iptables
+show "Loading iptables module"
+busy
+/sbin/modprobe iptables   || exit 1
+/sbin/modprobe ipt_filter || exit 1
+/sbin/modprobe ipt_nat    || exit 1
+deltext ; ok
+
+show "Flush standard tables"
+busy
+$iptables --flush INPUT
+$iptables --flush OUTPUT
+$iptables --flush FORWARD
+deltext ; ok
+show "Deny everything until firewall setup is completed"
+busy
+$iptables --policy INPUT   DROP
+$iptables --policy OUTPUT  DROP
+$iptables --policy FORWARD DROP
+deltext ; ok
+
+
+#CHAINS=`iptables -n -L |perl -n -e '/Chain\s+(\S+)/ && !($1 =~ /^(INPUT|FORWARD|OUTPUT)$/) && print "$1 "'`
+CHAINS=`$iptables -n -L | awk '($1 ~ /^Chain/) && !($2 ~ /^(INPUT|OUTPUT|FORWARD)$/) {print $2}'`
+show Remove remaining chains: $CHAINS
+busy
+for chain in $CHAINS; do
+  $iptables --flush $chain
+done
+# 2nd step cause of dependencies
+for chain in $CHAINS; do
+  $iptables --delete-chain $chain
+done
+deltext ; ok
+
+show "Loading ip_defrag module"
+busy
+/sbin/modprobe forward-fragment || exit 1
+deltext ; ok
+
+# now this is tricky with ipchains you just had to deny forward and set
+# forwarding to MASQ target but now you have to do it in two steps:
+
+show "Turn off rp_filter for all interfaces"
+busy
+echo 1 > /proc/sys/net/ipv4/ip_forward
+echo 0 > /proc/sys/net/ipv4/conf/all/rp_filter
+deltext ; ok
+
+show "Load modules for masquerading"
+busy
+/sbin/modprobe netfilter_dev    || exit 1
+/sbin/modprobe ip_conntrack     || exit 1
+/sbin/modprobe ip_conntrack_ftp || exit 1
+/sbin/modprobe ip_nat_ftp       || exit 1
+deltext ; ok
+
+show "Load neccessary extension modules"
+busy
+/sbin/modprobe ipt_mac        || exit 1
+/sbin/modprobe ipt_icmp       || exit 1
+/sbin/modprobe ipt_tcp        || exit 1
+/sbin/modprobe ipt_udp        || exit 1
+/sbin/modprobe ipt_limit      || exit 1
+/sbin/modprobe ipt_multiport  || exit 1
+/sbin/modprobe ipt_state      || exit 1
+/sbin/modprobe ipt_unclean    || exit 1
+/sbin/modprobe ipt_LOG        || exit 1
+/sbin/modprobe ipt_QUEUE      || exit 1
+/sbin/modprobe ipt_REJECT     || exit 1
+/sbin/modprobe ipt_MASQUERADE || exit 1
+/sbin/modprobe ipt_REDIRECT   || exit 1
+deltext ; ok
+
+show "Create a target for logging and dropping packets"
+busy
+$iptables --new LDROP 2>/dev/null
+$iptables -A LDROP --proto tcp -j LOG --log-level info --log-prefix "TCP Drop "
+$iptables -A LDROP --proto udp -j LOG --log-level info --log-prefix "UDP Drop "
+$iptables -A LDROP --proto icmp -j LOG --log-level info --log-prefix "ICMP Drop "
+$iptables -A LDROP --proto gre -j LOG --log-level info --log-prefix "GRE Drop "
+$iptables -A LDROP -f -j LOG --log-level emerg --log-prefix "FRAG. Drop "
+$iptables -A LDROP -j DROP
+deltext ; ok
+
+show "Create a target for watching some accepting rules"
+busy
+$iptables --new WATCH 2>/dev/null
+$iptables -A WATCH -m limit -j LOG --log-level warn --log-prefix "ACCEPT "
+$iptables -A WATCH -j ACCEPT
+deltext ; ok
+
+show "Enforcing up ICMP policies, use iptables -L ICMP to check"
+busy
+# If you deny all ICMP messages you head for trouble since it would
+# break lots of tcp/ip algorithm (acz)
+$iptables --new ICMP 2>/dev/null
+$iptables -A INPUT --proto icmp -j ICMP
+$iptables -A ICMP -p icmp --icmp-type echo-reply                   -j ACCEPT
+$iptables -A ICMP -p icmp --icmp-type destination-unreachable      -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   network-unreachable        -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   host-unreachable           -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   protocol-unreachable       -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   port-unreachable           -j ACCEPT
+$iptables -A ICMP -p icmp --icmp-type   fragmentation-needed       -j LDROP
+$iptables -A ICMP -p icmp --icmp-type   source-route-failed        -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   network-unknown            -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   host-unknown               -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   network-prohibited         -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   host-prohibited            -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   TOS-network-unreachable    -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   TOS-host-unreachable       -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   communication-prohibited   -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   host-precedence-violation  -j LDROP
+$iptables -A ICMP -p icmp --icmp-type   precedence-cutoff          -j LDROP
+$iptables -A ICMP -p icmp --icmp-type source-quench                -j LDROP
+$iptables -A ICMP -p icmp --icmp-type redirect                     -j LDROP
+$iptables -A ICMP -p icmp --icmp-type   network-redirect           -j LDROP
+$iptables -A ICMP -p icmp --icmp-type   host-redirect              -j LDROP
+$iptables -A ICMP -p icmp --icmp-type   TOS-network-redirect       -j LDROP
+$iptables -A ICMP -p icmp --icmp-type   TOS-host-redirect          -j LDROP
+$iptables -A ICMP -p icmp --icmp-type echo-request                 -j WATCH
+$iptables -A ICMP -p icmp --icmp-type router-advertisement         -j WATCH
+$iptables -A ICMP -p icmp --icmp-type router-solicitation          -j WATCH
+$iptables -A ICMP -p icmp --icmp-type time-exceeded                -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   ttl-zero-during-transit    -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   ttl-zero-during-reassembly -j WATCH
+$iptables -A ICMP -p icmp --icmp-type parameter-problem            -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   ip-header-bad              -j WATCH
+$iptables -A ICMP -p icmp --icmp-type   required-option-missing    -j WATCH
+$iptables -A ICMP -p icmp --icmp-type timestamp-request            -j LDROP
+$iptables -A ICMP -p icmp --icmp-type timestamp-reply              -j LDROP
+$iptables -A ICMP -p icmp --icmp-type address-mask-request         -j LDROP
+$iptables -A ICMP -p icmp --icmp-type address-mask-reply           -j LDROP
+$iptables -A ICMP -p icmp -j LDROP   
+deltext ; ok
+
+show "Authorize packet input and output"
+busy
+# Insert your rules here
+
+$iptables --policy INPUT ACCEPT
+$iptables --policy OUTPUT ACCEPT
+deltext ; ok
+
