@@ -27,11 +27,11 @@ Patch12:	raw.patch.userspace
 %{?!_without_tex:BuildRequires:	tetex-latex}
 %{?!_without_tex:BuildRequires:	tetex-dvips}
 BuildRequires:	perl
-%{!?_without_patchedkernel:BuildRequires:	kernel(netfilter) = 1.2.7a}
+%{!?_without_patchedkernel:BuildRequires:	kernel_netfilter = 1.2.7a}
 BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
-%{!?_without_patchedkernel:Requires:	kernel(netfilter) = 1.2.7a}
+%{!?_without_patchedkernel:Requires:	kernel_netfilter = 1.2.7a}
 Provides:	firewall-userspace-tool
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
