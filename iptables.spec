@@ -5,25 +5,25 @@
 Summary:	extensible packet filtering system && extensible NAT system
 Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
 Name:		iptables
-Version:	1.2.4
+Version:	1.2.5
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
 Group(de):	Netzwerkwesen/Server
 Group(pl):	Sieciowe/Serwery
-URL:		http://netfilter.samba.org/
+URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
-Source0:	http://netfilter.samba.org/%{name}-%{version}.tar.bz2
+Source0:	http://www.netfilter.org/files/iptables-1.2.5.tar.bz2
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Patch0:		%{name}-man.patch
-Patch1:		%{name}-NETMAP-fix.patch
-Patch2:		%{name}-log.patch
-Patch3:		%{name}-prestate.patch
+Patch1:		%{name}-log.patch
+Patch2:		%{name}-prestate.patch
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-dvips
-#Requires:	kernel >= 2.4.2-2
+BuildRequires:	perl
+BuildConflicts:	kernel-headers < 2.3.0
 Obsoletes:	netfilter
 Obsoletes:	ipchains
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -61,9 +61,8 @@ iptables.
 %prep
 %setup -q -a1
 %patch0 -p1
-%patch1 -p1
+%{!?_without_patchedkernel:%patch1 -p1}
 %{!?_without_patchedkernel:%patch2 -p1}
-%{!?_without_patchedkernel:%patch3 -p1}
 
 chmod 755 extensions/.*-test*
 mv -f extensions/.NETLINK.test extensions/.NETLINK-test
@@ -71,7 +70,8 @@ perl -pi -e 's/\$\(HTML_HOWTOS\)//g; s/\$\(PSUS_HOWTOS\)//g' iptables-howtos/Mak
 
 %build
 %{__make} depend 2> /dev/null || :
-%{__make} COPT_FLAGS="%{rpmcflags}" \
+%{__make} CC="%{__cc}" \
+	COPT_FLAGS="%{rpmcflags}" \
 	LIBDIR="%{_libdir}" \
 	all experimental
 
@@ -100,7 +100,7 @@ install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 #%{!?_without_patchedkernel:install ippool/lib*.a $RPM_BUILD_ROOT%{_libdir}}
 #%{!?_without_patchedkernel:install ippool/ippool $RPM_BUILD_ROOT%{_sbindir}}
 
-gzip -9nf KNOWN_BUGS iptables-howtos/*.{txt,ps}
+gzip -9nf KNOWN_BUGS iptables-howtos/*.txt
 
 %clean
 rm -rf $RPM_BUILD_ROOT
