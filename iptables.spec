@@ -31,6 +31,7 @@ Patch0:		%{name}-Makefile.patch
 Patch1:		%{name}-pom-ng-%{_snap}.patch
 Patch2:		%{name}-1.2.9-imq1.diff
 Patch3:		%{name}-debug.patch
+Patch4:		grsecurity-1.2.11-iptables.patch
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -119,6 +120,7 @@ iptables(8).
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
