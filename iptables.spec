@@ -36,6 +36,7 @@ Patch2:		%{name}-nat-compat.patch
 Patch3:		%{name}-1.3.0-imq1.diff
 Patch4:		%{name}-layer7-%{l7_version}.patch
 Patch5:		grsecurity-1.2.11-iptables.patch
+Patch6:		%{name}-man.patch
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -126,6 +127,7 @@ iptables(8).
 %patch3 -p1
 #patch4 -p1	WAITING FOR MEMLEAK FIX
 %patch5 -p1
+%patch6 -p1
 
 # removed broken ...
 #%rm -f extensions/.set-test
@@ -147,7 +149,7 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_initrddir},%{_includedir},%{_libdir},%{_mandir}/man3}
+install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}/man3}
 
 echo ".so iptables-save.8" > %{name6}-save.8
 echo ".so iptables-restore.8" > %{name6}-restore.8
@@ -167,8 +169,8 @@ cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
-install %{SOURCE2} $RPM_BUILD_ROOT%{_initrddir}/%{name}
-install %{SOURCE3} $RPM_BUILD_ROOT%{_initrddir}/%{name6}
+install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -202,4 +204,4 @@ fi
 
 %files init
 %defattr(644,root,root,755)
-%attr(754,root,root) %{_initrddir}/*
+%attr(754,root,root) /etc/rc.d/init.d/*
