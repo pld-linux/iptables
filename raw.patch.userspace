@@ -1,166 +1,38 @@
-diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/.NOTRACK-test extensions/.NOTRACK-test
---- userspace/extensions.orig/.NOTRACK-test	Thu Jan  1 01:00:00 1970
-+++ userspace/extensions/.NOTRACK-test	Fri Jul 19 09:55:47 2002
-@@ -0,0 +1,2 @@
-+#! /bin/sh
-+[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_NOTRACK.c ] && echo NOTRACK
-diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/.TRACE-test extensions/.TRACE-test
---- userspace/extensions.orig/.TRACE-test	Thu Jan  1 01:00:00 1970
-+++ userspace/extensions/.TRACE-test	Fri Jul 19 09:55:47 2002
-@@ -0,0 +1,2 @@
-+#! /bin/sh
-+[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_TRACE.c ] && echo TRACE
-diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_NOTRACK.c extensions/libipt_NOTRACK.c
---- userspace/extensions.orig/libipt_NOTRACK.c	Thu Jan  1 01:00:00 1970
-+++ userspace/extensions/libipt_NOTRACK.c	Fri Jul 19 10:01:38 2002
-@@ -0,0 +1,63 @@
-+/* Shared library add-on to iptables to add NOTRACK target support. */
-+#include <stdio.h>
-+#include <string.h>
-+#include <stdlib.h>
-+#include <getopt.h>
-+
-+#include <iptables.h>
-+#include <linux/netfilter_ipv4/ip_tables.h>
-+
-+/* Function which prints out usage message. */
-+static void
-+help(void)
-+{
-+	printf(
-+"NOTRACK target v%s takes no options\n",
-+IPTABLES_VERSION);
-+}
-+
-+static struct option opts[] = {
-+	{ 0 }
-+};
-+
-+/* Initialize the target. */
-+static void
-+init(struct ipt_entry_target *t, unsigned int *nfcache)
-+{
-+}
-+
-+/* Function which parses command options; returns true if it
-+   ate an option */
-+static int
-+parse(int c, char **argv, int invert, unsigned int *flags,
-+      const struct ipt_entry *entry,
-+      struct ipt_entry_target **target)
-+{
-+	return 0;
-+}
-+
-+static void
-+final_check(unsigned int flags)
-+{
-+}
-+
-+static
-+struct iptables_target notrack
-+= { NULL,
-+    "NOTRACK",
-+    IPTABLES_VERSION,
-+    IPT_ALIGN(0),
-+    IPT_ALIGN(0),
-+    &help,
-+    &init,
-+    &parse,
-+    &final_check,
-+    NULL, /* print */
-+    NULL, /* save */
-+    opts
-+};
-+
-+void _init(void)
-+{
-+	register_target(&notrack);
-+}
-diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_TRACE.c extensions/libipt_TRACE.c
---- userspace/extensions.orig/libipt_TRACE.c	Thu Jan  1 01:00:00 1970
-+++ userspace/extensions/libipt_TRACE.c	Fri Jul 19 10:00:57 2002
-@@ -0,0 +1,63 @@
-+/* Shared library add-on to iptables to add TRACE target support. */
-+#include <stdio.h>
-+#include <string.h>
-+#include <stdlib.h>
-+#include <getopt.h>
-+
-+#include <iptables.h>
-+#include <linux/netfilter_ipv4/ip_tables.h>
-+
-+/* Function which prints out usage message. */
-+static void
-+help(void)
-+{
-+	printf(
-+"TRACE target v%s takes no options\n",
-+IPTABLES_VERSION);
-+}
-+
-+static struct option opts[] = {
-+	{ 0 }
-+};
-+
-+/* Initialize the target. */
-+static void
-+init(struct ipt_entry_target *t, unsigned int *nfcache)
-+{
-+}
-+
-+/* Function which parses command options; returns true if it
-+   ate an option */
-+static int
-+parse(int c, char **argv, int invert, unsigned int *flags,
-+      const struct ipt_entry *entry,
-+      struct ipt_entry_target **target)
-+{
-+	return 0;
-+}
-+
-+static void
-+final_check(unsigned int flags)
-+{
-+}
-+
-+static
-+struct iptables_target trace
-+= { NULL,
-+    "TRACE",
-+    IPTABLES_VERSION,
-+    IPT_ALIGN(0),
-+    IPT_ALIGN(0),
-+    &help,
-+    &init,
-+    &parse,
-+    &final_check,
-+    NULL, /* print */
-+    NULL, /* save */
-+    opts
-+};
-+
-+void _init(void)
-+{
-+	register_target(&trace);
-+}
-diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_ULOG.c extensions/libipt_ULOG.c
---- userspace/extensions.orig/libipt_ULOG.c	Wed May 29 15:08:16 2002
-+++ userspace/extensions/libipt_ULOG.c	Fri Jul 19 09:55:47 2002
-@@ -19,10 +19,6 @@
- #include <linux/netfilter_ipv4/ip_tables.h>
- #include <linux/netfilter_ipv4/ipt_ULOG.h>
- 
--#define ULOG_DEFAULT_NLGROUP 1
--#define ULOG_DEFAULT_QTHRESHOLD 1
--
--
- void print_groups(unsigned int gmask)
+diff -urN userspace/extensions/libipt_conntrack.c userspace-raw/extensions/libipt_conntrack.c
+--- userspace/extensions/libipt_conntrack.c	2003-03-04 15:50:50.000000000 +0100
++++ userspace-raw/extensions/libipt_conntrack.c	2003-05-05 17:42:08.000000000 +0200
+@@ -19,7 +19,7 @@
  {
- 	int b;
-diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_state.c extensions/libipt_state.c
---- userspace/extensions.orig/libipt_state.c	Wed May 29 15:08:16 2002
-+++ userspace/extensions/libipt_state.c	Fri Jul 19 09:55:47 2002
+ 	printf(
+ "conntrack match v%s options:\n"
+-" [!] --ctstate [INVALID|ESTABLISHED|NEW|RELATED|SNAT|DNAT][,...]\n"
++" [!] --ctstate [INVALID|ESTABLISHED|NEW|RELATED|UNTRACKED|SNAT|DNAT][,...]\n"
+ "				State(s) to match\n"
+ " [!] --ctproto	proto		Protocol to match; by number or name, eg. `tcp'\n"
+ "     --ctorigsrc  [!] address[/mask]\n"
+@@ -70,6 +70,8 @@
+ 		sinfo->statemask |= IPT_CONNTRACK_STATE_BIT(IP_CT_ESTABLISHED);
+ 	else if (strncasecmp(state, "RELATED", strlen) == 0)
+ 		sinfo->statemask |= IPT_CONNTRACK_STATE_BIT(IP_CT_RELATED);
++	else if (strncasecmp(state, "UNTRACKED", strlen) == 0)
++		sinfo->statemask |= IPT_CONNTRACK_STATE_UNTRACKED;
+ 	else if (strncasecmp(state, "SNAT", strlen) == 0)
+ 		sinfo->statemask |= IPT_CONNTRACK_STATE_SNAT;
+ 	else if (strncasecmp(state, "DNAT", strlen) == 0)
+@@ -345,6 +347,10 @@
+ 		printf("%sESTABLISHED", sep);
+ 		sep = ",";
+ 	}
++	if (statemask & IPT_CONNTRACK_STATE_UNTRACKED) {
++		printf("%sUNTRACKED", sep);
++		sep = ",";
++	}
+ 	if (statemask & IPT_CONNTRACK_STATE_SNAT) {
+ 		printf("%sSNAT", sep);
+ 		sep = ",";
+diff -urN userspace/extensions/libipt_state.c userspace-raw/extensions/libipt_state.c
+--- userspace/extensions/libipt_state.c	2002-05-29 15:08:16.000000000 +0200
++++ userspace-raw/extensions/libipt_state.c	2003-05-05 17:39:37.000000000 +0200
 @@ -14,7 +14,7 @@
  {
  	printf(
@@ -179,24 +51,24 @@ diff -urN --exclude-from=/usr/src/diff.exclude-raw extensions.orig/libipt_state.
  	else
  		return 0;
  	return 1;
-@@ -115,6 +117,10 @@
- 	}
- 	if (statemask & IPT_STATE_BIT(IP_CT_ESTABLISHED)) {
+@@ -117,6 +119,10 @@
  		printf("%sESTABLISHED", sep);
-+		sep = ",";
-+	}
-+	if (statemask & IPT_STATE_UNTRACKED) {
-+		printf("%sUNTRACKED", sep);
  		sep = ",";
  	}
++	if (statemask & IPT_STATE_UNTRACKED) {
++		printf("%sUNTRACKED", sep);
++		sep = ",";
++	}
  	printf(" ");
-diff -urN --exclude-from=/usr/src/diff.exclude-raw libiptc.orig/libip4tc.c libiptc/libip4tc.c
---- userspace/libiptc.orig/libip4tc.c	Wed Jun 12 21:22:29 2002
-+++ userspace/libiptc/libip4tc.c	Fri Jul 19 09:55:47 2002
-@@ -436,6 +436,20 @@
+ }
+ 
+diff -urN userspace/libiptc/libip4tc.c userspace-raw/libiptc/libip4tc.c
+--- userspace/libiptc/libip4tc.c	2002-06-12 21:22:29.000000000 +0200
++++ userspace-raw/libiptc/libip4tc.c	2003-05-05 17:44:05.000000000 +0200
+@@ -435,6 +435,20 @@
+ 			assert(h->info.hook_entry[NF_IP_POST_ROUTING] == n);
  			user_offset = h->info.hook_entry[NF_IP_POST_ROUTING];
  		}
- 
 +	} else if (strcmp(h->info.name, "raw") == 0) {
 +		assert(h->info.valid_hooks
 +		       == (1 << NF_IP_PRE_ROUTING
@@ -211,6 +83,6 @@ diff -urN --exclude-from=/usr/src/diff.exclude-raw libiptc.orig/libip4tc.c libip
 +
 +		user_offset = h->info.hook_entry[NF_IP_LOCAL_OUT];
 +
+ 
  #ifdef NF_IP_DROPPING
  	} else if (strcmp(h->info.name, "drop") == 0) {
- 		assert(h->info.valid_hooks == (1 << NF_IP_DROPPING));
