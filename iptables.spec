@@ -3,8 +3,9 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		netfilter_snap		20040402
+%define		netfilter_snap		20040330
 %define		iptables_version	1.2.9
+%define		llh_version		7:2.6.4.0-4
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -45,8 +46,10 @@ BuildRequires:	tetex-tex-babel
 BuildRequires:	sed >= 4.0
 %if %{with dist_kernel} && %{netfilter_snap} != 0
 BuildRequires:	kernel-headers(netfilter) = %{netfilter_snap}
+BuildRequires:	kernel-source
 Requires:	kernel(netfilter) = %{netfilter_snap}
 %endif
+BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
 Provides:	firewall-userspace-tool
 Obsoletes:	netfilter
