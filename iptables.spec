@@ -29,7 +29,7 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-pom-ng-%{_snap}.patch
+#Patch1:		%{name}-pom-ng-%{_snap}.patch
 Patch2:		%{name}-1.2.9-imq1.diff
 Patch3:		%{name}-debug.patch
 Patch4:		%{name}-layer7-%{l7_version}.patch
