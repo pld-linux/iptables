@@ -22,7 +22,7 @@ Summary(zh_CN):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	%{iptables_version}_%{_snap}
 %define		_rel	1
-Release:	%{_snap}.%{_rel}@%{_kernel_ver_str}
+Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 #Source0:	ftp://ftp.netfilter.org/pub/iptables/snapshot/iptables-%{version}-%{_snap}.tar.bz2
