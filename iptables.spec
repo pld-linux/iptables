@@ -7,7 +7,7 @@
 %define		iptables_version	1.3.1
 %define		llh_version		7:2.6.11.1-1
 %define		name6			ip6tables
-%define		l7_version		1.0
+%define		l7_version		1.2
 
 # don't build doc
 %undefine with_doc
@@ -129,7 +129,7 @@ iptables(8).
 %patch2 -p1
 %patch3 -p1
 ##%patch4 -p1
-##%patch5 -p1
+%patch5 -p1
 ##%patch6 -p1
 
 # removed broken ...
