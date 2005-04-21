@@ -21,7 +21,7 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}_%{_snap}
-%define		_rel	1
+%define		_rel	2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -40,6 +40,7 @@ Patch3:		%{name}-1.3.0-imq1.diff
 Patch4:		%{name}-debug.patch
 Patch5:		%{name}-layer7-%{l7_version}.patch
 Patch6:		grsecurity-1.2.11-iptables.patch
+Patch7:		%{name}-layer7-%{l7_version}-headers.patch
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -131,6 +132,7 @@ iptables(8).
 ##%patch4 -p1
 %patch5 -p1
 ##%patch6 -p1
+%patch7 -p1
 
 # removed broken ...
 #rm -f extensions/.{set,quota,geoip}-test
