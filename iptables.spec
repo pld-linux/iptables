@@ -20,7 +20,7 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-Release:	1@%{_kernel_ver_str}
+Release:	5@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
