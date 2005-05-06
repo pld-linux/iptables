@@ -1,0 +1,4172 @@
+ extensions/.ULOG-test6                       |    2 
+ extensions/.geoip-test                       |    3 
+ extensions/.ipp2p-test                       |    2 
+ extensions/.layer7-test                      |    2 
+ extensions/.policy-test                      |    3 
+ extensions/.policy-test6                     |    3 
+ extensions/Makefile                          |    2 
+ extensions/libip6t_ULOG.c                    |  227 +++++++++++++
+ extensions/libip6t_ULOG.man                  |   27 +
+ extensions/libip6t_policy.c                  |  471 +++++++++++++++++++++++++++
+ extensions/libip6t_policy.man                |   46 ++
+ extensions/libipt_ACCOUNT.c                  |  174 +++++++++
+ extensions/libipt_ACCOUNT.man                |   16 
+ extensions/libipt_IPMARK.man                 |   45 ++
+ extensions/libipt_IPV4OPTSSTRIP.man          |    5 
+ extensions/libipt_SAME.man                   |   11 
+ extensions/libipt_TARPIT.man                 |   34 +
+ extensions/libipt_ULOG.c                     |    2 
+ extensions/libipt_XOR.man                    |    7 
+ extensions/libipt_account.man                |   47 ++
+ extensions/libipt_comment.man                |    6 
+ extensions/libipt_connbytes.c                |    1 
+ extensions/libipt_connbytes.man              |   30 +
+ extensions/libipt_connlimit.man              |   21 +
+ extensions/libipt_geoip.c                    |  338 +++++++++++++++++++
+ extensions/libipt_geoip.man                  |   15 
+ extensions/libipt_hashlimit.man              |   35 ++
+ extensions/libipt_ipp2p.c                    |  455 ++++++++++++++++++++++++++
+ extensions/libipt_ipp2p.man                  |   43 ++
+ extensions/libipt_ipv4options.man            |   32 +
+ extensions/libipt_layer7.c                   |  357 ++++++++++++++++++++
+ extensions/libipt_layer7.c.orig              |  357 ++++++++++++++++++++
+ extensions/libipt_layer7.man                 |   13 
+ extensions/libipt_osf.man                    |   47 ++
+ extensions/libipt_policy.c                   |  429 ++++++++++++++++++++++++
+ extensions/libipt_policy.man                 |   46 ++
+ extensions/libipt_psd.man                    |   18 +
+ extensions/libipt_quota.man                  |    7 
+ extensions/libipt_recent.man                 |   93 +++++
+ extensions/libipt_sctp.man                   |   28 +
+ extensions/libipt_tcp.c                      |    2 
+ extensions/libipt_tcp.man                    |    4 
+ extensions/libipt_u32.man                    |    8 
+ extensions/svn-commit.tmp                    |    4 
+ include/libipq/libipq.h                      |    7 
+ include/linux/netfilter_ipv4/ipt_conntrack.h |   23 +
+ ip6tables.c                                  |   22 -
+ iptables-save.c                              |    2 
+ iptables.8.in                                |   10 
+ iptables.c                                   |   26 +
+ libipq/libipq.c                              |   48 ++
+ 51 files changed, 3634 insertions(+), 22 deletions(-)
+
+Index: iptables-save.c
+===================================================================
+--- iptables-save.c	(.../branches/iptables-1.3.1)	(revision 5928)
++++ iptables-save.c	(.../trunk)	(revision 5928)
+@@ -197,7 +197,7 @@
+ 	/* Print target name */	
+ 	target_name = iptc_get_target(e, h);
+ 	if (target_name && (*target_name != '\0'))
+-		printf("-j %s ", target_name);
++		printf("-%c %s ", e->ip.flags & IPT_F_GOTO ? 'g' : 'j', target_name);
+ 
+ 	/* Print targinfo part */
+ 	t = ipt_get_target((struct ipt_entry *)e);
+Index: libipq/libipq.c
+===================================================================
+--- libipq/libipq.c	(.../branches/iptables-1.3.1)	(revision 5928)
++++ libipq/libipq.c	(.../trunk)	(revision 5928)
+@@ -352,6 +352,54 @@
+ 	return ipq_netlink_sendmsg(h, &msg, 0);
+ }
+ 
++int ipq_set_vwmark(const struct ipq_handle *h,
++                    ipq_id_t id,
++                    unsigned int verdict,
++                    unsigned long nfmark,
++                    size_t data_len,
++                    unsigned char *buf)
++{
++	unsigned char nvecs;
++	size_t tlen;
++	struct nlmsghdr nlh;
++	ipq_peer_msg_t pm;
++	struct iovec iov[3];
++	struct msghdr msg;
++
++	memset(&nlh, 0, sizeof(nlh));
++	nlh.nlmsg_flags = NLM_F_REQUEST;
++	nlh.nlmsg_type = IPQM_VWMARK;
++	nlh.nlmsg_pid = h->local.nl_pid;
++	memset(&pm, 0, sizeof(pm));
++	pm.msg.vwmark.value = verdict;
++	pm.msg.vwmark.id = id;
++	pm.msg.vwmark.data_len = data_len;
++	pm.msg.vwmark.nfmark = nfmark;
++	iov[0].iov_base = &nlh;
++	iov[0].iov_len = sizeof(nlh);
++	iov[1].iov_base = &pm;
++	iov[1].iov_len = sizeof(pm);
++	tlen = sizeof(nlh) + sizeof(pm);
++	nvecs = 2;
++	if (data_len && buf) {
++		iov[2].iov_base = buf;
++		iov[2].iov_len = data_len;
++		tlen += data_len;
++		nvecs++;
++	}
++	msg.msg_name = (void *)&h->peer;
++	msg.msg_namelen = sizeof(h->peer);
++	msg.msg_iov = iov;
++	msg.msg_iovlen = nvecs;
++	msg.msg_control = NULL;
++	msg.msg_controllen = 0;
++	msg.msg_flags = 0;
++	nlh.nlmsg_len = tlen;
++	return ipq_netlink_sendmsg(h, &msg, 0);
++}
++
++
++
+ /* Not implemented yet */
+ int ipq_ctl(const struct ipq_handle *h, int request, ...)
+ {
+Index: include/linux/netfilter_ipv4/ipt_conntrack.h
+===================================================================
+--- include/linux/netfilter_ipv4/ipt_conntrack.h	(.../branches/iptables-1.3.1)	(revision 5928)
++++ include/linux/netfilter_ipv4/ipt_conntrack.h	(.../trunk)	(revision 5928)
+@@ -22,11 +22,32 @@
+ #define IPT_CONNTRACK_STATUS	0x40
+ #define IPT_CONNTRACK_EXPIRES	0x80
+ 
++/* This is exposed to userspace, so remains frozen in time. */
++struct ip_conntrack_old_tuple
++{
++	struct {
++		u_int32_t ip;
++		union {
++			u_int16_t all;
++		} u;
++	} src;
++
++	struct {
++		u_int32_t ip;
++		union {
++			u_int16_t all;
++		} u;
++
++		/* The protocol. */
++		u_int16_t protonum;
++	} dst;
++};
++
+ struct ipt_conntrack_info
+ {
+ 	unsigned int statemask, statusmask;
+ 
+-	struct ip_conntrack_tuple tuple[IP_CT_DIR_MAX];
++	struct ip_conntrack_old_tuple tuple[IP_CT_DIR_MAX];
+ 	struct in_addr sipmsk[IP_CT_DIR_MAX], dipmsk[IP_CT_DIR_MAX];
+ 
+ #ifdef KERNEL_64_USERSPACE_32
+Index: include/libipq/libipq.h
+===================================================================
+--- include/libipq/libipq.h	(.../branches/iptables-1.3.1)	(revision 5928)
++++ include/libipq/libipq.h	(.../trunk)	(revision 5928)
+@@ -79,6 +79,13 @@
+                     size_t data_len,
+                     unsigned char *buf);
+ 
++int ipq_set_vwmark(const struct ipq_handle *h,
++                    ipq_id_t id,
++                    unsigned int verdict,
++                    unsigned long nfmark,
++                    size_t data_len,
++                    unsigned char *buf);
++
+ int ipq_ctl(const struct ipq_handle *h, int request, ...);
+ 
+ char *ipq_errstr(void);
+Index: iptables.c
+===================================================================
+--- iptables.c	(.../branches/iptables-1.3.1)	(revision 5928)
++++ iptables.c	(.../trunk)	(revision 5928)
+@@ -101,7 +101,7 @@
+ #define OPT_COUNTERS	0x00800U
+ #define NUMBER_OF_OPT	12
+ static const char optflags[NUMBER_OF_OPT]
+-= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', 'f', '3', 'c'};
++= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', 'f', '0', 'c'};
+ 
+ static struct option original_opts[] = {
+ 	{ "append", 1, 0, 'A' },
+@@ -134,6 +134,7 @@
+ 	{ "line-numbers", 0, 0, '0' },
+ 	{ "modprobe", 1, 0, 'M' },
+ 	{ "set-counters", 1, 0, 'c' },
++	{ "goto", 1, 0, 'g' },
+ 	{ 0 }
+ };
+ 
+@@ -386,6 +387,10 @@
+ "				network interface name ([+] for wildcard)\n"
+ "  --jump	-j target\n"
+ "				target for rule (may load target extension)\n"
++#ifdef IPT_F_GOTO
++"  --goto      -g chain\n"
++"                              jump to chain with no return\n"
++#endif
+ "  --match	-m match\n"
+ "				extended match (may load extension)\n"
+ "  --numeric	-n		numeric output of addresses and ports\n"
+@@ -1393,6 +1398,9 @@
+ 	if (format & FMT_NOTABLE)
+ 		fputs("  ", stdout);
+ 
++	if(fw->ip.flags & IPT_F_GOTO)
++		printf("[goto] ");
++
+ 	IPT_MATCH_ITERATE(fw, print_match, &fw->ip, format & FMT_NUMERIC);
+ 
+ 	if (target) {
+@@ -1835,7 +1843,7 @@
+ 	opterr = 0;
+ 
+ 	while ((c = getopt_long(argc, argv,
+-	   "-A:D:R:I:L::M:F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xc:",
++	   "-A:D:R:I:L::M:F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xc:g:",
+ 					   opts, NULL)) != -1) {
+ 		switch (c) {
+ 			/*
+@@ -2003,6 +2011,15 @@
+ 			dhostnetworkmask = argv[optind-1];
+ 			break;
+ 
++#ifdef IPT_F_GOTO
++		case 'g':
++			set_option(&options, OPT_JUMP, &fw.ip.invflags,
++				   invert);
++			fw.ip.flags |= IPT_F_GOTO;
++			jumpto = parse_target(optarg);
++			break;
++#endif
++
+ 		case 'j':
+ 			set_option(&options, OPT_JUMP, &fw.ip.invflags,
+ 				   invert);
+@@ -2355,6 +2372,11 @@
+ 			 * We cannot know if the plugin is corrupt, non
+ 			 * existant OR if the user just misspelled a
+ 			 * chain. */
++#ifdef IPT_F_GOTO
++			if (fw.ip.flags & IPT_F_GOTO)
++				exit_error(PARAMETER_PROBLEM,
++					   "goto '%s' is not a chain\n", jumpto);
++#endif
+ 			find_target(jumpto, LOAD_MUST_SUCCEED);
+ 		} else {
+ 			e = generate_entry(&fw, matches, target->t);
+Index: extensions/.geoip-test
+===================================================================
+--- extensions/.geoip-test	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/.geoip-test	(.../trunk)	(revision 5928)
+@@ -0,0 +1,3 @@
++#!/bin/sh
++# True if geoip is applied in given kernel tree.
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_geoip.h ] && echo geoip
+
+Property changes on: extensions/.geoip-test
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Index: extensions/libipt_geoip.man
+===================================================================
+--- extensions/libipt_geoip.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_geoip.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,15 @@
++Match a packet by its source or destination country.
++.TP
++[\fB!\fR] \fB--src-cc\fR, \fB--source-country \fIcountry\fR[\fB,\fIcountry\fB,\fIcountry\fB,\fI...\fR]
++Match packet coming from (one of) the specified country(ies)
++.TP
++[\fB!\fR] \fB--dst-cc\fR, \fB--destination-country \fIcountry\fR[\fB,\fIcountry\fB,\fIcountry\fB,\fI...\fR]
++Match packet going to (one of) the specified country(ies)
++.TP
++NOTE:
++The country is inputed by its ISO3166 code.
++.P
++The only extra files you need is a binary db (geoipdb.bin) & its index file (geoipdb.idx).
++Both files are generated from a countries & subnets database with the csv2bin tool,
++available at www.cookinglinux.org/geoip/. Both files MUST also be moved in /var/geoip/
++as the shared library is statically looking for that pathname (ex.: /var/geoip/geoipdb.bin).
+Index: extensions/libipt_ACCOUNT.c
+===================================================================
+--- extensions/libipt_ACCOUNT.c	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_ACCOUNT.c	(.../trunk)	(revision 5928)
+@@ -0,0 +1,174 @@
++/* Shared library add-on to iptables to add ACCOUNT(ing) support.
++   Author: Intra2net AG <opensource@intra2net.com>
++*/
++
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <syslog.h>
++#include <getopt.h>
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ip_tables.h>
++#include <linux/netfilter_ipv4/ipt_ACCOUNT.h>
++
++static struct option opts[] = {
++    { .name = "addr",        .has_arg = 1, .flag = 0, .val = 'a' },
++    { .name = "tname",       .has_arg = 1, .flag = 0, .val = 't' },
++    { .name = 0 }
++};
++
++/* Function which prints out usage message. */
++static void help(void)
++{
++    printf(
++"ACCOUNT v%s options:\n"
++" --%s ip/netmask\t\tBase network IP and netmask used for this table\n"
++" --%s name\t\t\tTable name for the userspace library\n",
++IPTABLES_VERSION, opts[0].name, opts[1].name);
++}
++
++/* Initialize the target. */
++static void
++init(struct ipt_entry_target *t, unsigned int *nfcache)
++{
++    struct ipt_acc_info *accountinfo = (struct ipt_acc_info *)t->data;
++
++    accountinfo->table_nr = -1;
++
++    /* Can't cache this */
++    *nfcache |= NFC_UNKNOWN;
++}
++
++#define IPT_ACCOUNT_OPT_ADDR 0x01
++#define IPT_ACCOUNT_OPT_TABLE 0x02
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry,
++      struct ipt_entry_target **target)
++{
++    struct ipt_acc_info *accountinfo = (struct ipt_acc_info *)(*target)->data;
++    struct in_addr *addrs = NULL, mask;
++    unsigned int naddrs = 0;
++
++    switch (c) {
++    case 'a':
++        if (*flags & IPT_ACCOUNT_OPT_ADDR)
++                exit_error(PARAMETER_PROBLEM, "Can't specify --%s twice",
++                            opts[0].name);
++
++        if (check_inverse(optarg, &invert, NULL, 0))
++                exit_error(PARAMETER_PROBLEM, "Unexpected `!' after --%s",
++                            opts[0].name);
++
++        //loginfo->level = parse_level(optarg);
++        parse_hostnetworkmask(optarg, &addrs, &mask, &naddrs);
++        
++        if (naddrs > 1)
++                exit_error(PARAMETER_PROBLEM, "multiple IP addresses not allowed");
++        
++        accountinfo->net_ip = addrs[0].s_addr;
++        accountinfo->net_mask = mask.s_addr;
++                
++        *flags |= IPT_ACCOUNT_OPT_ADDR;
++        break;
++
++    case 't':
++            if (*flags & IPT_ACCOUNT_OPT_TABLE)
++                    exit_error(PARAMETER_PROBLEM,
++                                "Can't specify --%s twice", opts[1].name);
++
++            if (check_inverse(optarg, &invert, NULL, 0))
++                    exit_error(PARAMETER_PROBLEM,
++                                "Unexpected `!' after --%s", opts[1].name);
++
++            if (strlen(optarg) > ACCOUNT_TABLE_NAME_LEN - 1)
++                    exit_error(PARAMETER_PROBLEM,
++                                "Maximum table name length %u for --%s",
++                                ACCOUNT_TABLE_NAME_LEN - 1, opts[1].name);
++
++            strcpy(accountinfo->table_name, optarg);
++            *flags |= IPT_ACCOUNT_OPT_TABLE;
++            break;
++    
++    default:
++            return 0;
++    }
++    return 1;
++}
++
++/* Final check; nothing. */
++static void final_check(unsigned int flags)
++{
++    if (!(flags&IPT_ACCOUNT_OPT_ADDR) || !(flags&IPT_ACCOUNT_OPT_TABLE))
++        exit_error(PARAMETER_PROBLEM, "ACCOUNT: needs --%s and --%s",
++                    opts[0].name, opts[1].name);
++}
++
++static void print_it(const struct ipt_ip *ip,
++                     const struct ipt_entry_target *target, char do_prefix)
++{
++    const struct ipt_acc_info *accountinfo
++        = (const struct ipt_acc_info *)target->data;
++    struct in_addr a;
++
++    if (!do_prefix)
++        printf("ACCOUNT ");
++    
++    // Network information
++    if (do_prefix)
++	printf("--");
++    printf("%s ", opts[0].name);
++    
++    a.s_addr = accountinfo->net_ip;	
++    printf("%s", addr_to_dotted(&a));
++    a.s_addr = accountinfo->net_mask;
++    printf("%s", mask_to_dotted(&a));
++
++    printf(" ");
++    if (do_prefix)
++	printf("--");
++
++    printf("%s %s", opts[1].name, accountinfo->table_name);
++}
++
++/* Prints out the targinfo. */
++static void
++print(const struct ipt_ip *ip,
++      const struct ipt_entry_target *target,
++      int numeric)
++{
++    print_it (ip, target, 0);
++}
++
++/* Saves the union ipt_targinfo in parsable form to stdout. */
++static void
++save(const struct ipt_ip *ip, const struct ipt_entry_target *target)
++{
++    print_it(ip, target, 1);
++}
++
++static
++struct iptables_target account
++= {
++    .next          = NULL,
++    .name          = "ACCOUNT",
++    .version       = IPTABLES_VERSION,
++    .size          = IPT_ALIGN(sizeof(struct ipt_acc_info)),
++    .userspacesize = IPT_ALIGN(sizeof(struct ipt_acc_info)),
++    .help          = &help,
++    .init          = &init,
++    .parse         = &parse,
++    .final_check   = &final_check,
++    .print         = &print,
++    .save          = &save,
++    .extra_opts    = opts
++};
++
++void _init(void)
++{
++    register_target(&account);
++}
+Index: extensions/.policy-test
+===================================================================
+--- extensions/.policy-test	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/.policy-test	(.../trunk)	(revision 5928)
+@@ -0,0 +1,3 @@
++#!/bin/sh
++#
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_policy.h ] && echo policy
+
+Property changes on: extensions/.policy-test
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Index: extensions/libipt_psd.man
+===================================================================
+--- extensions/libipt_psd.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_psd.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,18 @@
++Attempt to detect TCP and UDP port scans. This match was derived from
++Solar Designer's scanlogd.
++.TP
++.BI "--psd-weight-threshold " "threshold"
++Total weight of the latest TCP/UDP packets with different
++destination ports coming from the same host to be treated as port
++scan sequence.
++.TP
++.BI "--psd-delay-threshold " "delay"
++Delay (in hundredths of second) for the packets with different
++destination ports coming from the same host to be treated as
++possible port scan subsequence.
++.TP
++.BI "--psd-lo-ports-weight " "weight"
++Weight of the packet with privileged (<=1024) destination port.
++.TP
++.BI "--psd-hi-ports-weight " "weight"
++Weight of the packet with non-priviliged destination port.
+Index: extensions/libipt_IPV4OPTSSTRIP.man
+===================================================================
+--- extensions/libipt_IPV4OPTSSTRIP.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_IPV4OPTSSTRIP.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,5 @@
++Strip all the IP options from a packet.
++
++The target doesn't take any option, and therefore is extremly easy to use :
++
++# iptables -t mangle -A PREROUTING -j IPV4OPTSSTRIP
+Index: extensions/.ULOG-test6
+===================================================================
+--- extensions/.ULOG-test6	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/.ULOG-test6	(.../trunk)	(revision 5928)
+@@ -0,0 +1,2 @@
++#!/bin/sh
++[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_ULOG.c ] && echo ULOG
+
+Property changes on: extensions/.ULOG-test6
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Index: extensions/libipt_XOR.man
+===================================================================
+--- extensions/libipt_XOR.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_XOR.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,7 @@
++Encrypt TCP and UDP traffic using a simple XOR encryption
++.TP
++.BI "--key " "string"
++Set key to "string"
++.TP
++.BI "--block-size"
++Set block size
+Index: extensions/libipt_hashlimit.man
+===================================================================
+--- extensions/libipt_hashlimit.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_hashlimit.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,35 @@
++This patch adds a new match called 'hashlimit'.
++The idea is to have something like 'limit', but either per
++destination-ip or per (destip,destport) tuple.
++
++It gives you the ability to express
++.IP
++ '1000 packets per second for every host in 192.168.0.0/16'
++.IP
++ '100 packets per second for every service of 192.168.1.1'
++.P
++with a single iptables rule.
++.TP
++.BI "--hashlimit " "rate"
++A rate just like the limit match
++.TP
++.BI "--hashlimit-burst " "num"
++Burst value, just like limit match
++.TP
++.BI "--hashlimit-mode " "destip | destip-destport"
++Limit per IP or per port
++.TP
++.BI "--hashlimit-name " "foo"
++The name for the /proc/net/ipt_hashlimit/foo entry
++.TP
++.BI "--hashlimit-htable-size " "num"
++The number of buckets of the hash table
++.TP
++.BI "--hashlimit-htable-max " "num"
++Maximum entries in the hash
++.TP
++.BI "--hashlimit-htable-expire " "num"
++After how many miliseconds do hash entries expire
++.TP
++.BI "--hashlimit-htable-gcinterval " "num"
++How many miliseconds between garbage collection intervals
+Index: extensions/libipt_osf.man
+===================================================================
+--- extensions/libipt_osf.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_osf.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,47 @@
++The idea of passive OS fingerprint matching exists for quite a long time,
++but was created as extension fo OpenBSD pf only some weeks ago.
++Original idea was lurked in some OpenBSD mailing list (thanks
++grange@open...) and than adopted for Linux netfilter in form of this code.
++
++Original fingerprint table was created by Michal Zalewski <lcamtuf@coredump.cx>.
++
++This module compares some data(WS, MSS, options and it's order, ttl,
++df and others) from first SYN packet (actually from packets with SYN
++bit set) with dynamically loaded OS fingerprints.
++.TP
++.B "--log 1/0" 
++If present, OSF will log determined genres even if they don't match
++desired one.	
++0 - log all determined entries, 
++1 - only first one.
++
++In syslog you find something like this:
++.IP
++ipt_osf: Windows [2000:SP3:Windows XP Pro SP1, 2000 SP3]: 11.22.33.55:4024 -> 11.22.33.44:139
++.IP
++ipt_osf: Unknown: 16384:106:1:48:020405B401010402 44.33.22.11:1239 -> 11.22.33.44:80
++.TP
++.B "--smart"
++if present, OSF will use some smartness to determine remote OS.
++OSF will use initial TTL only if source of connection is in our local network.
++.TP
++.B "--netlink"
++If present, OSF will log all events also through netlink NETLINK_NFLOG groupt 1.
++.TP
++.BI "--genre " "[!] string"
++Match a OS genre by passive fingerprinting
++.P
++Example:
++
++#iptables -I INPUT -j ACCEPT -p tcp -m osf --genre Linux --log 1 --smart
++
++NOTE: -p tcp is obviously required as it is a TCP match.
++
++Fingerprints can be loaded and read through /proc/sys/net/ipv4/osf file.
++One can flush all fingerprints with following command:
++.IP
++echo -en FLUSH > /proc/sys/net/ipv4/osf
++.P
++Only one fingerprint per open/write/close.
++
++Fingerprints can be downloaded from http://www.openbsd.org/cgi-bin/cvsweb/src/etc/pf.os
+Index: extensions/libipt_sctp.man
+===================================================================
+--- extensions/libipt_sctp.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_sctp.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,28 @@
++.TP
++\fB--source-port\fR,\fB--sport \fR[\fB!\fR] \fIport\fR[\fB:\fIport\fR]
++.TP
++\fB--destination-port\fR,\fB--dport \fR[\fB!\fR] \fIport\fR[\fB:\fIport\fR]
++.TP
++\fB--chunk-types\fR [\fB!\fR] \fBall\fR|\fBany\fR|\fBonly \fIchunktype\fR[\fB:\fIflags\fR] [...]
++The flag letter in upper case indicates that the flag is to match if set,
++in the lower case indicates to match if unset.
++
++Chunk types: DATA INIT INIT_ACK SACK HEARTBEAT HEARTBEAT_ACK ABORT SHUTDOWN SHUTDOWN_ACK ERROR COOKIE_ECHO COOKIE_ACK ECN_ECNE ECN_CWR SHUTDOWN_COMPLETE ASCONF ASCONF_ACK
++
++chunk type            available flags      
++.br
++DATA                  U B E u b e         
++.br
++ABORT                 T t                 
++.br
++SHUTDOWN_COMPLETE     T t                 
++
++(lowercase means flag should be "off", uppercase means "on")
++.P
++Examples:
++
++iptables -A INPUT -p sctp --dport 80 -j DROP
++
++iptables -A INPUT -p sctp --chunk-types any DATA,INIT -j DROP
++
++iptables -A INPUT -p sctp --chunk-types any DATA:Be -j ACCEPT
+Index: extensions/libipt_u32.man
+===================================================================
+--- extensions/libipt_u32.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_u32.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,8 @@
++U32 allows you to extract quantities of up to 4 bytes from a packet,
++AND them with specified masks, shift them by specified amounts and
++test whether the results are in any of a set of specified ranges.
++The specification of what to extract is general enough to skip over
++headers with lengths stored in the packet, as in IP or TCP header
++lengths.
++
++Details and examples are in the kernel module source.
+Index: extensions/libipt_SAME.man
+===================================================================
+--- extensions/libipt_SAME.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_SAME.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,11 @@
++Similar to SNAT/DNAT depending on chain: it takes a range of addresses
++(`--to 1.2.3.4-1.2.3.7') and gives a client the same
++source-/destination-address for each connection.
++.TP
++.BI "--to " "<ipaddr>-<ipaddr>"
++Addresses to map source to. May be specified more than once for
++multiple ranges.
++.TP
++.B "--nodst"
++Don't use the destination-ip in the calculations when selecting the
++new source-ip
+Index: extensions/libip6t_policy.man
+===================================================================
+--- extensions/libip6t_policy.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libip6t_policy.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,46 @@
++This modules matches the policy used by IPsec for handling a packet.
++.TP
++.BI "--dir " "in|out"
++Used to select whether to match the policy used for decapsulation or the
++policy that will be used for encapsulation.
++.B in
++is valid in the
++.B PREROUTING, INPUT and FORWARD
++chains,
++.B out
++is valid in the
++.B POSTROUTING, OUTPUT and FORWARD
++chains.
++.TP
++.BI "--pol " "none|ipsec"
++Matches if the packet is subject to IPsec processing.
++.TP
++.BI "--strict"
++Selects whether to match the exact policy or match if any rule of
++the policy matches the given policy.
++.TP
++.BI "--reqid " "id"
++Matches the reqid of the policy rule. The reqid can be specified with
++.B setkey(8)
++using
++.B unique:id
++as level.
++.TP
++.BI "--spi " "spi"
++Matches the SPI of the SA.
++.TP
++.BI "--proto " "ah|esp|ipcomp"
++Matches the encapsulation protocol.
++.TP
++.BI "--mode " "tunnel|transport"
++Matches the encapsulation mode.
++.TP
++.BI "--tunnel-src " "addr[/masklen]"
++Matches the source address of a tunnel. Only valid with --mode tunnel.
++.TP
++.BI "--tunnel-dst " "addr[/masklen]"
++Matches the destination address of a tunnel. Only valid with --mode tunnel.
++.TP
++.BI "--next"
++Start the next element in the policy specification. Can only be used with
++--strict
+Index: extensions/libip6t_ULOG.man
+===================================================================
+--- extensions/libip6t_ULOG.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libip6t_ULOG.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,27 @@
++This target provides userspace logging of matching packets.  When this
++target is set for a rule, the Linux kernel will multicast this packet
++through a
++.IR netlink 
++socket. One or more userspace processes may then subscribe to various 
++multicast groups and receive the packets.
++Like LOG, this is a "non-terminating target", i.e. rule traversal
++continues at the next rule.
++.TP
++.BI "--ulog-nlgroup " "nlgroup"
++This specifies the netlink group (1-32) to which the packet is sent.
++Default value is 1.
++.TP
++.BI "--ulog-prefix " "prefix"
++Prefix log messages with the specified prefix; up to 32 characters
++long, and useful for distinguishing messages in the logs.
++.TP
++.BI "--ulog-cprange " "size"
++Number of bytes to be copied to userspace.  A value of 0 always copies
++the entire packet, regardless of its size.  Default is 0.
++.TP
++.BI "--ulog-qthreshold " "size"
++Number of packet to queue inside kernel.  Setting this value to, e.g. 10
++accumulates ten packets inside the kernel and transmits them as one
++netlink multipart message to userspace.  Default is 1 (for backwards
++compatibility).
++.br
+Index: extensions/libip6t_policy.c
+===================================================================
+--- extensions/libip6t_policy.c	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libip6t_policy.c	(.../trunk)	(revision 5928)
+@@ -0,0 +1,471 @@
++/* Shared library add-on to iptables to add policy support. */
++
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <syslog.h>
++#include <getopt.h>
++#include <netdb.h>
++#include <errno.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
++#include <ip6tables.h>
++
++#include <linux/netfilter_ipv6/ip6_tables.h>
++#include <linux/netfilter_ipv6/ip6t_policy.h>
++
++/*
++ * HACK: global pointer to current matchinfo for making
++ * final checks and adjustments in final_check.
++ */
++static struct ip6t_policy_info *policy_info;
++
++static void help(void)
++{
++	printf(
++"policy v%s options:\n"
++"  --dir in|out			match policy applied during decapsulation/\n"
++"				policy to be applied during encapsulation\n"
++"  --pol none|ipsec		match policy\n"
++"  --strict 			match entire policy instead of single element\n"
++"				at any position\n"
++"[!] --reqid reqid		match reqid\n"
++"[!] --spi spi			match SPI\n"
++"[!] --proto proto		match protocol (ah/esp/ipcomp)\n"
++"[!] --mode mode 		match mode (transport/tunnel)\n"
++"[!] --tunnel-src addr/masklen	match tunnel source\n"
++"[!] --tunnel-dst addr/masklen	match tunnel destination\n"
++"  --next 			begin next element in policy\n",
++	IPTABLES_VERSION);
++}
++
++static struct option opts[] =
++{
++	{
++		.name		= "dir",
++		.has_arg	= 1,
++		.val		= '1',
++	},
++	{
++		.name		= "pol",
++		.has_arg	= 1,
++		.val		= '2',
++	},
++	{
++		.name		= "strict",
++		.val		= '3'
++	},
++	{
++		.name		= "reqid",
++		.has_arg	= 1,
++		.val		= '4',
++	},
++	{
++		.name		= "spi",
++		.has_arg	= 1,
++		.val		= '5'
++	},
++	{
++		.name		= "tunnel-src",
++		.has_arg	= 1,
++		.val		= '6'
++	},
++	{
++		.name		= "tunnel-dst",
++		.has_arg	= 1,
++		.val		= '7'
++	},
++	{
++		.name		= "proto",
++		.has_arg	= 1,
++		.val		= '8'
++	},
++	{
++		.name		= "mode",
++		.has_arg	= 1,
++		.val		= '9'
++	},
++	{
++		.name		= "next",
++		.val		= 'a'
++	},
++	{ }
++};
++
++/* FIXME - Duplicated code from ip6tables.c */
++/* Duplicated to stop too many changes in other files .... */
++static void
++in6addrcpy(struct in6_addr *dst, struct in6_addr *src)
++{
++        memcpy(dst, src, sizeof(struct in6_addr));
++        /* dst->s6_addr = src->s6_addr; */
++}
++
++static char *
++addr_to_numeric(const struct in6_addr *addrp)
++{
++        /* 0000:0000:0000:0000:0000:000.000.000.000
++	 * 0000:0000:0000:0000:0000:0000:0000:0000 */
++        static char buf[50+1];
++        return (char *)inet_ntop(AF_INET6, addrp, buf, sizeof(buf));
++}
++
++static char *
++mask_to_numeric(const struct in6_addr *addrp)
++{
++        static char buf[50+2];
++        int l = ipv6_prefix_length(addrp);
++        if (l == -1) {
++		strcpy(buf, "/");
++		strcat(buf, addr_to_numeric(addrp));
++		return buf;
++	}
++	sprintf(buf, "/%d", l);
++	return buf;
++}
++
++/* These should be in include/ip6tables.h... */
++extern u_int16_t parse_protocol(const char *s);
++extern void parse_hostnetworkmask(const char *name, struct in6_addr **addrpp,
++		struct in6_addr *maskp, unsigned int *naddrs);
++
++/* End duplicated code from ip6tables.c */
++
++static void init(struct ip6t_entry_match *m, unsigned int *nfcache)
++{
++	*nfcache |= NFC_UNKNOWN;
++}
++
++static int parse_direction(char *s)
++{
++	if (strcmp(s, "in") == 0)
++		return POLICY_MATCH_IN;
++	if (strcmp(s, "out") == 0)
++		return POLICY_MATCH_OUT;
++	exit_error(PARAMETER_PROBLEM, "policy_match: invalid dir `%s'", s);
++}
++
++static int parse_policy(char *s)
++{
++	if (strcmp(s, "none") == 0)
++		return POLICY_MATCH_NONE;
++	if (strcmp(s, "ipsec") == 0)
++		return 0;
++	exit_error(PARAMETER_PROBLEM, "policy match: invalid policy `%s'", s);
++}
++
++static int parse_mode(char *s)
++{
++	if (strcmp(s, "transport") == 0)
++		return POLICY_MODE_TRANSPORT;
++	if (strcmp(s, "tunnel") == 0)
++		return POLICY_MODE_TUNNEL;
++	exit_error(PARAMETER_PROBLEM, "policy match: invalid mode `%s'", s);
++}
++
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++                 const struct ip6t_entry *entry,
++                 unsigned int *nfcache,
++                 struct ip6t_entry_match **match)
++{
++	struct ip6t_policy_info *info = (void *)(*match)->data;
++	struct ip6t_policy_elem *e = &info->pol[info->len];
++	struct in6_addr *addr = NULL, mask;
++	unsigned int naddr = 0;
++	int mode;
++
++	check_inverse(optarg, &invert, &optind, 0);
++
++	switch (c) {
++	case '1':
++		if (info->flags & (POLICY_MATCH_IN|POLICY_MATCH_OUT))
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --dir option");
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: can't invert --dir option");
++
++		info->flags |= parse_direction(argv[optind-1]);
++		break;
++	case '2':
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: can't invert --policy option");
++
++		info->flags |= parse_policy(argv[optind-1]);
++		break;
++	case '3':
++		if (info->flags & POLICY_MATCH_STRICT)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --strict option");
++
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: can't invert --strict option");
++
++		info->flags |= POLICY_MATCH_STRICT;
++		break;
++	case '4':
++		if (e->match.reqid)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --reqid option");
++
++		e->match.reqid = 1;
++		e->invert.reqid = invert;
++		e->reqid = strtol(argv[optind-1], NULL, 10);
++		break;
++	case '5':
++		if (e->match.spi)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --spi option");
++		
++		e->match.spi = 1;
++		e->invert.spi = invert;
++		e->spi = strtol(argv[optind-1], NULL, 0x10);
++		break;
++	case '6':
++		if (e->match.saddr)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --tunnel-src option");
++
++		parse_hostnetworkmask(argv[optind-1], &addr, &mask, &naddr);
++		if (naddr > 1)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: name resolves to multiple IPs");
++
++		e->match.saddr = 1;
++		e->invert.saddr = invert;
++		in6addrcpy(&e->daddr, addr);
++		in6addrcpy(&e->dmask, &mask);
++                break;
++	case '7':
++		if (e->match.daddr)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --tunnel-dst option");
++
++		parse_hostnetworkmask(argv[optind-1], &addr, &mask, &naddr);
++		if (naddr > 1)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: name resolves to multiple IPs");
++
++		e->match.daddr = 1;
++		e->invert.daddr = invert;
++		in6addrcpy(&e->daddr, addr);
++		in6addrcpy(&e->dmask, &mask);
++		break;
++	case '8':
++		if (e->match.proto)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --proto option");
++
++		e->proto = parse_protocol(argv[optind-1]);
++		if (e->proto != IPPROTO_AH && e->proto != IPPROTO_ESP &&
++		    e->proto != IPPROTO_COMP)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: protocol must ah/esp/ipcomp");
++		e->match.proto = 1;
++		e->invert.proto = invert;
++		break;
++	case '9':
++		if (e->match.mode)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --mode option");
++		
++		mode = parse_mode(argv[optind-1]);
++		e->match.mode = 1;
++		e->invert.mode = invert;
++		e->mode = mode;
++		break;
++	case 'a':
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: can't invert --next option");
++
++		if (++info->len == POLICY_MAX_ELEM)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: maximum policy depth reached");
++		break;
++	default:
++		return 0;
++	}
++
++	policy_info = info;
++	return 1;
++}
++
++static void final_check(unsigned int flags)
++{
++	struct ip6t_policy_info *info = policy_info;
++	struct ip6t_policy_elem *e;
++	int i;
++
++	if (info == NULL)
++		exit_error(PARAMETER_PROBLEM,
++		           "policy match: no parameters given");
++
++	if (!(info->flags & (POLICY_MATCH_IN|POLICY_MATCH_OUT)))
++		exit_error(PARAMETER_PROBLEM,
++		           "policy match: neither --in nor --out specified");
++
++	if (info->flags & POLICY_MATCH_NONE) {
++		if (info->flags & POLICY_MATCH_STRICT)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: policy none but --strict given");
++
++		if (info->len != 0)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: policy none but policy given");
++	} else
++		info->len++;	/* increase len by 1, no --next after last element */
++
++	if (!(info->flags & POLICY_MATCH_STRICT) && info->len > 1)
++		exit_error(PARAMETER_PROBLEM,
++		           "policy match: multiple elements but no --strict");
++
++	for (i = 0; i < info->len; i++) {
++		e = &info->pol[i];
++		if ((e->match.saddr || e->match.daddr)
++		    && ((e->mode == POLICY_MODE_TUNNEL && e->invert.mode) ||
++		        (e->mode == POLICY_MODE_TRANSPORT && !e->invert.mode)))
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: --tunnel-src/--tunnel-dst "
++			           "is only valid in tunnel mode");
++	}
++}
++
++static void print_mode(char *prefix, u_int8_t mode, int numeric)
++{
++	printf("%smode ", prefix);
++
++	switch (mode) {
++	case POLICY_MODE_TRANSPORT:
++		printf("transport ");
++		break;
++	case POLICY_MODE_TUNNEL:
++		printf("tunnel ");
++		break;
++	default:
++		printf("??? ");
++		break;
++	}
++}
++
++static void print_proto(char *prefix, u_int8_t proto, int numeric)
++{
++	struct protoent *p = NULL;
++
++	printf("%sproto ", prefix);
++	if (!numeric)
++		p = getprotobynumber(proto);
++	if (p != NULL)
++		printf("%s ", p->p_name);
++	else
++		printf("%u ", proto);
++}
++
++#define PRINT_INVERT(x)		\
++do {				\
++	if (x)			\
++		printf("! ");	\
++} while(0)
++
++static void print_entry(char *prefix, const struct ip6t_policy_elem *e,
++                        int numeric)
++{
++	if (e->match.reqid) {
++		PRINT_INVERT(e->invert.reqid);
++		printf("%sreqid %u ", prefix, e->reqid);
++	}
++	if (e->match.spi) {
++		PRINT_INVERT(e->invert.spi);
++		printf("%sspi 0x%x ", prefix, e->spi);
++	}
++	if (e->match.proto) {
++		PRINT_INVERT(e->invert.proto);
++		print_proto(prefix, e->proto, numeric);
++	}
++	if (e->match.mode) {
++		PRINT_INVERT(e->invert.mode);
++		print_mode(prefix, e->mode, numeric);
++	}
++	if (e->match.daddr) {
++		PRINT_INVERT(e->invert.daddr);
++		printf("%stunnel-dst %s%s ", prefix,
++		       addr_to_numeric((struct in6_addr *)&e->daddr),
++		       mask_to_numeric((struct in6_addr *)&e->dmask));
++	}
++	if (e->match.saddr) {
++		PRINT_INVERT(e->invert.saddr);
++		printf("%stunnel-src %s%s ", prefix,
++		       addr_to_numeric((struct in6_addr *)&e->saddr),
++		       mask_to_numeric((struct in6_addr *)&e->smask));
++	}
++}
++
++static void print_flags(char *prefix, const struct ip6t_policy_info *info)
++{
++	if (info->flags & POLICY_MATCH_IN)
++		printf("%sdir in ", prefix);
++	else
++		printf("%sdir out ", prefix);
++
++	if (info->flags & POLICY_MATCH_NONE)
++		printf("%spol none ", prefix);
++	else
++		printf("%spol ipsec ", prefix);
++
++	if (info->flags & POLICY_MATCH_STRICT)
++		printf("%sstrict ", prefix);
++}
++
++static void print(const struct ip6t_ip6 *ip,
++                  const struct ip6t_entry_match *match,
++		  int numeric)
++{
++	const struct ip6t_policy_info *info = (void *)match->data;
++	unsigned int i;
++
++	printf("policy match ");
++	print_flags("", info);
++	for (i = 0; i < info->len; i++) {
++		if (info->len > 1)
++			printf("[%u] ", i);
++		print_entry("", &info->pol[i], numeric);
++	}
++
++	printf("\n");
++}
++
++static void save(const struct ip6t_ip6 *ip, const struct ip6t_entry_match *match)
++{
++	const struct ip6t_policy_info *info = (void *)match->data;
++	unsigned int i;
++
++	print_flags("--", info);
++	for (i = 0; i < info->len; i++) {
++		print_entry("--", &info->pol[i], 0);
++		if (i + 1 < info->len)
++			printf("--next ");
++	}
++}
++
++struct ip6tables_match policy = {
++	.name		= "policy",
++	.version	= IPTABLES_VERSION,
++	.size		= IP6T_ALIGN(sizeof(struct ip6t_policy_info)),
++	.userspacesize	= IP6T_ALIGN(sizeof(struct ip6t_policy_info)),
++	.help		= help,
++	.init		= init,
++	.parse		= parse,
++	.final_check	= final_check,
++	.print		= print,
++	.save		= save,
++	.extra_opts	= opts
++};
++
++void _init(void)
++{
++	register_match6(&policy);
++}
+Index: extensions/Makefile
+===================================================================
+--- extensions/Makefile	(.../branches/iptables-1.3.1)	(revision 5928)
++++ extensions/Makefile	(.../trunk)	(revision 5928)
+@@ -5,7 +5,7 @@
+ # header files are present in the include/linux directory of this iptables
+ # package (HW)
+ #
+-PF_EXT_SLIB:=ah addrtype comment connlimit connmark conntrack dscp ecn esp hashlimit helper icmp iprange length limit mac mark multiport owner physdev pkttype realm rpc sctp standard state tcp tcpmss tos ttl udp unclean CLASSIFY CONNMARK DNAT DSCP ECN LOG MARK MASQUERADE MIRROR NETMAP NOTRACK REDIRECT REJECT SAME SNAT TARPIT TCPMSS TOS TRACE TTL ULOG
++PF_EXT_SLIB:=ah addrtype comment connlimit connmark conntrack dscp ecn esp hashlimit helper icmp iprange length limit mac mark multiport owner physdev pkttype realm rpc sctp standard state tcp tcpmss tos ttl udp unclean ACCOUNT CLASSIFY CONNMARK DNAT DSCP ECN LOG MARK MASQUERADE MIRROR NETMAP NOTRACK REDIRECT REJECT SAME SNAT TARPIT TCPMSS TOS TRACE TTL ULOG
+ PF6_EXT_SLIB:=eui64 hl icmpv6 length limit mac mark multiport owner physdev standard tcp udp HL LOG MARK TRACE
+ 
+ # Optionals
+Index: extensions/libipt_geoip.c
+===================================================================
+--- extensions/libipt_geoip.c	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_geoip.c	(.../trunk)	(revision 5928)
+@@ -0,0 +1,338 @@
++/* Shared library add-on to iptables to add geoip match support.
++ 
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * Copyright (c) 2004 Cookinglinux
++ 
++ * For comments, bugs or suggestions, please contact
++ * Samuel Jean       <sjean at cookinglinux.org>
++ * Nicolas Bouliane  <nib at cookinglinux.org>
++ */
++
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <ctype.h>
++#include <stddef.h>
++#include <errno.h>
++#include <sys/types.h>
++#include <sys/stat.h>
++#include <unistd.h>
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ipt_geoip.h>
++
++static void help(void)
++{
++   printf (
++            "GeoIP v%s options:\n"
++            "        [!]   --src-cc, --source-country country[,country,country,...]\n"
++            "                                                     Match packet coming from (one of)\n"
++            "                                                     the specified country(ies)\n"
++            "\n"
++            "        [!]   --dst-cc, --destination-country country[,country,country,...]\n"
++            "                                                     Match packet going to (one of)\n"
++            "                                                     the specified country(ies)\n"
++            "\n"
++            "           NOTE: The country is inputed by its ISO3166 code.\n"
++            "\n"
++            "\n", IPTABLES_VERSION
++         );
++}
++
++static struct option opts[] = {
++   {  "dst-cc",  1, 0, '2'  }, /* Alias for --destination-country */
++   {  "destination-country",   1, 0, '2'  },
++   {  "src-cc",  1, 0, '1'  }, /* Alias for --source-country */
++   {  "source-country",  1, 0, '1'  },
++   {  0  }
++};
++
++static void 
++init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++}
++
++/* NOT IMPLEMENTED YET
++static void geoip_free(struct geoip_info *oldmem)
++{
++}
++*/
++
++struct geoip_index {
++   u_int16_t cc;
++   u_int32_t offset;
++} __attribute__ ((packed));
++
++struct geoip_subnet *
++get_country_subnets(u_int16_t cc, u_int32_t *count)
++{
++   FILE *ixfd, *dbfd;
++   struct geoip_subnet *subnets;
++   struct geoip_index *index;
++   struct stat buf;
++  
++   size_t idxsz;
++   u_int16_t i;
++   
++   u_int16_t db_cc = 0;
++   u_int16_t db_nsubnets = 0;
++
++   if ((ixfd = fopen("/var/geoip/geoipdb.idx", "r")) == NULL) {
++         perror("/var/geoip/geoipdb.idx");
++         exit_error(OTHER_PROBLEM,
++               "geoip match: cannot open geoip's database index file");               
++   }
++   
++   stat("/var/geoip/geoipdb.idx", &buf);
++   idxsz = buf.st_size/sizeof(struct geoip_index);
++   index = (struct geoip_index *)malloc(buf.st_size);
++
++   fread(index, buf.st_size, 1, ixfd);
++
++   for (i = 0; i < idxsz; i++)
++      if (cc == index[i].cc)
++         break;
++   
++   if (cc != index[i].cc)
++      exit_error(OTHER_PROBLEM,
++            "geoip match: sorry, '%c%c' isn't in the database\n", COUNTRY(cc));
++
++   fclose(ixfd);
++
++   if ((dbfd = fopen("/var/geoip/geoipdb.bin", "r")) == NULL) {
++      perror("/var/geoip/geoipdb.bin");
++      exit_error(OTHER_PROBLEM,
++            "geoip match: cannot open geoip's database file");
++   }
++
++   fseek(dbfd, index[i].offset, SEEK_SET);
++   fread(&db_cc, sizeof(u_int16_t), 1, dbfd);
++
++   if (db_cc != cc)
++      exit_error(OTHER_PROBLEM,
++            "geoip match: this shouldn't happened, the database might be corrupted, or there's a bug.\n"
++            "you should contact maintainers");
++            
++   fread(&db_nsubnets, sizeof(u_int16_t), 1, dbfd);
++
++   subnets = (struct geoip_subnet*)malloc(db_nsubnets * sizeof(struct geoip_subnet));
++
++   if (!subnets)
++      exit_error(OTHER_PROBLEM,
++            "geoip match: insufficient memory available");
++   
++   fread(subnets, db_nsubnets * sizeof(struct geoip_subnet), 1, dbfd);
++   
++   fclose(dbfd);
++   free(index);
++   *count = db_nsubnets;
++   return subnets;
++}
++ 
++static struct geoip_info *
++load_geoip_cc(u_int16_t cc)
++{
++   static struct geoip_info *ginfo;
++   ginfo = malloc(sizeof(struct geoip_info));
++
++   if (!ginfo)
++      return NULL;
++   
++   ginfo->subnets = get_country_subnets(cc, &ginfo->count);
++   ginfo->cc = cc;
++   
++   return ginfo;
++}
++
++static u_int16_t
++check_geoip_cc(char *cc, u_int16_t cc_used[], u_int8_t count)
++{
++   u_int8_t i;
++   u_int16_t cc_int16;
++
++   if (strlen(cc) != 2) /* Country must be 2 chars long according
++                                        to the ISO3166 standard */
++    exit_error(PARAMETER_PROBLEM,
++         "geoip match: invalid country code '%s'", cc);
++
++   // Verification will fail if chars aren't uppercased.
++   // Make sure they are..
++   for (i = 0; i < 2; i++)
++      if (isalnum(cc[i]) != 0)
++         cc[i] = toupper(cc[i]);
++      else
++         exit_error(PARAMETER_PROBLEM,
++               "geoip match:  invalid country code '%s'", cc);
++
++   /* Convert chars into a single 16 bit integer.
++    * FIXME:   This assumes that a country code is
++    *          exactly 2 chars long. If this is
++    *          going to change someday, this whole
++    *          match will need to be rewritten, anyway.
++    *                                  - SJ  */
++   cc_int16 = (cc[0]<<8) + cc[1];
++
++   // Check for presence of value in cc_used
++   for (i = 0; i < count; i++)
++      if (cc_int16 == cc_used[i])
++         return 0; // Present, skip it!
++   
++   return cc_int16;
++}
++
++/* Based on libipt_multiport.c parsing code. */ 
++static u_int8_t
++parse_geoip_cc(const char *ccstr, u_int16_t *cc, struct geoip_info **mem)
++{
++   char *buffer, *cp, *next;
++   u_int8_t i, count = 0;
++   u_int16_t cctmp;
++
++   buffer = strdup(ccstr);
++   if (!buffer) exit_error(OTHER_PROBLEM,
++         "geoip match: insufficient memory available");
++
++   for (cp = buffer, i = 0; cp && i < IPT_GEOIP_MAX; cp = next, i++)
++   {
++      next = strchr(cp, ',');
++      if (next) *next++ = '\0';
++      
++      if ((cctmp = check_geoip_cc(cp, cc, count)) != 0) {
++         if ((mem[count++] = load_geoip_cc(cctmp)) == NULL)
++            exit_error(OTHER_PROBLEM,
++                  "geoip match: insufficient memory available");
++         cc[count-1] = cctmp;
++         }
++   }
++   
++   if (cp) exit_error(PARAMETER_PROBLEM,
++         "geoip match: too many countries specified");
++   free(buffer);
++
++   if (count == 0) exit_error(PARAMETER_PROBLEM,
++         "geoip match: don't know what happened");
++   
++   return count;
++}
++
++static int 
++parse(int c, char **argv, int invert, unsigned int *flags,
++                 const struct ipt_entry *entry,
++                 unsigned int *nfcache,
++                 struct ipt_entry_match **match)
++{
++   struct ipt_geoip_info *info
++      = (struct ipt_geoip_info *)(*match)->data;
++  
++    switch(c) {
++      case '1':
++         // Ensure that IPT_GEOIP_SRC *OR* IPT_GEOIP_DST haven't been used yet.
++         if (*flags & (IPT_GEOIP_SRC | IPT_GEOIP_DST))
++            exit_error(PARAMETER_PROBLEM,
++                  "geoip match: only use --source-country *OR* --destination-country once!");
++ 
++         *flags |= IPT_GEOIP_SRC;
++         *nfcache |= NFC_IP_SRC;
++         break;
++         
++      case '2':
++         // Ensure that IPT_GEOIP_SRC *OR* IPT_GEOIP_DST haven't been used yet.
++         if (*flags & (IPT_GEOIP_SRC | IPT_GEOIP_DST))
++            exit_error(PARAMETER_PROBLEM,
++                  "geoip match: only use --source-country *OR* --destination-country once!");
++ 
++         *flags |= IPT_GEOIP_DST;
++         *nfcache |= NFC_IP_DST;
++         break;
++      
++      default:
++         return 0;
++    }
++    
++    if (invert)
++       *flags |= IPT_GEOIP_INV;
++   
++    info->count = parse_geoip_cc(argv[optind-1], info->cc, info->mem);
++    info->flags = *flags;
++    info->refcount = NULL;
++    //info->fini = &geoip_free;
++
++    return 1;
++}
++
++static void 
++final_check(unsigned int flags)
++{
++   if (!flags)
++      exit_error(PARAMETER_PROBLEM,
++            "geoip match: missing arguments");
++}
++
++static void 
++print(const struct ipt_ip *ip,
++                  const struct ipt_entry_match *match,
++                  int numeric)
++{
++   const struct ipt_geoip_info *info
++      = (const struct ipt_geoip_info *)match->data;
++   
++   u_int8_t i;
++   
++   if (info->flags & IPT_GEOIP_SRC)
++      printf("Source ");
++   else printf("Destination ");
++   
++   if (info->count > 1)
++      printf("countries: ");
++   else printf("country: ");
++   
++   if (info->flags & IPT_GEOIP_INV)
++      printf("! ");
++      
++   for (i = 0; i < info->count; i++)
++       printf("%s%c%c", i ? "," : "", COUNTRY(info->cc[i]));
++   printf(" ");
++}
++
++static void 
++save(const struct ipt_ip *ip,
++                 const struct ipt_entry_match *match)
++{
++   const struct ipt_geoip_info *info
++      = (const struct ipt_geoip_info *)match->data;
++   u_int8_t i;
++
++   if (info->flags & IPT_GEOIP_INV)
++      printf("! ");
++ 
++   if (info->flags & IPT_GEOIP_SRC)
++      printf("--source-country ");
++   else printf("--destination-country ");
++      
++   for (i = 0; i < info->count; i++)
++      printf("%s%c%c", i ? "," : "", COUNTRY(info->cc[i]));
++   printf(" ");
++}
++
++static struct iptables_match geoip = {
++    .name            = "geoip",
++    .version         = IPTABLES_VERSION,
++    .size            = IPT_ALIGN(sizeof(struct ipt_geoip_info)),
++    .userspacesize   = offsetof(struct ipt_geoip_info, mem),
++    .help            = &help,
++    .init            = &init,
++    .parse           = &parse,
++    .final_check     = &final_check,
++    .print           = &print,
++    .save            = &save,
++    .extra_opts      = opts
++};
++
++void _init(void)
++{
++   register_match(&geoip);
++}
+Index: extensions/libipt_ULOG.c
+===================================================================
+--- extensions/libipt_ULOG.c	(.../branches/iptables-1.3.1)	(revision 5928)
++++ extensions/libipt_ULOG.c	(.../trunk)	(revision 5928)
+@@ -144,6 +144,8 @@
+ #endif
+ 		*flags |= IPT_LOG_OPT_QTHRESHOLD;
+ 		break;
++	default:
++		return 0;
+ 	}
+ 	return 1;
+ }
+Index: extensions/.layer7-test
+===================================================================
+--- extensions/.layer7-test	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/.layer7-test	(.../trunk)	(revision 5928)
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_layer7.h ] && echo layer7
+Index: extensions/libipt_connlimit.man
+===================================================================
+--- extensions/libipt_connlimit.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_connlimit.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,21 @@
++Allows you to restrict the number of parallel TCP connections to a
++server per client IP address (or address block).
++.TP
++[\fB!\fR] \fB--connlimit-above \fIn\fR
++match if the number of existing tcp connections is (not) above n
++.TP
++.BI "--connlimit-mask " "bits"
++group hosts using mask
++.P
++Examples:
++.TP
++# allow 2 telnet connections per client host
++iptables -p tcp --syn --dport 23 -m connlimit --connlimit-above 2 -j REJECT
++.TP
++# you can also match the other way around:
++iptables -p tcp --syn --dport 23 -m connlimit ! --connlimit-above 2 -j ACCEPT
++.TP
++# limit the nr of parallel http requests to 16 per class C sized \
++network (24 bit netmask)
++iptables -p tcp --syn --dport 80 -m connlimit --connlimit-above 16
++--connlimit-mask 24 -j REJECT
+Index: extensions/libipt_account.man
+===================================================================
+--- extensions/libipt_account.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_account.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,47 @@
++Account traffic for all hosts in defined network/netmask.
++
++Features:
++
++- long (one counter per protocol TCP/UDP/IMCP/Other) and short statistics
++
++- one iptables rule for all hosts in network/netmask
++
++- loading/saving counters (by reading/writting to procfs entries)
++
++.TP
++.BI "--aaddr " "network/netmask"
++defines network/netmask for which make statistics.
++.TP
++.BI "--aname " "name"
++defines name of list where statistics will be kept. If no is
++specified DEFAULT will be used.
++.TP
++.B "--ashort"
++table will colect only short statistics (only total counters
++without splitting it into protocols.
++.P
++Example usage:
++
++account traffic for/to 192.168.0.0/24 network into table mynetwork:
++
++# iptables -A FORWARD -m account --aname mynetwork --aaddr 192.168.0.0/24
++
++account traffic for/to WWW serwer for 192.168.0.0/24 network into table mywwwserver:
++
++# iptables -A INPUT -p tcp --dport 80
++  -m account --aname mywwwserver --aaddr 192.168.0.0/24 --ashort
++
++# iptables -A OUTPUT -p tcp --sport 80
++  -m account --aname mywwwserver --aaddr 192.168.0.0/24 --ashort
++
++read counters:
++
++# cat /proc/net/ipt_account/mynetwork
++# cat /proc/net/ipt_account/mywwwserver
++
++set counters:
++
++# echo "ip = 192.168.0.1 packets_src = 0" > /proc/net/ipt_account/mywwserver
++
++Webpage:
++  http://www.barbara.eu.org/~quaker/ipt_account/
+Index: extensions/libipt_ipp2p.c
+===================================================================
+--- extensions/libipt_ipp2p.c	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_ipp2p.c	(.../trunk)	(revision 5928)
+@@ -0,0 +1,455 @@
++
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <ctype.h>
++
++#include <iptables.h>
++
++#include <linux/netfilter_ipv4/ipt_ipp2p.h>
++
++
++
++
++static void
++help(void)
++{
++    printf(
++    "IPP2P v%s options:\n"
++    " --ipp2p	Grab all known p2p packets\n"
++    " --ipp2p-data	Identify all known p2p download commands (obsolete)\n\n"
++    " --edk		[TCP&UDP]	All known eDonkey/eMule/Overnet packets\n"
++    " --dc		[TCP] 		All known Direct Connect packets\n"
++    " --kazaa	[TCP&UDP] 	All known KaZaA packets\n"
++    " --gnu		[TCP&UDP]	All known Gnutella packets\n"
++    " --bit		[TCP&UDP]	All known BitTorrent packets\n"
++    " --apple	[TCP] 		All known AppleJuice packets (beta - just a few tests until now)\n"
++    " --winmx	[TCP] 		All known WinMX (beta - need feedback)\n"
++    " --soul		[TCP] 		All known SoulSeek (beta - need feedback!)\n"
++    " --ares		[TCP] 		All known Ares - use with DROP only (beta - need feedback!)\n\n"
++    " --edk-data	[TCP] 		eDonkey/eMule/Overnet download commands (obsolete)\n"
++    " --dc-data	[TCP] 		Direct Connect download command (obsolete)\n"
++    " --kazaa-data	[TCP] 		KaZaA download command (obsolete)\n"
++    " --gnu-data	[TCP] 		Gnutella download command (obsolete)\n"
++    "\nNote that the follwing options will have the same meaning:\n"
++    " '--ipp2p' is equal to '--edk --dc --kazaa --gnu'\n"
++    " '--ipp2p-data' is equal to '--edk-data --dc-data --kazaa-data --gnu-data'\n"
++    "\nIPP2P was intended for TCP only. Due to increasing usage of UDP we needed to change this.\n"
++    "You can now use -p udp to search UDP packets only or without -p switch to search UDP and TCP packets.\n"
++    "\nSee README included with this package for more details or visit http://www.ipp2p.org\n"
++    "\nExamples:\n"
++    " iptables -A FORWARD -m ipp2p --ipp2p -j MARK --set-mark 0x01\n"
++    " iptables -A FORWARD -p udp -m ipp2p --kazaa --bit -j DROP\n"
++    " iptables -A FORWARD -p tcp -m ipp2p --edk --soul -j DROP\n\n"
++    , IPP2P_VERSION);
++}
++
++							    
++
++static struct option opts[] = {
++        { "ipp2p", 0, 0, '1' },
++        { "edk", 0, 0, '2' },	
++        { "ipp2p-data", 0, 0, '3' },		
++        { "kazaa-data", 0, 0, '4' },
++        { "edk-data", 0, 0, '5' },	
++        { "dc-data", 0, 0, '6' },
++	{ "dc", 0, 0, '7' },
++	{ "gnu-data", 0, 0, '8' },	
++	{ "gnu", 0, 0, '9' },
++	{ "kazaa", 0, 0, 'a' },
++	{ "bit", 0, 0, 'b' },
++	{ "apple", 0, 0, 'c' },	
++	{ "soul", 0, 0, 'd' },	
++	{ "winmx", 0, 0, 'e' },	
++	{ "ares", 0, 0, 'f' },
++	{ "debug", 0, 0, 'g' },
++        {0}
++};
++
++	
++
++static void
++init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++    struct ipt_p2p_info *info = (struct ipt_p2p_info *)m->data;
++
++    *nfcache |= NFC_UNKNOWN;
++
++    /*init the module with default values*/
++    info->cmd = 0;
++    info->debug = 0;
++
++}
++	
++
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++	const struct ipt_entry *entry,
++	unsigned int *nfcache,
++	struct ipt_entry_match **match)
++{
++    struct ipt_p2p_info *info = (struct ipt_p2p_info *)(*match)->data;
++    
++    switch (c) {
++	case '1':		/*cmd: ipp2p*/
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified once!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++	    if ((*flags) != 0)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++	    *flags += SHORT_HAND_IPP2P;
++	    info->cmd = *flags;
++	    break;
++	    
++	case '2':		/*cmd: edk*/
++	    if ((*flags & IPP2P_EDK) == IPP2P_EDK)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--edk' may only be "
++				"specified once");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_DATA_EDK) == IPP2P_DATA_EDK)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--edk' OR `--edk-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++	    *flags += IPP2P_EDK;
++	    info->cmd = *flags;	    
++	    break;
++
++	case '3':		/*cmd: ipp2p-data*/
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags) != 0)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++	    *flags += SHORT_HAND_DATA;
++	    info->cmd = *flags;	    
++	    break;
++
++        case '4':		/*cmd: kazaa-data*/
++            if ((*flags & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--kazaa-data' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_KAZAA) == IPP2P_KAZAA)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--kazaa' OR `--kazaa-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DATA_KAZAA;
++	    info->cmd = *flags;
++	    break;
++
++	case '5':		/*cmd: edk-data*/
++            if ((*flags & IPP2P_DATA_EDK) == IPP2P_DATA_EDK)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--edk-data' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_EDK) == IPP2P_EDK)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--edk' OR `--edk-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DATA_EDK;
++	    info->cmd = *flags;
++	    break;																											
++
++	case '6':		/*cmd: dc-data*/
++            if ((*flags & IPP2P_DATA_DC) == IPP2P_DATA_DC)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--dc-data' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_DC) == IPP2P_DC)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--dc' OR `--dc-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DATA_DC;
++	    info->cmd = *flags;
++	    break;																											
++
++	case '7':		/*cmd: dc*/
++            if ((*flags & IPP2P_DC) == IPP2P_DC)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--dc' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_DATA_DC) == IPP2P_DATA_DC)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--dc' OR `--dc-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DC;
++	    info->cmd = *flags;
++	    break;																											
++
++
++	case '8':		/*cmd: gnu-data*/
++            if ((*flags & IPP2P_DATA_GNU) == IPP2P_DATA_GNU)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--gnu-data' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_GNU) == IPP2P_GNU)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--gnu' OR `--gnu-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DATA_GNU;
++	    info->cmd = *flags;
++	    break;																											
++
++	case '9':		/*cmd: gnu*/
++            if ((*flags & IPP2P_GNU) == IPP2P_GNU)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--gnu' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_DATA_GNU) == IPP2P_DATA_GNU)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--gnu' OR `--gnu-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_GNU;
++	    info->cmd = *flags;
++	    break;																											
++
++	case 'a':		/*cmd: kazaa*/
++            if ((*flags & IPP2P_KAZAA) == IPP2P_KAZAA)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--kazaa' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--kazaa' OR `--kazaa-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_KAZAA;
++	    info->cmd = *flags;
++	    break;																											
++
++	case 'b':		/*cmd: bit*/
++            if ((*flags & IPP2P_BIT) == IPP2P_BIT)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--bit' may only be "
++                                "specified once!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_BIT;
++	    info->cmd = *flags;
++	    break;																											
++
++	case 'c':		/*cmd: apple*/
++            if ((*flags & IPP2P_APPLE) == IPP2P_APPLE)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--apple' may only be "
++                                "specified once!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_APPLE;
++	    info->cmd = *flags;
++	    break;																											
++
++
++	case 'd':		/*cmd: soul*/
++            if ((*flags & IPP2P_SOUL) == IPP2P_SOUL)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--soul' may only be "
++                                "specified once!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_SOUL;
++	    info->cmd = *flags;
++	    break;																											
++
++
++	case 'e':		/*cmd: winmx*/
++            if ((*flags & IPP2P_WINMX) == IPP2P_WINMX)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--winmx' may only be "
++                                "specified once!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_WINMX;
++	    info->cmd = *flags;
++	    break;																											
++
++	case 'f':		/*cmd: ares*/
++            if ((*flags & IPP2P_ARES) == IPP2P_ARES)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--ares' may only be "
++                                "specified once!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_ARES;
++	    info->cmd = *flags;
++	    break;																											
++
++	case 'g':		/*cmd: debug*/
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++	    info->debug = 1;
++	    break;																											
++
++	default:
++            exit_error(PARAMETER_PROBLEM,
++	    "\nipp2p-parameter problem: for ipp2p usage type: iptables -m ipp2p --help\n");
++	    return 0;
++    }
++    return 1;
++}
++
++
++static void
++final_check(unsigned int flags)
++{
++    if (!flags)
++            exit_error(PARAMETER_PROBLEM,
++	    "\nipp2p-parameter problem: for ipp2p usage type: iptables -m ipp2p --help\n");
++}
++
++
++
++static void
++print(const struct ipt_ip *ip,
++        const struct ipt_entry_match *match,
++	int numeric)
++{
++    struct ipt_p2p_info *info = (struct ipt_p2p_info *)match->data;
++    
++    printf("ipp2p v%s", IPP2P_VERSION);
++    if ((info->cmd & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P) printf(" --ipp2p");
++    if ((info->cmd & SHORT_HAND_DATA) == SHORT_HAND_DATA) printf(" --ipp2p-data");
++    if ((info->cmd & IPP2P_KAZAA) == IPP2P_KAZAA) printf(" --kazaa");
++    if ((info->cmd & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA) printf(" --kazaa-data");
++    if ((info->cmd & IPP2P_DATA_GNU) == IPP2P_DATA_GNU) printf(" --gnu-data");
++    if ((info->cmd & IPP2P_GNU) == IPP2P_GNU) printf(" --gnu");
++    if ((info->cmd & IPP2P_EDK) == IPP2P_EDK) printf(" --edk");
++    if ((info->cmd & IPP2P_DATA_EDK) == IPP2P_DATA_EDK) printf(" --edk-data");
++    if ((info->cmd & IPP2P_DATA_DC) == IPP2P_DATA_DC) printf(" --dc-data");
++    if ((info->cmd & IPP2P_DC) == IPP2P_DC) printf(" --dc");
++    if ((info->cmd & IPP2P_BIT) == IPP2P_BIT) printf(" --bit");
++    if ((info->cmd & IPP2P_APPLE) == IPP2P_APPLE) printf(" --apple");
++    if ((info->cmd & IPP2P_SOUL) == IPP2P_SOUL) printf(" --soul");
++    if ((info->cmd & IPP2P_WINMX) == IPP2P_WINMX) printf(" --winmx");
++    if ((info->cmd & IPP2P_ARES) == IPP2P_ARES) printf(" --ares");
++    if (info->debug != 0) printf(" --debug");
++    printf(" ");
++}
++			    						   
++
++
++static void
++save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++{
++    struct ipt_p2p_info *info = (struct ipt_p2p_info *)match->data;
++    
++    if ((info->cmd & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P) printf("--ipp2p ");
++    if ((info->cmd & SHORT_HAND_DATA) == SHORT_HAND_DATA) printf("--ipp2p-data ");
++    if ((info->cmd & IPP2P_KAZAA) == IPP2P_KAZAA) printf("--kazaa ");
++    if ((info->cmd & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA) printf("--kazaa-data ");
++    if ((info->cmd & IPP2P_DATA_GNU) == IPP2P_DATA_GNU) printf("--gnu-data ");
++    if ((info->cmd & IPP2P_GNU) == IPP2P_GNU) printf("--gnu ");
++    if ((info->cmd & IPP2P_EDK) == IPP2P_EDK) printf("--edk ");
++    if ((info->cmd & IPP2P_DATA_EDK) == IPP2P_DATA_EDK) printf("--edk-data ");
++    if ((info->cmd & IPP2P_DATA_DC) == IPP2P_DATA_DC) printf("--dc-data ");
++    if ((info->cmd & IPP2P_DC) == IPP2P_DC) printf("--dc ");
++    if ((info->cmd & IPP2P_BIT) == IPP2P_BIT) printf("--bit ");
++    if ((info->cmd & IPP2P_APPLE) == IPP2P_APPLE) printf("--apple ");
++    if ((info->cmd & IPP2P_SOUL) == IPP2P_SOUL) printf("--soul ");
++    if ((info->cmd & IPP2P_WINMX) == IPP2P_WINMX) printf("--winmx ");
++    if ((info->cmd & IPP2P_ARES) == IPP2P_ARES) printf("--ares ");
++    if (info->debug != 0) printf("--debug ");
++}
++
++		
++
++
++static
++struct iptables_match ipp2p
++= {
++   .next          = NULL,
++   .name          = "ipp2p",
++   .version       = IPTABLES_VERSION, 
++   .size          = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
++   .userspacesize = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
++   .help          = &help,
++   .init          = &init,
++   .parse         = &parse,
++   .final_check   = &final_check,
++   .print         = &print,
++   .save          = &save,
++   .extra_opts    = opts
++};
++					    
++
++
++void _init(void)
++{
++    register_match(&ipp2p);
++}
++
+Index: extensions/.ipp2p-test
+===================================================================
+--- extensions/.ipp2p-test	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/.ipp2p-test	(.../trunk)	(revision 5928)
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_ipp2p.h ] && echo ipp2p
+
+Property changes on: extensions/.ipp2p-test
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Index: extensions/libipt_TARPIT.man
+===================================================================
+--- extensions/libipt_TARPIT.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_TARPIT.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,34 @@
++Captures and holds incoming TCP connections using no local
++per-connection resources. Connections are accepted, but immediately
++switched to the persist state (0 byte window), in which the remote
++side stops sending data and asks to continue every 60-240 seconds.
++Attempts to close the connection are ignored, forcing the remote side
++to time out the connection in 12-24 minutes.
++
++This offers similar functionality to LaBrea
++<http://www.hackbusters.net/LaBrea/> but doesn't require dedicated
++hardware or IPs. Any TCP port that you would normally DROP or REJECT
++can instead become a tarpit.
++
++To tarpit connections to TCP port 80 destined for the current machine:
++.IP
++iptables -A INPUT -p tcp -m tcp --dport 80 -j TARPIT
++.P
++To significantly slow down Code Red/Nimda-style scans of unused address
++space, forward unused ip addresses to a Linux box not acting as a router
++(e.g. "ip route 10.0.0.0 255.0.0.0 ip.of.linux.box" on a Cisco), enable IP
++forwarding on the Linux box, and add:
++.IP
++iptables -A FORWARD -p tcp -j TARPIT
++.IP
++iptables -A FORWARD -j DROP
++.TP
++NOTE:
++If you use the conntrack module while you are using TARPIT, you should
++also use the NOTRACK target, or the kernel will unnecessarily allocate
++resources for each TARPITted connection. To TARPIT incoming
++connections to the standard IRC port while using conntrack, you could:
++.IP
++iptables -t raw -A PREROUTING -p tcp --dport 6667 -j NOTRACK
++.IP
++iptables -A INPUT -p tcp --dport 6667 -j TARPIT
+Index: extensions/libip6t_ULOG.c
+===================================================================
+--- extensions/libip6t_ULOG.c	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libip6t_ULOG.c	(.../trunk)	(revision 5928)
+@@ -0,0 +1,227 @@
++/* Shared library add-on to ip6tables to add ULOG support.
++ * 
++ * (C) 2000 by Harald Welte <laforge@gnumonks.org>
++ *
++ * multipart netlink support based on ideas by Sebastian Zander 
++ * 						<zander@fokus.gmd.de>
++ *
++ * This software is released under the terms of GNU GPL
++ */
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <syslog.h>
++#include <getopt.h>
++#include <ip6tables.h>
++#include <linux/netfilter_ipv6/ip6_tables.h>
++/* For 64bit kernel / 32bit userspace */
++#include "../include/linux/netfilter_ipv4/ipt_ULOG.h"
++
++
++void print_groups(unsigned int gmask)
++{
++	int b;
++	unsigned int test;
++
++	for (b = 31; b >= 0; b--) {
++		test = (1 << b);
++		if (gmask & test)
++			printf("%d ", b + 1);
++	}
++}
++
++/* Function which prints out usage message. */
++static void help(void)
++{
++	printf("ULOG v%s options:\n"
++	       " --ulog-nlgroup nlgroup		NETLINK group used for logging\n"
++	       " --ulog-cprange size		Bytes of each packet to be passed\n"
++	       " --ulog-qthreshold		Threshold of in-kernel queue\n"
++	       " --ulog-prefix prefix		Prefix log messages with this prefix.\n\n",
++	       IPTABLES_VERSION);
++}
++
++static struct option opts[] = {
++	{"ulog-nlgroup", 1, 0, '!'},
++	{"ulog-prefix", 1, 0, '#'},
++	{"ulog-cprange", 1, 0, 'A'},
++	{"ulog-qthreshold", 1, 0, 'B'},
++	{0}
++};
++
++/* Initialize the target. */
++static void init(struct ip6t_entry_target *t, unsigned int *nfcache)
++{
++	struct ipt_ulog_info *loginfo = (struct ipt_ulog_info *) t->data;
++
++	loginfo->nl_group = ULOG_DEFAULT_NLGROUP;
++	loginfo->qthreshold = ULOG_DEFAULT_QTHRESHOLD;
++
++	/* Can't cache this */
++	*nfcache |= NFC_UNKNOWN;
++}
++
++#define IPT_LOG_OPT_NLGROUP 0x01
++#define IPT_LOG_OPT_PREFIX 0x02
++#define IPT_LOG_OPT_CPRANGE 0x04
++#define IPT_LOG_OPT_QTHRESHOLD 0x08
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++		 const struct ip6t_entry *entry,
++		 struct ip6t_entry_target **target)
++{
++	struct ipt_ulog_info *loginfo =
++	    (struct ipt_ulog_info *) (*target)->data;
++	int group_d;
++
++	switch (c) {
++	case '!':
++		if (*flags & IPT_LOG_OPT_NLGROUP)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --ulog-nlgroup twice");
++
++		if (check_inverse(optarg, &invert, NULL, 0))
++			exit_error(PARAMETER_PROBLEM,
++				   "Unexpected `!' after --ulog-nlgroup");
++		group_d = atoi(optarg);
++		if (group_d > 32 || group_d < 1)
++			exit_error(PARAMETER_PROBLEM,
++				   "--ulog-nlgroup has to be between 1 and 32");
++
++		loginfo->nl_group = (1 << (group_d - 1));
++
++		*flags |= IPT_LOG_OPT_NLGROUP;
++		break;
++
++	case '#':
++		if (*flags & IPT_LOG_OPT_PREFIX)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --ulog-prefix twice");
++
++		if (check_inverse(optarg, &invert, NULL, 0))
++			exit_error(PARAMETER_PROBLEM,
++				   "Unexpected `!' after --ulog-prefix");
++
++		if (strlen(optarg) > sizeof(loginfo->prefix) - 1)
++			exit_error(PARAMETER_PROBLEM,
++				   "Maximum prefix length %u for --ulog-prefix",
++				   (unsigned int)sizeof(loginfo->prefix) - 1);
++
++		strcpy(loginfo->prefix, optarg);
++		*flags |= IPT_LOG_OPT_PREFIX;
++		break;
++	case 'A':
++		if (*flags & IPT_LOG_OPT_CPRANGE)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --ulog-cprange twice");
++		if (atoi(optarg) < 0)
++			exit_error(PARAMETER_PROBLEM,
++				   "Negative copy range?");
++#ifdef KERNEL_64_USERSPACE_32
++		loginfo->copy_range = (unsigned long long)atoll(optarg);
++#else
++		loginfo->copy_range = atoi(optarg);
++#endif
++		*flags |= IPT_LOG_OPT_CPRANGE;
++		break;
++	case 'B':
++		if (*flags & IPT_LOG_OPT_QTHRESHOLD)
++			exit_error(PARAMETER_PROBLEM,
++				   "Can't specify --ulog-qthreshold twice");
++		if (atoi(optarg) < 1)
++			exit_error(PARAMETER_PROBLEM,
++				   "Negative or zero queue threshold ?");
++		if (atoi(optarg) > ULOG_MAX_QLEN)
++			exit_error(PARAMETER_PROBLEM,
++				   "Maximum queue length exceeded");
++#ifdef KERNEL_64_USERSPACE_32
++		loginfo->qthreshold = (unsigned long long)atoll(optarg);
++#else
++		loginfo->qthreshold = atoi(optarg);
++#endif
++		*flags |= IPT_LOG_OPT_QTHRESHOLD;
++		break;
++	}
++	return 1;
++}
++
++/* Final check; nothing. */
++static void final_check(unsigned int flags)
++{
++}
++
++/* Saves the union ip6t_targinfo in parsable form to stdout. */
++static void save(const struct ip6t_ip6 *ip,
++		 const struct ip6t_entry_target *target)
++{
++	const struct ipt_ulog_info *loginfo
++	    = (const struct ipt_ulog_info *) target->data;
++
++	if (strcmp(loginfo->prefix, "") != 0)
++		printf("--ulog-prefix \"%s\" ", loginfo->prefix);
++
++	if (loginfo->nl_group != ULOG_DEFAULT_NLGROUP) {
++		printf("--ulog-nlgroup ");
++		print_groups(loginfo->nl_group);
++	}
++#ifdef KERNEL_64_USERSPACE_32
++	if (loginfo->copy_range)
++		printf("--ulog-cprange %llu ", loginfo->copy_range);
++
++	if (loginfo->qthreshold != ULOG_DEFAULT_QTHRESHOLD)
++		printf("--ulog-qthreshold %llu ", loginfo->qthreshold);
++#else
++	if (loginfo->copy_range)
++		printf("--ulog-cprange %u ", (unsigned int)loginfo->copy_range);
++
++	if (loginfo->qthreshold != ULOG_DEFAULT_QTHRESHOLD)
++		printf("--ulog-qthreshold %u ", (unsigned int)loginfo->qthreshold);
++#endif
++}
++
++/* Prints out the targinfo. */
++static void
++print(const struct ip6t_ip6 *ip,
++      const struct ip6t_entry_target *target, int numeric)
++{
++	const struct ipt_ulog_info *loginfo
++	    = (const struct ipt_ulog_info *) target->data;
++
++	printf("ULOG ");
++#ifdef KERNEL_64_USERSPACE_32
++	printf("copy_range %llu nlgroup ", loginfo->copy_range);
++#else
++	printf("copy_range %u nlgroup ", (unsigned int)loginfo->copy_range);
++#endif
++	print_groups(loginfo->nl_group);
++	if (strcmp(loginfo->prefix, "") != 0)
++		printf("prefix `%s' ", loginfo->prefix);
++#ifdef KERNEL_64_USERSPACE_32
++	printf("queue_threshold %llu ", loginfo->qthreshold);
++#else
++	printf("queue_threshold %u ", (unsigned int)loginfo->qthreshold);
++#endif
++}
++
++static struct ip6tables_target ulog = {
++	.next		= NULL,
++	.name		= "ULOG",
++	.version	= IPTABLES_VERSION,
++	.size		= IP6T_ALIGN(sizeof(struct ipt_ulog_info)),
++	.userspacesize	= IP6T_ALIGN(sizeof(struct ipt_ulog_info)),
++	.help		= &help,
++	.init		= &init,
++	.parse		= &parse,
++	.final_check	= &final_check,
++	.print		= &print,
++	.save		= &save,
++	.extra_opts	= opts
++};
++
++void _init(void)
++{
++	register_target6(&ulog);
++}
+Index: extensions/libipt_policy.c
+===================================================================
+--- extensions/libipt_policy.c	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_policy.c	(.../trunk)	(revision 5928)
+@@ -0,0 +1,429 @@
++/* Shared library add-on to iptables to add policy support. */
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <syslog.h>
++#include <getopt.h>
++#include <netdb.h>
++#include <errno.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
++#include <iptables.h>
++
++#include <linux/netfilter_ipv4/ip_tables.h>
++#include <linux/netfilter_ipv4/ipt_policy.h>
++
++/*
++ * HACK: global pointer to current matchinfo for making
++ * final checks and adjustments in final_check.
++ */
++static struct ipt_policy_info *policy_info;
++
++static void help(void)
++{
++	printf(
++"policy v%s options:\n"
++"  --dir in|out			match policy applied during decapsulation/\n"
++"				policy to be applied during encapsulation\n"
++"  --pol none|ipsec		match policy\n"
++"  --strict 			match entire policy instead of single element\n"
++"				at any position\n"
++"[!] --reqid reqid		match reqid\n"
++"[!] --spi spi			match SPI\n"
++"[!] --proto proto		match protocol (ah/esp/ipcomp)\n"
++"[!] --mode mode 		match mode (transport/tunnel)\n"
++"[!] --tunnel-src addr/mask	match tunnel source\n"
++"[!] --tunnel-dst addr/mask	match tunnel destination\n"
++"  --next 			begin next element in policy\n",
++	IPTABLES_VERSION);
++}
++
++static struct option opts[] =
++{
++	{
++		.name		= "dir",
++		.has_arg	= 1,
++		.val		= '1',
++	},
++	{
++		.name		= "pol",
++		.has_arg	= 1,
++		.val		= '2',
++	},
++	{
++		.name		= "strict",
++		.val		= '3'
++	},
++	{
++		.name		= "reqid",
++		.has_arg	= 1,
++		.val		= '4',
++	},
++	{
++		.name		= "spi",
++		.has_arg	= 1,
++		.val		= '5'
++	},
++	{
++		.name		= "tunnel-src",
++		.has_arg	= 1,
++		.val		= '6'
++	},
++	{
++		.name		= "tunnel-dst",
++		.has_arg	= 1,
++		.val		= '7'
++	},
++	{
++		.name		= "proto",
++		.has_arg	= 1,
++		.val		= '8'
++	},
++	{
++		.name		= "mode",
++		.has_arg	= 1,
++		.val		= '9'
++	},
++	{
++		.name		= "next",
++		.val		= 'a'
++	},
++	{ }
++};
++
++static void init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++	*nfcache |= NFC_UNKNOWN;
++}
++
++static int parse_direction(char *s)
++{
++	if (strcmp(s, "in") == 0)
++		return POLICY_MATCH_IN;
++	if (strcmp(s, "out") == 0)
++		return POLICY_MATCH_OUT;
++	exit_error(PARAMETER_PROBLEM, "policy_match: invalid dir `%s'", s);
++}
++
++static int parse_policy(char *s)
++{
++	if (strcmp(s, "none") == 0)
++		return POLICY_MATCH_NONE;
++	if (strcmp(s, "ipsec") == 0)
++		return 0;
++	exit_error(PARAMETER_PROBLEM, "policy match: invalid policy `%s'", s);
++}
++
++static int parse_mode(char *s)
++{
++	if (strcmp(s, "transport") == 0)
++		return POLICY_MODE_TRANSPORT;
++	if (strcmp(s, "tunnel") == 0)
++		return POLICY_MODE_TUNNEL;
++	exit_error(PARAMETER_PROBLEM, "policy match: invalid mode `%s'", s);
++}
++
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++                 const struct ipt_entry *entry,
++                 unsigned int *nfcache,
++                 struct ipt_entry_match **match)
++{
++	struct ipt_policy_info *info = (void *)(*match)->data;
++	struct ipt_policy_elem *e = &info->pol[info->len];
++	struct in_addr *addr = NULL, mask;
++	unsigned int naddr = 0;
++	int mode;
++
++	check_inverse(optarg, &invert, &optind, 0);
++
++	switch (c) {
++	case '1':
++		if (info->flags & (POLICY_MATCH_IN|POLICY_MATCH_OUT))
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --dir option");
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: can't invert --dir option");
++
++		info->flags |= parse_direction(argv[optind-1]);
++		break;
++	case '2':
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: can't invert --policy option");
++
++		info->flags |= parse_policy(argv[optind-1]);
++		break;
++	case '3':
++		if (info->flags & POLICY_MATCH_STRICT)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --strict option");
++
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: can't invert --strict option");
++
++		info->flags |= POLICY_MATCH_STRICT;
++		break;
++	case '4':
++		if (e->match.reqid)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --reqid option");
++
++		e->match.reqid = 1;
++		e->invert.reqid = invert;
++		e->reqid = strtol(argv[optind-1], NULL, 10);
++		break;
++	case '5':
++		if (e->match.spi)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --spi option");
++		
++		e->match.spi = 1;
++		e->invert.spi = invert;
++		e->spi = strtol(argv[optind-1], NULL, 0x10);
++		break;
++	case '6':
++		if (e->match.saddr)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --tunnel-src option");
++
++		parse_hostnetworkmask(argv[optind-1], &addr, &mask, &naddr);
++		if (naddr > 1)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: name resolves to multiple IPs");
++
++		e->match.saddr = 1;
++		e->invert.saddr = invert;
++		e->saddr = addr[0].s_addr;
++		e->smask = mask.s_addr;
++                break;
++	case '7':
++		if (e->match.daddr)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --tunnel-dst option");
++
++		parse_hostnetworkmask(argv[optind-1], &addr, &mask, &naddr);
++		if (naddr > 1)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: name resolves to multiple IPs");
++
++		e->match.daddr = 1;
++		e->invert.daddr = invert;
++		e->daddr = addr[0].s_addr;
++		e->dmask = mask.s_addr;
++		break;
++	case '8':
++		if (e->match.proto)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --proto option");
++
++		e->proto = parse_protocol(argv[optind-1]);
++		if (e->proto != IPPROTO_AH && e->proto != IPPROTO_ESP &&
++		    e->proto != IPPROTO_COMP)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: protocol must ah/esp/ipcomp");
++		e->match.proto = 1;
++		e->invert.proto = invert;
++		break;
++	case '9':
++		if (e->match.mode)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: double --mode option");
++		
++		mode = parse_mode(argv[optind-1]);
++		e->match.mode = 1;
++		e->invert.mode = invert;
++		e->mode = mode;
++		break;
++	case 'a':
++		if (invert)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: can't invert --next option");
++
++		if (++info->len == POLICY_MAX_ELEM)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: maximum policy depth reached");
++		break;
++	default:
++		return 0;
++	}
++
++	policy_info = info;
++	return 1;
++}
++
++static void final_check(unsigned int flags)
++{
++	struct ipt_policy_info *info = policy_info;
++	struct ipt_policy_elem *e;
++	int i;
++
++	if (info == NULL)
++		exit_error(PARAMETER_PROBLEM,
++		           "policy match: no parameters given");
++
++	if (!(info->flags & (POLICY_MATCH_IN|POLICY_MATCH_OUT)))
++		exit_error(PARAMETER_PROBLEM,
++		           "policy match: neither --in nor --out specified");
++
++	if (info->flags & POLICY_MATCH_NONE) {
++		if (info->flags & POLICY_MATCH_STRICT)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: policy none but --strict given");
++
++		if (info->len != 0)
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: policy none but policy given");
++	} else
++		info->len++;	/* increase len by 1, no --next after last element */
++
++	if (!(info->flags & POLICY_MATCH_STRICT) && info->len > 1)
++		exit_error(PARAMETER_PROBLEM,
++		           "policy match: multiple elements but no --strict");
++
++	for (i = 0; i < info->len; i++) {
++		e = &info->pol[i];
++		if ((e->match.saddr || e->match.daddr)
++		    && ((e->mode == POLICY_MODE_TUNNEL && e->invert.mode) ||
++		        (e->mode == POLICY_MODE_TRANSPORT && !e->invert.mode)))
++			exit_error(PARAMETER_PROBLEM,
++			           "policy match: --tunnel-src/--tunnel-dst "
++			           "is only valid in tunnel mode");
++	}
++}
++
++static void print_mode(char *prefix, u_int8_t mode, int numeric)
++{
++	printf("%smode ", prefix);
++
++	switch (mode) {
++	case POLICY_MODE_TRANSPORT:
++		printf("transport ");
++		break;
++	case POLICY_MODE_TUNNEL:
++		printf("tunnel ");
++		break;
++	default:
++		printf("??? ");
++		break;
++	}
++}
++
++static void print_proto(char *prefix, u_int8_t proto, int numeric)
++{
++	struct protoent *p = NULL;
++
++	printf("%sproto ", prefix);
++	if (!numeric)
++		p = getprotobynumber(proto);
++	if (p != NULL)
++		printf("%s ", p->p_name);
++	else
++		printf("%u ", proto);
++}
++
++#define PRINT_INVERT(x)		\
++do {				\
++	if (x)			\
++		printf("! ");	\
++} while(0)
++
++static void print_entry(char *prefix, const struct ipt_policy_elem *e,
++                        int numeric)
++{
++	if (e->match.reqid) {
++		PRINT_INVERT(e->invert.reqid);
++		printf("%sreqid %u ", prefix, e->reqid);
++	}
++	if (e->match.spi) {
++		PRINT_INVERT(e->invert.spi);
++		printf("%sspi 0x%x ", prefix, e->spi);
++	}
++	if (e->match.proto) {
++		PRINT_INVERT(e->invert.proto);
++		print_proto(prefix, e->proto, numeric);
++	}
++	if (e->match.mode) {
++		PRINT_INVERT(e->invert.mode);
++		print_mode(prefix, e->mode, numeric);
++	}
++	if (e->match.daddr) {
++		PRINT_INVERT(e->invert.daddr);
++		printf("%stunnel-dst %s%s ", prefix,
++		       addr_to_dotted((struct in_addr *)&e->daddr),
++		       mask_to_dotted((struct in_addr *)&e->dmask));
++	}
++	if (e->match.saddr) {
++		PRINT_INVERT(e->invert.saddr);
++		printf("%stunnel-src %s%s ", prefix,
++		       addr_to_dotted((struct in_addr *)&e->saddr),
++		       mask_to_dotted((struct in_addr *)&e->smask));
++	}
++}
++
++static void print_flags(char *prefix, const struct ipt_policy_info *info)
++{
++	if (info->flags & POLICY_MATCH_IN)
++		printf("%sdir in ", prefix);
++	else
++		printf("%sdir out ", prefix);
++
++	if (info->flags & POLICY_MATCH_NONE)
++		printf("%spol none ", prefix);
++	else
++		printf("%spol ipsec ", prefix);
++
++	if (info->flags & POLICY_MATCH_STRICT)
++		printf("%sstrict ", prefix);
++}
++
++static void print(const struct ipt_ip *ip,
++                  const struct ipt_entry_match *match,
++		  int numeric)
++{
++	const struct ipt_policy_info *info = (void *)match->data;
++	unsigned int i;
++
++	printf("policy match ");
++	print_flags("", info);
++	for (i = 0; i < info->len; i++) {
++		if (info->len > 1)
++			printf("[%u] ", i);
++		print_entry("", &info->pol[i], numeric);
++	}
++}
++
++static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++{
++	const struct ipt_policy_info *info = (void *)match->data;
++	unsigned int i;
++
++	print_flags("--", info);
++	for (i = 0; i < info->len; i++) {
++		print_entry("--", &info->pol[i], 0);
++		if (i + 1 < info->len)
++			printf("--next ");
++	}
++}
++
++struct iptables_match policy = {
++	.name		= "policy",
++	.version	= IPTABLES_VERSION,
++	.size		= IPT_ALIGN(sizeof(struct ipt_policy_info)),
++	.userspacesize	= IPT_ALIGN(sizeof(struct ipt_policy_info)),
++	.help		= help,
++	.init		= init,
++	.parse		= parse,
++	.final_check	= final_check,
++	.print		= print,
++	.save		= save,
++	.extra_opts	= opts
++};
++
++void _init(void)
++{
++	register_match(&policy);
++}
+Index: extensions/libipt_IPMARK.man
+===================================================================
+--- extensions/libipt_IPMARK.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_IPMARK.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,45 @@
++Allows you to mark a received packet basing on its IP address. This
++can replace many mangle/mark entries with only one, if you use
++firewall based classifier.
++
++This target is to be used inside the mangle table, in the PREROUTING,
++POSTROUTING or FORWARD hooks.
++.TP
++.BI "--addr " "src/dst"
++Use source or destination IP address.
++.TP
++.BI "--and-mask " "mask"
++Perform bitwise `and' on the IP address and this mask.
++.TP
++.BI "--or-mask " "mask"
++Perform bitwise `or' on the IP address and this mask.
++.P
++The order of IP address bytes is reversed to meet "human order of bytes":
++192.168.0.1 is 0xc0a80001. At first the `and' operation is performed, then
++`or'.
++
++Examples:
++
++We create a queue for each user, the queue number is adequate
++to the IP address of the user, e.g.: all packets going to/from 192.168.5.2
++are directed to 1:0502 queue, 192.168.5.12 -> 1:050c etc.
++
++We have one classifier rule:
++.IP
++tc filter add dev eth3 parent 1:0 protocol ip fw
++.P
++Earlier we had many rules just like below:
++.IP
++iptables -t mangle -A POSTROUTING -o eth3 -d 192.168.5.2 -j MARK
++--set-mark 0x10502
++.IP
++iptables -t mangle -A POSTROUTING -o eth3 -d 192.168.5.3 -j MARK
++--set-mark 0x10503
++.P
++Using IPMARK target we can replace all the mangle/mark rules with only one:
++.IP
++iptables -t mangle -A POSTROUTING -o eth3 -j IPMARK --addr=dst
++--and-mask=0xffff --or-mask=0x10000
++.P
++On the routers with hundreds of users there should be significant load
++decrease (e.g. twice).
+Index: extensions/libipt_tcp.c
+===================================================================
+--- extensions/libipt_tcp.c	(.../branches/iptables-1.3.1)	(revision 5928)
++++ extensions/libipt_tcp.c	(.../trunk)	(revision 5928)
+@@ -205,7 +205,7 @@
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Only one of `--syn' or `--tcp-flags' "
+ 				   " allowed");
+-		parse_tcp_flags(tcpinfo, "SYN,RST,ACK", "SYN", invert);
++		parse_tcp_flags(tcpinfo, "SYN,RST,ACK,FIN", "SYN", invert);
+ 		*flags |= TCP_FLAGS;
+ 		break;
+ 
+Index: extensions/libipt_ipv4options.man
+===================================================================
+--- extensions/libipt_ipv4options.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_ipv4options.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,32 @@
++Match on IPv4 header options like source routing, record route,
++timestamp and router-alert.
++.TP
++.B "--ssrr"
++To match packets with the flag strict source routing.
++.TP
++.B "--lsrr"
++To match packets with the flag loose source routing.
++.TP
++.B "--no-srr"
++To match packets with no flag for source routing.
++.TP
++.B "\fR[\fB!\fR]\fB --rr"
++To match packets with the RR flag.
++.TP
++.B "\fR[\fB!\fR]\fB --ts"
++To match packets with the TS flag.
++.TP
++.B "\fR[\fB!\fR]\fB --ra"
++To match packets with the router-alert option.
++.TP
++.B "\fR[\fB!\fR]\fB --any-opt"
++To match a packet with at least one IP option, or no IP option
++at all if ! is chosen.
++.TP
++Examples:
++.TP
++$ iptables -A input -m ipv4options --rr -j DROP
++will drop packets with the record-route flag.
++.TP
++$ iptables -A input -m ipv4options --ts -j DROP
++will drop packets with the timestamp flag.
+Index: extensions/libipt_comment.man
+===================================================================
+--- extensions/libipt_comment.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_comment.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,6 @@
++Allows you to add comments (up to 256 characters) to any rule.
++.TP
++.BI "--comment " "comment"
++.TP
++Example:
++iptables -A INPUT -s 192.168.0.0/16 -m comment --comment "A privatized IP block"
+Index: extensions/libipt_connbytes.man
+===================================================================
+--- extensions/libipt_connbytes.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_connbytes.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,30 @@
++Match by how many bytes or packets a connection (or one of the two
++flows constituting the connection) have tranferred so far, or by
++average bytes per packet.
++
++The counters are 64bit and are thus not expected to overflow ;)
++
++The primary use is to detect long-lived downloads and mark them to be
++scheduled using a lower priority band in traffic control.
++
++The transfered bytes per connection can also be viewed through
++/proc/net/ip_conntrack and accessed via ctnetlink
++.TP
++[\fB!\fR]\fB --connbytes \fIfrom\fB:\fR[\fIto\fR]
++match packets from a connection whose packets/bytes/average packet
++size is more than FROM and less than TO bytes/packets. if TO is
++omitted only FROM check is done. "!" is used to match packets not
++falling in the range.
++.TP
++\fB--connbytes-dir\fR [\fBoriginal\fR|\fBreply\fR|\fBboth\fR]
++which packets to consider
++.TP
++\fB--connbytes-mode\fR [\fBpackets\fR|\fBbytes\fR|\fBavgpkt\fR]
++whether to check the amount of packets, number of bytes transferred or
++the average size (in bytes) of all packets received so far. Note that
++when "both" is used together with "avgpkt", and data is going (mainly)
++only in one direction (for example HTTP), the average packet size will
++be about half of the actual data packets.
++.TP
++Example:
++iptables .. -m connbytes --connbytes 10000:100000 --connbytes-dir both --connbytes-mode bytes ...
+Index: extensions/libipt_layer7.c.orig
+===================================================================
+--- extensions/libipt_layer7.c.orig	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_layer7.c.orig	(.../trunk)	(revision 5928)
+@@ -0,0 +1,357 @@
++/* 
++   Shared library add-on to iptables to add layer 7 matching support. 
++  
++   By Matthew Strait <quadong@users.sf.net>, Oct 2003.
++
++   http://l7-filter.sf.net 
++
++   This program is free software; you can redistribute it and/or
++   modify it under the terms of the GNU General Public License
++   as published by the Free Software Foundation; either version
++   2 of the License, or (at your option) any later version.
++   http://www.gnu.org/licenses/gpl.txt
++
++   Based on libipt_string.c (C) 2000 Emmanuel Roger <winfield@freegates.be>
++*/
++
++#define _GNU_SOURCE
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <ctype.h>
++#include <dirent.h>
++
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ipt_layer7.h>
++
++#define MAX_FN_LEN 256
++
++static char l7dir[MAX_FN_LEN] = "\0";
++
++/* Function which prints out usage message. */
++static void help(void)
++{
++	printf(
++	"LAYER7 match v%s options:\n"
++	"--l7dir <directory>  : Look for patterns here instead of /etc/l7-protocols/\n"
++	"                       (--l7dir must be specified before --l7proto if used!)\n"
++	"--l7proto [!] <name> : Match the protocol defined in /etc/l7-protocols/name.pat\n",
++	IPTABLES_VERSION);
++	fputc('\n', stdout);
++}
++
++static struct option opts[] = {
++	{ .name = "l7proto", .has_arg = 1, .flag = 0, .val = '1' },
++	{ .name = "l7dir",   .has_arg = 1, .flag = 0, .val = '2' },
++	{ .name = 0 }
++};
++
++/* Initialize the match. */
++static void init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++	*nfcache |= NFC_UNKNOWN;
++}
++
++/* reads filename, puts protocol info into layer7_protocol_info, number of protocols to numprotos */
++int parse_protocol_file(char * filename, const unsigned char * protoname, struct ipt_layer7_info *info)
++{
++	FILE * f;
++	char * line = NULL;
++	int len = 0;
++
++	enum { protocol, pattern, done } datatype = protocol;
++
++	f = fopen(filename, "r");
++
++	if(!f)
++		return 0;
++
++	while(getline(&line, &len, f) != -1)
++	{
++		if(strlen(line) < 2 || line[0] == '#')
++			continue;
++
++		/* strip the pesky newline... */
++		if(line[strlen(line) - 1] == '\n')
++			line[strlen(line) - 1] = '\0';
++
++		if(datatype == protocol)
++		{
++			if(strcmp(line, protoname))
++				exit_error(OTHER_PROBLEM, 
++					"Protocol name (%s) doesn't match file name (%s).  Bailing out\n",
++					protoname, filename);
++
++			if(strlen(line) >= MAX_PROTOCOL_LEN)
++				 exit_error(PARAMETER_PROBLEM, 
++					"Protocol name in %s too long!", filename);
++			strncpy(info->protocol, line, MAX_PROTOCOL_LEN);
++
++			datatype = pattern; 
++		}
++		else if(datatype == pattern)
++		{
++			if(strlen(line) >= MAX_PATTERN_LEN)
++				 exit_error(PARAMETER_PROBLEM, "Pattern in %s too long!", filename);
++			strncpy(info->pattern, line, MAX_PATTERN_LEN);
++			
++			datatype = done;			
++			break;
++		}
++		else
++			exit_error(OTHER_PROBLEM, "Internal error");
++	}
++
++	if(datatype != done)
++		exit_error(OTHER_PROBLEM, "Failed to get all needed data from %s", filename);
++
++	if(line) free(line);
++	fclose(f);
++
++	return 1;
++
++/*
++	fprintf(stderr, "protocol: %s\npattern: %s\n\n", 
++			info->protocol,
++			info->pattern);
++*/
++}
++
++static int hex2dec(char c)
++{
++        switch (c)
++        {
++                case '0' ... '9':
++                        return c - '0';
++                case 'a' ... 'f':
++                        return c - 'a' + 10;
++                case 'A' ... 'F':
++                        return c - 'A' + 10;
++                default:
++                        exit_error(OTHER_PROBLEM, "hex2dec: bad value!\n");
++                        return 0;
++        }
++}
++
++/* takes a string with \xHH escapes and returns one with the characters 
++they stand for */
++static char * pre_process(char * s)
++{
++	char * result = malloc(strlen(s) + 1);
++	int sindex = 0, rindex = 0;
++        while( sindex < strlen(s) )
++        {
++            if( sindex + 3 < strlen(s) &&
++                s[sindex] == '\\' && s[sindex+1] == 'x' && 
++                isxdigit(s[sindex + 2]) && isxdigit(s[sindex + 3]) ) 
++                {
++                        /* carefully remember to call tolower here... */
++                        result[rindex] = tolower( hex2dec(s[sindex + 2])*16 +
++                                                  hex2dec(s[sindex + 3] ) );
++                        sindex += 3; /* 4 total */
++                }
++                else
++                        result[rindex] = tolower(s[sindex]);
++
++		sindex++; 
++		rindex++;
++        }
++	result[rindex] = '\0';
++
++	return result;
++}
++
++#define MAX_SUBDIRS 128
++char ** readl7dir(char * dirname)
++{
++        DIR             * scratchdir;
++        struct dirent   ** namelist;
++	char ** subdirs = malloc(MAX_SUBDIRS * sizeof(char *));
++
++        int n, d = 1;
++	subdirs[0] = "";
++
++        n = scandir(dirname, &namelist, 0, alphasort);
++
++	if (n < 0)
++	{
++            perror("scandir");
++	    exit_error(OTHER_PROBLEM, "Couldn't open %s\n", dirname);
++	}
++        else 
++	{
++            	while(n--) 
++		{
++			char fulldirname[MAX_FN_LEN];
++
++			snprintf(fulldirname, MAX_FN_LEN, "%s/%s", dirname, namelist[n]->d_name);
++
++                	if((scratchdir = opendir(fulldirname)) != NULL)
++			{
++				closedir(scratchdir);
++
++				if(!strcmp(namelist[n]->d_name, ".") || 
++				   !strcmp(namelist[n]->d_name, ".."))
++					/* do nothing */ ;
++				else
++				{
++					subdirs[d] = malloc(strlen(namelist[n]->d_name) + 1);
++					strcpy(subdirs[d], namelist[n]->d_name);
++					d++;
++					if(d >= MAX_SUBDIRS - 1)
++					{
++						fprintf(stderr, 
++						  "Too many subdirectories, skipping the rest!\n");
++						break;
++					}
++				}
++			}
++                	free(namelist[n]);
++            	}
++            	free(namelist);
++        }
++	
++	subdirs[d] = NULL;
++
++	return subdirs;
++}
++
++static void
++parse_layer7_protocol(const unsigned char *s, struct ipt_layer7_info *info)
++{
++	char filename[MAX_FN_LEN];
++	char * dir = NULL;
++	char ** subdirs;
++	int n = 0, done = 0;
++
++	if(strlen(l7dir) > 0)
++		dir = l7dir;
++	else
++		dir = "/etc/l7-protocols";
++
++	subdirs = readl7dir(dir);
++
++	while(subdirs[n] != NULL)
++	{
++		int c = snprintf(filename, MAX_FN_LEN, "%s/%s/%s.pat", dir, subdirs[n], s);
++
++		//fprintf(stderr, "Trying to find pattern in %s ... ", filename);
++
++		if(c > MAX_FN_LEN)
++		{
++			exit_error(OTHER_PROBLEM, 
++				"Filename beginning with %s is too long!\n", filename);
++		}
++
++		/* read in the pattern from the file */
++		if(parse_protocol_file(filename, s, info))
++		{
++			//fprintf(stderr, "found\n");
++			done = 1;
++			break;
++		}
++		
++		//fprintf(stderr, "not found\n");
++
++		n++;
++	}
++
++	if(!done)
++		exit_error(OTHER_PROBLEM, 
++			"Couldn't find a pattern definition file for %s.\n", s);
++
++	/* process \xHH escapes and tolower everything. (our regex lib has no
++	case insensitivity option.) */
++	strncpy(info->pattern, pre_process(info->pattern), MAX_PATTERN_LEN);
++}
++
++/* Function which parses command options; returns true if it ate an option */
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry, unsigned int *nfcache,
++      struct ipt_entry_match **match)
++{
++	struct ipt_layer7_info *layer7info = 
++		(struct ipt_layer7_info *)(*match)->data;
++
++	switch (c) {
++	case '1':
++		check_inverse(optarg, &invert, &optind, 0);
++		parse_layer7_protocol(argv[optind-1], layer7info);
++		if (invert)
++			layer7info->invert = 1;
++		*flags = 1;
++		break;
++
++	case '2':
++		/* not going to use this, but maybe we need to strip a ! anyway (?) */
++		check_inverse(optarg, &invert, &optind, 0);
++
++		if(strlen(argv[optind-1]) >= MAX_FN_LEN)
++			exit_error(PARAMETER_PROBLEM, "directory name too long\n");
++
++		strncpy(l7dir, argv[optind-1], MAX_FN_LEN);
++
++		*flags = 1;
++		break;
++
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++/* Final check; must have specified --pattern. */
++static void final_check(unsigned int flags)
++{
++	if (!flags)
++		exit_error(PARAMETER_PROBLEM,
++			   "LAYER7 match: You must specify `--pattern'");
++}
++
++static void print_protocol(char s[], int invert, int numeric)
++{
++	fputs("l7proto ", stdout);
++	if (invert) fputc('!', stdout);
++	printf("%s ", s);
++}
++
++/* Prints out the matchinfo. */
++static void print(const struct ipt_ip *ip,
++      const struct ipt_entry_match *match,
++      int numeric)
++{
++	printf("LAYER7 ");
++
++	print_protocol(((struct ipt_layer7_info *)match->data)->protocol,
++		  ((struct ipt_layer7_info *)match->data)->invert, numeric);
++}
++/* Saves the union ipt_matchinfo in parsable form to stdout. */
++static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++{
++        const struct ipt_layer7_info *info =
++            (const struct ipt_layer7_info*) match->data;
++
++        printf("--l7proto %s%s ", (info->invert)   ? "! ": "", info->protocol);
++}
++
++static struct iptables_match layer7 = { 
++    .name          = "layer7",
++    .version       = IPTABLES_VERSION,
++    .size          = IPT_ALIGN(sizeof(struct ipt_layer7_info)),
++    .userspacesize = IPT_ALIGN(sizeof(struct ipt_layer7_info)),
++    .help          = &help,
++    .init          = &init,
++    .parse         = &parse,
++    .final_check   = &final_check,
++    .print         = &print,
++    .save          = &save,
++    .extra_opts    = opts
++};
++
++void _init(void)
++{
++	register_match(&layer7);
++}
+Index: extensions/libipt_recent.man
+===================================================================
+--- extensions/libipt_recent.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_recent.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,93 @@
++Allows you to dynamically create a list of IP addresses and then match
++against that list in a few different ways.
++
++For example, you can create a `badguy' list out of people attempting
++to connect to port 139 on your firewall and then DROP all future
++packets from them without considering them.
++.TP
++.BI "--name " "name"
++Specify the list to use for the commands. If no name is given then 'DEFAULT'
++will be used.
++.TP
++[\fB!\fR] \fB--set\fR
++This will add the source address of the packet to the list. If the
++source address is already in the list, this will update the existing
++entry. This will always return success (or failure if `!' is passed
++in).
++.TP
++[\fB!\fR] \fB--rcheck\fR
++Check if the source address of the packet is currently in
++the list.
++.TP
++[\fB!\fR] \fB--update\fR
++Like \fB--rcheck\fR, except it will update the "last seen" timestamp if it
++matches.
++.TP
++[\fB!\fR] \fB--remove\fR
++Check if the source address of the packet is currently in the list and
++if so that address will be removed from the list and the rule will
++return true. If the address is not found, false is returned.
++.TP
++[\fB!\fR] \fB--seconds \fIseconds\fR
++This option must be used in conjunction with one of \fB--rcheck\fR or
++\fB--update\fR. When used, this will narrow the match to only happen
++when the address is in the list and was seen within the last given
++number of seconds.
++.TP
++[\fB!\fR] \fB--hitcount \fIhits\fR
++This option must be used in conjunction with one of \fB--rcheck\fR or
++\fB--update\fR. When used, this will narrow the match to only happen
++when the address is in the list and packets had been received greater
++than or equal to the given value. This option may be used along with
++\fB--seconds\fR to create an even narrower match requiring a certain
++number of hits within a specific time frame.
++.TP
++\fB--rttl\fR
++This option must be used in conjunction with one of \fB--rcheck\fR or
++\fB--update\fR. When used, this will narrow the match to only happen
++when the address is in the list and the TTL of the current packet
++matches that of the packet which hit the \fB--set\fR rule. This may be
++useful if you have problems with people faking their source address in
++order to DoS you via this module by disallowing others access to your
++site by sending bogus packets to you.
++.P
++Examples:
++.IP
++# iptables -A FORWARD -m recent --name badguy --rcheck --seconds 60 -j DROP
++
++# iptables -A FORWARD -p tcp -i eth0 --dport 139 -m recent --name badguy --set -j DROP
++.P
++Official website (http://snowman.net/projects/ipt_recent/) also has
++some examples of usage.
++
++/proc/net/ipt_recent/* are the current lists of addresses and information 
++about each entry of each list.
++
++Each file in /proc/net/ipt_recent/ can be read from to see the current list
++or written two using the following commands to modify the list:
++.TP
++echo xx.xx.xx.xx > /proc/net/ipt_recent/DEFAULT
++to Add to the DEFAULT list
++.TP
++echo -xx.xx.xx.xx > /proc/net/ipt_recent/DEFAULT
++to Remove from the DEFAULT list
++.TP
++echo clear > /proc/net/ipt_recent/DEFAULT
++to empty the DEFAULT list.
++.P
++The module itself accepts parameters, defaults shown:
++.TP
++.BI "ip_list_tot=" "100"
++Number of addresses remembered per table
++.TP
++.BI "ip_pkt_list_tot=" "20"
++Number of packets per address remembered
++.TP
++.BI "ip_list_hash_size=" "0"
++Hash table size. 0 means to calculate it based on ip_list_tot, default: 512
++.TP
++.BI "ip_list_perms=" "0644"
++Permissions for /proc/net/ipt_recent/* files
++.TP
++.BI "debug=" "0"
++Set to 1 to get lots of debugging info
+Index: extensions/libipt_tcp.man
+===================================================================
+--- extensions/libipt_tcp.man	(.../branches/iptables-1.3.1)	(revision 5928)
++++ extensions/libipt_tcp.man	(.../trunk)	(revision 5928)
+@@ -32,12 +32,12 @@
+ RST flags unset.
+ .TP
+ .B "[!] --syn"
+-Only match TCP packets with the SYN bit set and the ACK and RST bits
++Only match TCP packets with the SYN bit set and the ACK,RST and FIN bits
+ cleared.  Such packets are used to request TCP connection initiation;
+ for example, blocking such packets coming in an interface will prevent
+ incoming TCP connections, but outgoing TCP connections will be
+ unaffected.
+-It is equivalent to \fB--tcp-flags SYN,RST,ACK SYN\fP.
++It is equivalent to \fB--tcp-flags SYN,RST,ACK,FIN SYN\fP.
+ If the "!" flag precedes the "--syn", the sense of the
+ option is inverted.
+ .TP
+Index: extensions/libipt_connbytes.c
+===================================================================
+--- extensions/libipt_connbytes.c	(.../branches/iptables-1.3.1)	(revision 5928)
++++ extensions/libipt_connbytes.c	(.../trunk)	(revision 5928)
+@@ -93,6 +93,7 @@
+ 			exit_error(PARAMETER_PROBLEM,
+ 				   "Unknown --connbytes-mode `%s'", optarg);
+ 		*flags |= 4;
++		break;
+ 	default:
+ 		return 0;
+ 	}
+Index: extensions/libipt_policy.man
+===================================================================
+--- extensions/libipt_policy.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_policy.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,46 @@
++This modules matches the policy used by IPsec for handling a packet.
++.TP
++.BI "--dir " "in|out"
++Used to select whether to match the policy used for decapsulation or the
++policy that will be used for encapsulation.
++.B in
++is valid in the
++.B PREROUTING, INPUT and FORWARD
++chains,
++.B out
++is valid in the
++.B POSTROUTING, OUTPUT and FORWARD
++chains.
++.TP
++.BI "--pol " "none|ipsec"
++Matches if the packet is subject to IPsec processing.
++.TP
++.BI "--strict"
++Selects whether to match the exact policy or match if any rule of
++the policy matches the given policy.
++.TP
++.BI "--reqid " "id"
++Matches the reqid of the policy rule. The reqid can be specified with
++.B setkey(8)
++using
++.B unique:id
++as level.
++.TP
++.BI "--spi " "spi"
++Matches the SPI of the SA.
++.TP
++.BI "--proto " "ah|esp|ipcomp"
++Matches the encapsulation protocol.
++.TP
++.BI "--mode " "tunnel|transport"
++Matches the encapsulation mode.
++.TP
++.BI "--tunnel-src " "addr[/mask]"
++Matches the source address of a tunnel. Only valid with --mode tunnel.
++.TP
++.BI "--tunnel-dst " "addr[/mask]"
++Matches the destination address of a tunnel. Only valid with --mode tunnel.
++.TP
++.BI "--next"
++Start the next element in the policy specification. Can only be used with
++--strict
+Index: extensions/libipt_layer7.man
+===================================================================
+--- extensions/libipt_layer7.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_layer7.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,13 @@
++This module matches packets based on the application layer data of 
++their connections.  It uses regular expression matching to compare 
++the application layer data to regular expressions found it the layer7 
++configuration files.  This is an experimental module which can be found at 
++http://l7-filter.sf.net.  It takes two options.
++.TP
++.BI "--l7proto " "\fIprotocol\fP"
++Match the specified protocol.  The protocol name must match a file 
++name in /etc/l7-protocols/
++.TP
++.BI "--l7dir " "\fIdirectory\fP"
++Use \fIdirectory\fP instead of /etc/l7-protocols/
++
+Index: extensions/libipt_quota.man
+===================================================================
+--- extensions/libipt_quota.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_quota.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,7 @@
++Implements network quotas by decrementing a byte counter with each
++packet.
++.TP
++.BI "--quota " "bytes"
++The quota in bytes.
++.P
++KNOWN BUGS: this does not work on SMP systems.
+Index: extensions/.policy-test6
+===================================================================
+--- extensions/.policy-test6	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/.policy-test6	(.../trunk)	(revision 5928)
+@@ -0,0 +1,3 @@
++#!/bin/sh
++#
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_policy.h ] && echo policy
+
+Property changes on: extensions/.policy-test6
+___________________________________________________________________
+Name: svn:executable
+   + *
+
+Index: extensions/libipt_ACCOUNT.man
+===================================================================
+--- extensions/libipt_ACCOUNT.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_ACCOUNT.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,16 @@
++A high performance accounting system for local networks.
++.TP
++.BI "--addr " "network/mask"
++the subnet which is accounted for
++.TP
++.BI "--tname " "name"
++is the table name where the information is stored
++.P
++The data can be queried later using the libipt_ACCOUNT userspace library
++or by the "iptaccount" tool which is part of the libipt_ACCOUNT package.
++
++A special subnet is "0.0.0.0/0": All data is stored in the src_bytes
++and src_packets structure of slot "0". This is useful if you want
++to account the overall traffic to/from your internet provider.
++
++For more information go to http://www.intra2net.com/opensource/ipt_account
+Index: extensions/libipt_layer7.c
+===================================================================
+--- extensions/libipt_layer7.c	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_layer7.c	(.../trunk)	(revision 5928)
+@@ -0,0 +1,357 @@
++/* 
++   Shared library add-on to iptables to add layer 7 matching support. 
++  
++   By Matthew Strait <quadong@users.sf.net>, Oct 2003.
++
++   http://l7-filter.sf.net 
++
++   This program is free software; you can redistribute it and/or
++   modify it under the terms of the GNU General Public License
++   as published by the Free Software Foundation; either version
++   2 of the License, or (at your option) any later version.
++   http://www.gnu.org/licenses/gpl.txt
++
++   Based on libipt_string.c (C) 2000 Emmanuel Roger <winfield@freegates.be>
++*/
++
++#define _GNU_SOURCE
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <ctype.h>
++#include <dirent.h>
++
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ipt_layer7.h>
++
++#define MAX_FN_LEN 256
++
++static char l7dir[MAX_FN_LEN] = "\0";
++
++/* Function which prints out usage message. */
++static void help(void)
++{
++	printf(
++	"LAYER7 match v%s options:\n"
++	"--l7dir <directory>  : Look for patterns here instead of /etc/l7-protocols/\n"
++	"                       (--l7dir must be specified before --l7proto if used!)\n"
++	"--l7proto [!] <name> : Match the protocol defined in /etc/l7-protocols/name.pat\n",
++	IPTABLES_VERSION);
++	fputc('\n', stdout);
++}
++
++static struct option opts[] = {
++	{ .name = "l7proto", .has_arg = 1, .flag = 0, .val = '1' },
++	{ .name = "l7dir",   .has_arg = 1, .flag = 0, .val = '2' },
++	{ .name = 0 }
++};
++
++/* Initialize the match. */
++static void init(struct ipt_entry_match *m, unsigned int *nfcache)
++{
++	*nfcache |= NFC_UNKNOWN;
++}
++
++/* reads filename, puts protocol info into layer7_protocol_info, number of protocols to numprotos */
++int parse_protocol_file(char * filename, const unsigned char * protoname, struct ipt_layer7_info *info)
++{
++	FILE * f;
++	char * line = NULL;
++	size_t len = 0;
++
++	enum { protocol, pattern, done } datatype = protocol;
++
++	f = fopen(filename, "r");
++
++	if(!f)
++		return 0;
++
++	while(getline(&line, &len, f) != -1)
++	{
++		if(strlen(line) < 2 || line[0] == '#')
++			continue;
++
++		/* strip the pesky newline... */
++		if(line[strlen(line) - 1] == '\n')
++			line[strlen(line) - 1] = '\0';
++
++		if(datatype == protocol)
++		{
++			if(strcmp(line, protoname))
++				exit_error(OTHER_PROBLEM, 
++					"Protocol name (%s) doesn't match file name (%s).  Bailing out\n",
++					protoname, filename);
++
++			if(strlen(line) >= MAX_PROTOCOL_LEN)
++				 exit_error(PARAMETER_PROBLEM, 
++					"Protocol name in %s too long!", filename);
++			strncpy(info->protocol, line, MAX_PROTOCOL_LEN);
++
++			datatype = pattern; 
++		}
++		else if(datatype == pattern)
++		{
++			if(strlen(line) >= MAX_PATTERN_LEN)
++				 exit_error(PARAMETER_PROBLEM, "Pattern in %s too long!", filename);
++			strncpy(info->pattern, line, MAX_PATTERN_LEN);
++			
++			datatype = done;			
++			break;
++		}
++		else
++			exit_error(OTHER_PROBLEM, "Internal error");
++	}
++
++	if(datatype != done)
++		exit_error(OTHER_PROBLEM, "Failed to get all needed data from %s", filename);
++
++	if(line) free(line);
++	fclose(f);
++
++	return 1;
++
++/*
++	fprintf(stderr, "protocol: %s\npattern: %s\n\n", 
++			info->protocol,
++			info->pattern);
++*/
++}
++
++static int hex2dec(char c)
++{
++        switch (c)
++        {
++                case '0' ... '9':
++                        return c - '0';
++                case 'a' ... 'f':
++                        return c - 'a' + 10;
++                case 'A' ... 'F':
++                        return c - 'A' + 10;
++                default:
++                        exit_error(OTHER_PROBLEM, "hex2dec: bad value!\n");
++                        return 0;
++        }
++}
++
++/* takes a string with \xHH escapes and returns one with the characters 
++they stand for */
++static char * pre_process(char * s)
++{
++	char * result = malloc(strlen(s) + 1);
++	int sindex = 0, rindex = 0;
++        while( sindex < strlen(s) )
++        {
++            if( sindex + 3 < strlen(s) &&
++                s[sindex] == '\\' && s[sindex+1] == 'x' && 
++                isxdigit(s[sindex + 2]) && isxdigit(s[sindex + 3]) ) 
++                {
++                        /* carefully remember to call tolower here... */
++                        result[rindex] = tolower( hex2dec(s[sindex + 2])*16 +
++                                                  hex2dec(s[sindex + 3] ) );
++                        sindex += 3; /* 4 total */
++                }
++                else
++                        result[rindex] = tolower(s[sindex]);
++
++		sindex++; 
++		rindex++;
++        }
++	result[rindex] = '\0';
++
++	return result;
++}
++
++#define MAX_SUBDIRS 128
++char ** readl7dir(char * dirname)
++{
++        DIR             * scratchdir;
++        struct dirent   ** namelist;
++	char ** subdirs = malloc(MAX_SUBDIRS * sizeof(char *));
++
++        int n, d = 1;
++	subdirs[0] = "";
++
++        n = scandir(dirname, &namelist, 0, alphasort);
++
++	if (n < 0)
++	{
++            perror("scandir");
++	    exit_error(OTHER_PROBLEM, "Couldn't open %s\n", dirname);
++	}
++        else 
++	{
++            	while(n--) 
++		{
++			char fulldirname[MAX_FN_LEN];
++
++			snprintf(fulldirname, MAX_FN_LEN, "%s/%s", dirname, namelist[n]->d_name);
++
++                	if((scratchdir = opendir(fulldirname)) != NULL)
++			{
++				closedir(scratchdir);
++
++				if(!strcmp(namelist[n]->d_name, ".") || 
++				   !strcmp(namelist[n]->d_name, ".."))
++					/* do nothing */ ;
++				else
++				{
++					subdirs[d] = malloc(strlen(namelist[n]->d_name) + 1);
++					strcpy(subdirs[d], namelist[n]->d_name);
++					d++;
++					if(d >= MAX_SUBDIRS - 1)
++					{
++						fprintf(stderr, 
++						  "Too many subdirectories, skipping the rest!\n");
++						break;
++					}
++				}
++			}
++                	free(namelist[n]);
++            	}
++            	free(namelist);
++        }
++	
++	subdirs[d] = NULL;
++
++	return subdirs;
++}
++
++static void
++parse_layer7_protocol(const unsigned char *s, struct ipt_layer7_info *info)
++{
++	char filename[MAX_FN_LEN];
++	char * dir = NULL;
++	char ** subdirs;
++	int n = 0, done = 0;
++
++	if(strlen(l7dir) > 0)
++		dir = l7dir;
++	else
++		dir = "/etc/l7-protocols";
++
++	subdirs = readl7dir(dir);
++
++	while(subdirs[n] != NULL)
++	{
++		int c = snprintf(filename, MAX_FN_LEN, "%s/%s/%s.pat", dir, subdirs[n], s);
++
++		//fprintf(stderr, "Trying to find pattern in %s ... ", filename);
++
++		if(c > MAX_FN_LEN)
++		{
++			exit_error(OTHER_PROBLEM, 
++				"Filename beginning with %s is too long!\n", filename);
++		}
++
++		/* read in the pattern from the file */
++		if(parse_protocol_file(filename, s, info))
++		{
++			//fprintf(stderr, "found\n");
++			done = 1;
++			break;
++		}
++		
++		//fprintf(stderr, "not found\n");
++
++		n++;
++	}
++
++	if(!done)
++		exit_error(OTHER_PROBLEM, 
++			"Couldn't find a pattern definition file for %s.\n", s);
++
++	/* process \xHH escapes and tolower everything. (our regex lib has no
++	case insensitivity option.) */
++	strncpy(info->pattern, pre_process(info->pattern), MAX_PATTERN_LEN);
++}
++
++/* Function which parses command options; returns true if it ate an option */
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++      const struct ipt_entry *entry, unsigned int *nfcache,
++      struct ipt_entry_match **match)
++{
++	struct ipt_layer7_info *layer7info = 
++		(struct ipt_layer7_info *)(*match)->data;
++
++	switch (c) {
++	case '1':
++		check_inverse(optarg, &invert, &optind, 0);
++		parse_layer7_protocol(argv[optind-1], layer7info);
++		if (invert)
++			layer7info->invert = 1;
++		*flags = 1;
++		break;
++
++	case '2':
++		/* not going to use this, but maybe we need to strip a ! anyway (?) */
++		check_inverse(optarg, &invert, &optind, 0);
++
++		if(strlen(argv[optind-1]) >= MAX_FN_LEN)
++			exit_error(PARAMETER_PROBLEM, "directory name too long\n");
++
++		strncpy(l7dir, argv[optind-1], MAX_FN_LEN);
++
++		*flags = 1;
++		break;
++
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++/* Final check; must have specified --pattern. */
++static void final_check(unsigned int flags)
++{
++	if (!flags)
++		exit_error(PARAMETER_PROBLEM,
++			   "LAYER7 match: You must specify `--pattern'");
++}
++
++static void print_protocol(char s[], int invert, int numeric)
++{
++	fputs("l7proto ", stdout);
++	if (invert) fputc('!', stdout);
++	printf("%s ", s);
++}
++
++/* Prints out the matchinfo. */
++static void print(const struct ipt_ip *ip,
++      const struct ipt_entry_match *match,
++      int numeric)
++{
++	printf("LAYER7 ");
++
++	print_protocol(((struct ipt_layer7_info *)match->data)->protocol,
++		  ((struct ipt_layer7_info *)match->data)->invert, numeric);
++}
++/* Saves the union ipt_matchinfo in parsable form to stdout. */
++static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++{
++        const struct ipt_layer7_info *info =
++            (const struct ipt_layer7_info*) match->data;
++
++        printf("--l7proto %s%s ", (info->invert)   ? "! ": "", info->protocol);
++}
++
++static struct iptables_match layer7 = { 
++    .name          = "layer7",
++    .version       = IPTABLES_VERSION,
++    .size          = IPT_ALIGN(sizeof(struct ipt_layer7_info)),
++    .userspacesize = IPT_ALIGN(sizeof(struct ipt_layer7_info)),
++    .help          = &help,
++    .init          = &init,
++    .parse         = &parse,
++    .final_check   = &final_check,
++    .print         = &print,
++    .save          = &save,
++    .extra_opts    = opts
++};
++
++void _init(void)
++{
++	register_match(&layer7);
++}
+Index: extensions/libipt_ipp2p.man
+===================================================================
+--- extensions/libipt_ipp2p.man	(.../branches/iptables-1.3.1)	(revision 0)
++++ extensions/libipt_ipp2p.man	(.../trunk)	(revision 5928)
+@@ -0,0 +1,43 @@
++This module matches certain packets in P2P flows. It is not
++designed to match all packets belonging to a P2P connection - 
++use IPP2P together with CONNMARK for this purpose. Also visit
++http://www.ipp2p.org for detailed information.
++
++Use it together with -p tcp or -p udp to search these protocols
++only or without -p switch to search packets of both protocols.
++
++IPP2P provides the following options:
++.TP
++.B "--edk "
++Matches as many eDonkey/eMule packets as possible.
++.TP
++.B "--kazaa "
++Matches as many KaZaA packets as possible.
++.TP
++.B "--gnu "
++Matches as many Gnutella packets as possible.
++.TP
++.B "--dc "
++Matches as many Direct Connect packets as possible.
++.TP
++.B "--bit "
++Matches BitTorrent packets.
++.TP
++.B "--apple "
++Matches AppleJuice packets.
++.TP
++.B "--soul "
++Matches some SoulSeek packets. Considered as beta, use careful!
++.TP
++.B "--winmx "
++Matches some WinMX packets. Considered as beta, use careful!
++.TP
++.B "--ares "
++Matches Ares and AresLite packets. Use together with -j DROP only.
++.TP
++.B "--ipp2p "
++Short hand for: --edk --kazaa --gnu --dc
++.TP
++.B "--debug "
++Prints some information about each hit into kernel logfile. May 
++produce huge logfiles so beware!
+Index: extensions/svn-commit.tmp
+===================================================================
+--- extensions/svn-commit.tmp	(.../branches/iptables-1.3.1)	(revision 5928)
++++ extensions/svn-commit.tmp	(.../trunk)	(revision 5928)
+@@ -1,4 +0,0 @@
+-fix cut'n'paste error with SPT/DPT (Closes: #298)
+---This line, and those below, will be ignored--
+-
+-M    libipt_hashlimit.c
+Index: ip6tables.c
+===================================================================
+--- ip6tables.c	(.../branches/iptables-1.3.1)	(revision 5928)
++++ ip6tables.c	(.../trunk)	(revision 5928)
+@@ -1,4 +1,4 @@
+-/* Code to take an iptables-style command line and do it. */
++/* Code to take an ip6tables-style command line and do it. */
+ 
+ /*
+  * Author: Paul.Russell@rustcorp.com.au and mneuling@radlogic.com.au
+@@ -103,7 +103,7 @@
+ #define OPT_COUNTERS	0x00400U
+ #define NUMBER_OF_OPT	11
+ static const char optflags[NUMBER_OF_OPT]
+-= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', '3', 'c'};
++= { 'n', 's', 'd', 'p', 'j', 'v', 'x', 'i', 'o', '0', 'c'};
+ 
+ static struct option original_opts[] = {
+ 	{ "append", 1, 0, 'A' },
+@@ -266,7 +266,7 @@
+ 		exit_tryhelp(status);
+ 	if (status == VERSION_PROBLEM)
+ 		fprintf(stderr,
+-			"Perhaps iptables or your kernel needs to be upgraded.\n");
++			"Perhaps ip6tables or your kernel needs to be upgraded.\n");
+ 	exit(status);
+ }
+ 
+@@ -1859,7 +1859,7 @@
+ 			if (!optarg)
+ 				optarg = argv[optind];
+ 
+-			/* iptables -p icmp -h */
++			/* ip6tables -p icmp -h */
+ 			if (!matches && protocol)
+ 				find_match(protocol, TRY_LOAD, &matches);
+ 
+@@ -1919,7 +1919,8 @@
+ 				target->t = fw_calloc(1, size);
+ 				target->t->u.target_size = size;
+ 				strcpy(target->t->u.user.name, jumpto);
+-				target->init(target->t, &fw.nfcache);
++				if (target->init != NULL)
++					target->init(target->t, &fw.nfcache);
+ 				opts = merge_options(opts, target->extra_opts, &target->option_offset);
+ 			}
+ 			break;
+@@ -1963,7 +1964,8 @@
+ 			m->m = fw_calloc(1, size);
+ 			m->m->u.match_size = size;
+ 			strcpy(m->m->u.user.name, m->name);
+-			m->init(m->m, &fw.nfcache);
++			if (m->init != NULL)
++				m->init(m->m, &fw.nfcache);
+ 			opts = merge_options(opts, m->extra_opts, &m->option_offset);
+ 		}
+ 		break;
+@@ -2079,7 +2081,7 @@
+ 				 * - a protocol has been specified
+ 				 * - the protocol extension has not been
+ 				 *   loaded yet, or is loaded and unused
+-				 *   [think of iptables-restore!]
++				 *   [think of ip6tables-restore!]
+ 				 * - the protocol extension can be successively
+ 				 *   loaded
+ 				 */
+@@ -2104,7 +2106,8 @@
+ 					m->m = fw_calloc(1, size);
+ 					m->m->u.match_size = size;
+ 					strcpy(m->m->u.user.name, m->name);
+-					m->init(m->m, &fw.nfcache);
++					if (m->init != NULL)
++						m->init(m->m, &fw.nfcache);
+ 
+ 					opts = merge_options(opts,
+ 					    m->extra_opts, &m->option_offset);
+@@ -2232,7 +2235,8 @@
+ 			target->t = fw_calloc(1, size);
+ 			target->t->u.target_size = size;
+ 			strcpy(target->t->u.user.name, jumpto);
+-			target->init(target->t, &fw.nfcache);
++			if (target->init != NULL)
++				target->init(target->t, &fw.nfcache);
+ 		}
+ 
+ 		if (!target) {
+Index: iptables.8.in
+===================================================================
+--- iptables.8.in	(.../branches/iptables-1.3.1)	(revision 5928)
++++ iptables.8.in	(.../trunk)	(revision 5928)
+@@ -284,10 +284,18 @@
+ the fate of the packet immediately, or an extension (see
+ .B EXTENSIONS
+ below).  If this
+-option is omitted in a rule, then matching the rule will have no
++option is omitted in a rule (and
++.B -g
++is not used), then matching the rule will have no
+ effect on the packet's fate, but the counters on the rule will be
+ incremented.
+ .TP
++.BI "-g, --goto " "chain"
++This specifies that the processing should continue in a user
++specified chain. Unlike the --jump option return will not continue
++processing in this chain but instead in the chain that called us via
++--jump.
++.TP
+ .BR "-i, --in-interface " "[!] \fIname\fP"
+ Name of an interface via which a packet was received (only for
+ packets entering the 
