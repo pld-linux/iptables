@@ -6,12 +6,11 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_pomng_snap		20050311
+%define		_pomng_snap		20050505
 #
 %define		iptables_version	1.3.1
-%define		llh_version		7:2.6.11.1-1
+%define		llh_version		7:2.6.11.1-4
 %define		name6			ip6tables
-%define		l7_version		1.0
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietÛw oraz system translacji adresÛw (NAT)
@@ -21,7 +20,7 @@ Summary(uk):	ı‘…Ã¶‘… ƒÃ— À≈“’◊¡ŒŒ— –¡À≈‘Œ…Õ… ∆¶Ãÿ‘“¡Õ… —ƒ“¡ Linux
 Summary(zh_CN):	Linuxƒ⁄∫À∞¸π˝¬Àπ‹¿Ìπ§æﬂ
 Name:		iptables
 Version:	%{iptables_version}
-Release:	4@%{_kernel_ver_str}
+Release:	1@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
@@ -30,13 +29,11 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-pom-ng-%{_pomng_snap}.patch
-
-Patch3:		%{name}-1.3.0-imq1.diff
-Patch4:		%{name}-layer7-%{l7_version}.patch
-Patch5:		grsecurity-1.2.11-iptables.patch
-Patch6:		%{name}-man.patch
+Patch0:		%{name}-pom-ng-branch.diff
+Patch1:		%{name}-Makefile.patch
+Patch2:		%{name}-1.3.0-imq1.diff
+Patch3:		grsecurity-1.2.11-iptables.patch
+Patch4:		%{name}-man.patch
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -122,17 +119,11 @@ iptables(8).
 
 %prep
 %setup -q -a1
-%patch0 -p1
+%patch0 -p0
 %patch1 -p1
-
+%patch2 -p1
 %patch3 -p1
-#patch4 -p1	WAITING FOR MEMLEAK FIX
-%patch5 -p1
-%patch6 -p1
-
-# removed broken ...
-#%rm -f extensions/.set-test
-
+%patch4 -p1
 chmod 755 extensions/.*-test*
 
 %build
