@@ -120,7 +120,7 @@ iptables(8).
 %prep
 %setup -q -a1
 %patch0 -p0
-%patch1 -p1
+{!?without_dist_kernel:%patch1 -p1}
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
