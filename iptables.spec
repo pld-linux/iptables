@@ -21,7 +21,7 @@ Summary(uk):	õÔÉÌ¦ÔÉ ÄÌÑ ËÅÒÕ×ÁÎÎÑ ÐÁËÅÔÎÉÍÉ Æ¦ÌØÔÒÁÍÉ ÑÄÒÁ Linux
 Summary(zh_CN):	LinuxÄÚºË°ü¹ýÂË¹ÜÀí¹¤¾ß
 Name:		iptables
 Version:	%{iptables_version}_%{_snap}
-%define		_rel	2
+%define		_rel	3
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -53,8 +53,8 @@ BuildRequires:	tetex-tex-babel
 BuildRequires:	sed >= 4.0
 %endif
 %if %{with dist_kernel} && %{_snap} != 0
-##BuildRequires:	kernel-headers(netfilter) = %{_snap}
-BuildRequires:	kernel-source
+BuildRequires:	kernel-headers(netfilter) = %{_snap}
+##BuildRequires:	kernel-source
 ##Requires:	kernel(netfilter) = %{_snap}
 %endif
 BuildRequires:	linux-libc-headers >= %{llh_version}
