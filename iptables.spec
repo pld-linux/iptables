@@ -6,7 +6,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_pomng_snap		20050505
+%define		_pomng_snap		20050520
 #
 %define		iptables_version	1.3.1
 %define		llh_version		7:2.6.11.2-4
