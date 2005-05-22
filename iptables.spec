@@ -20,7 +20,7 @@ Summary(uk):	õÔÉÌ¦ÔÉ ÄÌÑ ËÅÒÕ×ÁÎÎÑ ÐÁËÅÔÎÉÍÉ Æ¦ÌØÔÒÁÍÉ ÑÄÒÁ Linux
 Summary(zh_CN):	LinuxÄÚºË°ü¹ýÂË¹ÜÀí¹¤¾ß
 Name:		iptables
 Version:	%{iptables_version}
-Release:	5@%{_kernel_ver_str}
+Release:	6@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
@@ -47,7 +47,7 @@ BuildRequires:	sed >= 4.0
 %endif
 %if %{with dist_kernel} && %{_pomng_snap} != 0
 BuildRequires:	kernel-headers(netfilter) = %{_pomng_snap}
-BuildRequires:	kernel-source
+##BuildRequires:	kernel-source
 Requires:	kernel(netfilter) = %{_pomng_snap}
 %endif
 BuildRequires:	linux-libc-headers >= %{llh_version}
