@@ -26,11 +26,12 @@
  extensions/libipt_geoip.c                    |  338 +++++++++++++++++++
  extensions/libipt_geoip.man                  |   15 
  extensions/libipt_hashlimit.man              |   35 ++
- extensions/libipt_ipp2p.c                    |  455 ++++++++++++++++++++++++++
+ extensions/libipt_ipp2p.c                    |  453 +++++++++++++++++++++++++
  extensions/libipt_ipp2p.man                  |   43 ++
  extensions/libipt_ipv4options.man            |   32 +
  extensions/libipt_layer7.c                   |  357 ++++++++++++++++++++
  extensions/libipt_layer7.man                 |   13 
+ extensions/libipt_multiport.man              |    4 
  extensions/libipt_osf.man                    |   47 ++
  extensions/libipt_policy.c                   |  429 ++++++++++++++++++++++++
  extensions/libipt_policy.man                 |   46 ++
@@ -44,17 +45,17 @@
  extensions/svn-commit.tmp                    |    4 
  include/libipq/libipq.h                      |    7 
  include/linux/netfilter_ipv4/ipt_conntrack.h |   23 +
- ip6tables.c                                  |   22 -
+ ip6tables.c                                  |   44 +-
  iptables-save.c                              |    2 
  iptables.8.in                                |   10 
- iptables.c                                   |   26 +
+ iptables.c                                   |   25 +
  libipq/libipq.c                              |   48 ++
- 51 files changed, 3279 insertions(+), 24 deletions(-)
+ 52 files changed, 3290 insertions(+), 36 deletions(-)
 
 Index: iptables-save.c
 ===================================================================
---- iptables-save.c	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ iptables-save.c	(.../trunk)	(revision 6009)
+--- iptables-save.c	(.../branches/iptables-1.3.1)	(revision 6052)
++++ iptables-save.c	(.../trunk)	(revision 6052)
 @@ -197,7 +197,7 @@
  	/* Print target name */	
  	target_name = iptc_get_target(e, h);
@@ -66,8 +67,8 @@ Index: iptables-save.c
  	t = ipt_get_target((struct ipt_entry *)e);
 Index: libipq/libipq.c
 ===================================================================
---- libipq/libipq.c	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ libipq/libipq.c	(.../trunk)	(revision 6009)
+--- libipq/libipq.c	(.../branches/iptables-1.3.1)	(revision 6052)
++++ libipq/libipq.c	(.../trunk)	(revision 6052)
 @@ -352,6 +352,54 @@
  	return ipq_netlink_sendmsg(h, &msg, 0);
  }
@@ -125,8 +126,8 @@ Index: libipq/libipq.c
  {
 Index: include/linux/netfilter_ipv4/ipt_conntrack.h
 ===================================================================
---- include/linux/netfilter_ipv4/ipt_conntrack.h	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ include/linux/netfilter_ipv4/ipt_conntrack.h	(.../trunk)	(revision 6009)
+--- include/linux/netfilter_ipv4/ipt_conntrack.h	(.../branches/iptables-1.3.1)	(revision 6052)
++++ include/linux/netfilter_ipv4/ipt_conntrack.h	(.../trunk)	(revision 6052)
 @@ -22,11 +22,32 @@
  #define IPT_CONNTRACK_STATUS	0x40
  #define IPT_CONNTRACK_EXPIRES	0x80
@@ -163,8 +164,8 @@ Index: include/linux/netfilter_ipv4/ipt_conntrack.h
  #ifdef KERNEL_64_USERSPACE_32
 Index: include/libipq/libipq.h
 ===================================================================
---- include/libipq/libipq.h	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ include/libipq/libipq.h	(.../trunk)	(revision 6009)
+--- include/libipq/libipq.h	(.../branches/iptables-1.3.1)	(revision 6052)
++++ include/libipq/libipq.h	(.../trunk)	(revision 6052)
 @@ -79,6 +79,13 @@
                      size_t data_len,
                      unsigned char *buf);
@@ -181,8 +182,8 @@ Index: include/libipq/libipq.h
  char *ipq_errstr(void);
 Index: iptables.c
 ===================================================================
---- iptables.c	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ iptables.c	(.../trunk)	(revision 6009)
+--- iptables.c	(.../branches/iptables-1.3.1)	(revision 6052)
++++ iptables.c	(.../trunk)	(revision 6052)
 @@ -101,7 +101,7 @@
  #define OPT_COUNTERS	0x00800U
  #define NUMBER_OF_OPT	12
@@ -192,76 +193,77 @@ Index: iptables.c
  
  static struct option original_opts[] = {
  	{ "append", 1, 0, 'A' },
-@@ -134,6 +134,7 @@
- 	{ "line-numbers", 0, 0, '0' },
- 	{ "modprobe", 1, 0, 'M' },
- 	{ "set-counters", 1, 0, 'c' },
-+	{ "goto", 1, 0, 'g' },
- 	{ 0 }
- };
+@@ -306,6 +306,16 @@
+ 	dst->s_addr = src->s_addr;
+ }
  
-@@ -386,6 +387,10 @@
- "				network interface name ([+] for wildcard)\n"
- "  --jump	-j target\n"
- "				target for rule (may load target extension)\n"
-+#ifdef IPT_F_GOTO
-+"  --goto      -g chain\n"
-+"                              jump to chain with no return\n"
-+#endif
- "  --match	-m match\n"
- "				extended match (may load extension)\n"
- "  --numeric	-n		numeric output of addresses and ports\n"
-@@ -1393,6 +1398,9 @@
- 	if (format & FMT_NOTABLE)
- 		fputs("  ", stdout);
- 
-+	if(fw->ip.flags & IPT_F_GOTO)
-+		printf("[goto] ");
++static void free_opts(int reset_offset)
++{
++	if (opts != original_opts) {
++		free(opts);
++		opts = original_opts;
++		if (reset_offset)
++			global_option_offset = 0;
++	}
++}
 +
- 	IPT_MATCH_ITERATE(fw, print_match, &fw->ip, format & FMT_NUMERIC);
+ void
+ exit_error(enum exittype status, char *msg, ...)
+ {
+@@ -321,6 +331,8 @@
+ 	if (status == VERSION_PROBLEM)
+ 		fprintf(stderr,
+ 			"Perhaps iptables or your kernel needs to be upgraded.\n");
++	/* On error paths, make sure that we don't leak memory */
++	free_opts(1);
+ 	exit(status);
+ }
  
- 	if (target) {
-@@ -1835,7 +1843,7 @@
- 	opterr = 0;
+@@ -331,6 +343,7 @@
+ 		fprintf(stderr, "Error occurred at line: %d\n", line);
+ 	fprintf(stderr, "Try `%s -h' or '%s --help' for more information.\n",
+ 			program_name, program_name );
++	free_opts(1);
+ 	exit(status);
+ }
  
- 	while ((c = getopt_long(argc, argv,
--	   "-A:D:R:I:L::M:F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xc:",
-+	   "-A:D:R:I:L::M:F::Z::N:X::E:P:Vh::o:p:s:d:j:i:fbvnt:m:xc:g:",
- 					   opts, NULL)) != -1) {
- 		switch (c) {
- 			/*
-@@ -2003,6 +2011,15 @@
- 			dhostnetworkmask = argv[optind-1];
- 			break;
+@@ -1016,6 +1029,9 @@
+ 	unsigned int num_old, num_new, i;
+ 	struct option *merge;
  
-+#ifdef IPT_F_GOTO
-+		case 'g':
-+			set_option(&options, OPT_JUMP, &fw.ip.invflags,
-+				   invert);
-+			fw.ip.flags |= IPT_F_GOTO;
-+			jumpto = parse_target(optarg);
-+			break;
-+#endif
-+
- 		case 'j':
- 			set_option(&options, OPT_JUMP, &fw.ip.invflags,
- 				   invert);
-@@ -2355,6 +2372,11 @@
- 			 * We cannot know if the plugin is corrupt, non
- 			 * existant OR if the user just misspelled a
- 			 * chain. */
-+#ifdef IPT_F_GOTO
-+			if (fw.ip.flags & IPT_F_GOTO)
-+				exit_error(PARAMETER_PROBLEM,
-+					   "goto '%s' is not a chain\n", jumpto);
-+#endif
- 			find_target(jumpto, LOAD_MUST_SUCCEED);
- 		} else {
- 			e = generate_entry(&fw, matches, target->t);
++	/* Release previous options merged if any */
++	free_opts(0);
++	
+ 	for (num_old = 0; oldopts[num_old].name; num_old++);
+ 	for (num_new = 0; newopts[num_new].name; num_new++);
+ 
+@@ -2443,12 +2459,7 @@
+ 
+ 	free(saddrs);
+ 	free(daddrs);
++	free_opts(1);
+ 
+-	if (opts != original_opts) {
+-		free(opts);
+-		opts = original_opts;
+-		global_option_offset = 0;
+-	}
+-
+ 	return ret;
+ }
+Index: extensions/svn-commit.tmp
+===================================================================
+--- extensions/svn-commit.tmp	(.../branches/iptables-1.3.1)	(revision 6052)
++++ extensions/svn-commit.tmp	(.../trunk)	(revision 6052)
+@@ -1,4 +0,0 @@
+-fix cut'n'paste error with SPT/DPT (Closes: #298)
+---This line, and those below, will be ignored--
+-
+-M    libipt_hashlimit.c
 Index: extensions/libipt_CONNMARK.c
 ===================================================================
---- extensions/libipt_CONNMARK.c	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ extensions/libipt_CONNMARK.c	(.../trunk)	(revision 6009)
+--- extensions/libipt_CONNMARK.c	(.../branches/iptables-1.3.1)	(revision 6052)
++++ extensions/libipt_CONNMARK.c	(.../trunk)	(revision 6052)
 @@ -150,7 +150,7 @@
  print_mask(const char *text, unsigned long long mask)
  {
@@ -283,7 +285,7 @@ Index: extensions/libipt_CONNMARK.c
 Index: extensions/.geoip-test
 ===================================================================
 --- extensions/.geoip-test	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/.geoip-test	(.../trunk)	(revision 6009)
++++ extensions/.geoip-test	(.../trunk)	(revision 6052)
 @@ -0,0 +1,3 @@
 +#!/bin/sh
 +# True if geoip is applied in given kernel tree.
@@ -297,7 +299,7 @@ Name: svn:executable
 Index: extensions/libipt_geoip.man
 ===================================================================
 --- extensions/libipt_geoip.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_geoip.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_geoip.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,15 @@
 +Match a packet by its source or destination country.
 +.TP
@@ -317,7 +319,7 @@ Index: extensions/libipt_geoip.man
 Index: extensions/libipt_ACCOUNT.c
 ===================================================================
 --- extensions/libipt_ACCOUNT.c	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_ACCOUNT.c	(.../trunk)	(revision 6009)
++++ extensions/libipt_ACCOUNT.c	(.../trunk)	(revision 6052)
 @@ -0,0 +1,174 @@
 +/* Shared library add-on to iptables to add ACCOUNT(ing) support.
 +   Author: Intra2net AG <opensource@intra2net.com>
@@ -496,7 +498,7 @@ Index: extensions/libipt_ACCOUNT.c
 Index: extensions/.policy-test
 ===================================================================
 --- extensions/.policy-test	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/.policy-test	(.../trunk)	(revision 6009)
++++ extensions/.policy-test	(.../trunk)	(revision 6052)
 @@ -0,0 +1,3 @@
 +#!/bin/sh
 +#
@@ -510,7 +512,7 @@ Name: svn:executable
 Index: extensions/libipt_psd.man
 ===================================================================
 --- extensions/libipt_psd.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_psd.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_psd.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,18 @@
 +Attempt to detect TCP and UDP port scans. This match was derived from
 +Solar Designer's scanlogd.
@@ -533,7 +535,7 @@ Index: extensions/libipt_psd.man
 Index: extensions/libipt_IPV4OPTSSTRIP.man
 ===================================================================
 --- extensions/libipt_IPV4OPTSSTRIP.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_IPV4OPTSSTRIP.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_IPV4OPTSSTRIP.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,5 @@
 +Strip all the IP options from a packet.
 +
@@ -543,7 +545,7 @@ Index: extensions/libipt_IPV4OPTSSTRIP.man
 Index: extensions/.ULOG-test6
 ===================================================================
 --- extensions/.ULOG-test6	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/.ULOG-test6	(.../trunk)	(revision 6009)
++++ extensions/.ULOG-test6	(.../trunk)	(revision 6052)
 @@ -0,0 +1,2 @@
 +#!/bin/sh
 +[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_ULOG.c ] && echo ULOG
@@ -556,7 +558,7 @@ Name: svn:executable
 Index: extensions/libipt_XOR.man
 ===================================================================
 --- extensions/libipt_XOR.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_XOR.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_XOR.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,7 @@
 +Encrypt TCP and UDP traffic using a simple XOR encryption
 +.TP
@@ -568,7 +570,7 @@ Index: extensions/libipt_XOR.man
 Index: extensions/libipt_hashlimit.man
 ===================================================================
 --- extensions/libipt_hashlimit.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_hashlimit.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_hashlimit.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,35 @@
 +This patch adds a new match called 'hashlimit'.
 +The idea is to have something like 'limit', but either per
@@ -608,7 +610,7 @@ Index: extensions/libipt_hashlimit.man
 Index: extensions/libipt_osf.man
 ===================================================================
 --- extensions/libipt_osf.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_osf.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_osf.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,47 @@
 +The idea of passive OS fingerprint matching exists for quite a long time,
 +but was created as extension fo OpenBSD pf only some weeks ago.
@@ -660,7 +662,7 @@ Index: extensions/libipt_osf.man
 Index: extensions/libipt_sctp.man
 ===================================================================
 --- extensions/libipt_sctp.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_sctp.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_sctp.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,28 @@
 +.TP
 +\fB--source-port\fR,\fB--sport \fR[\fB!\fR] \fIport\fR[\fB:\fIport\fR]
@@ -693,7 +695,7 @@ Index: extensions/libipt_sctp.man
 Index: extensions/libipt_u32.man
 ===================================================================
 --- extensions/libipt_u32.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_u32.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_u32.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,8 @@
 +U32 allows you to extract quantities of up to 4 bytes from a packet,
 +AND them with specified masks, shift them by specified amounts and
@@ -706,7 +708,7 @@ Index: extensions/libipt_u32.man
 Index: extensions/libipt_SAME.man
 ===================================================================
 --- extensions/libipt_SAME.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_SAME.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_SAME.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,11 @@
 +Similar to SNAT/DNAT depending on chain: it takes a range of addresses
 +(`--to 1.2.3.4-1.2.3.7') and gives a client the same
@@ -722,7 +724,7 @@ Index: extensions/libipt_SAME.man
 Index: extensions/libip6t_policy.man
 ===================================================================
 --- extensions/libip6t_policy.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libip6t_policy.man	(.../trunk)	(revision 6009)
++++ extensions/libip6t_policy.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,46 @@
 +This modules matches the policy used by IPsec for handling a packet.
 +.TP
@@ -773,7 +775,7 @@ Index: extensions/libip6t_policy.man
 Index: extensions/libip6t_ULOG.man
 ===================================================================
 --- extensions/libip6t_ULOG.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libip6t_ULOG.man	(.../trunk)	(revision 6009)
++++ extensions/libip6t_ULOG.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,27 @@
 +This target provides userspace logging of matching packets.  When this
 +target is set for a rule, the Linux kernel will multicast this packet
@@ -805,7 +807,7 @@ Index: extensions/libip6t_ULOG.man
 Index: extensions/libip6t_policy.c
 ===================================================================
 --- extensions/libip6t_policy.c	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libip6t_policy.c	(.../trunk)	(revision 6009)
++++ extensions/libip6t_policy.c	(.../trunk)	(revision 6052)
 @@ -0,0 +1,471 @@
 +/* Shared library add-on to iptables to add policy support. */
 +
@@ -1278,10 +1280,22 @@ Index: extensions/libip6t_policy.c
 +{
 +	register_match6(&policy);
 +}
+Index: extensions/libipt_multiport.man
+===================================================================
+--- extensions/libipt_multiport.man	(.../branches/iptables-1.3.1)	(revision 6052)
++++ extensions/libipt_multiport.man	(.../trunk)	(revision 6052)
+@@ -15,5 +15,5 @@
+ is a convenient alias for this option.
+ .TP
+ .BR "--ports " "\fIport\fP[,\fIport\fP[,\fIport\fP...]]"
+-Match if the both the source and destination ports are equal to each
+-other and to one of the given ports.
++Match if either the source or destination ports are equal to one of
++the given ports.
 Index: extensions/Makefile
 ===================================================================
---- extensions/Makefile	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ extensions/Makefile	(.../trunk)	(revision 6009)
+--- extensions/Makefile	(.../branches/iptables-1.3.1)	(revision 6052)
++++ extensions/Makefile	(.../trunk)	(revision 6052)
 @@ -5,7 +5,7 @@
  # header files are present in the include/linux directory of this iptables
  # package (HW)
@@ -1294,7 +1308,7 @@ Index: extensions/Makefile
 Index: extensions/libipt_geoip.c
 ===================================================================
 --- extensions/libipt_geoip.c	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_geoip.c	(.../trunk)	(revision 6009)
++++ extensions/libipt_geoip.c	(.../trunk)	(revision 6052)
 @@ -0,0 +1,338 @@
 +/* Shared library add-on to iptables to add geoip match support.
 + 
@@ -1636,8 +1650,8 @@ Index: extensions/libipt_geoip.c
 +}
 Index: extensions/libipt_ULOG.c
 ===================================================================
---- extensions/libipt_ULOG.c	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ extensions/libipt_ULOG.c	(.../trunk)	(revision 6009)
+--- extensions/libipt_ULOG.c	(.../branches/iptables-1.3.1)	(revision 6052)
++++ extensions/libipt_ULOG.c	(.../trunk)	(revision 6052)
 @@ -144,6 +144,8 @@
  #endif
  		*flags |= IPT_LOG_OPT_QTHRESHOLD;
@@ -1650,14 +1664,14 @@ Index: extensions/libipt_ULOG.c
 Index: extensions/.layer7-test
 ===================================================================
 --- extensions/.layer7-test	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/.layer7-test	(.../trunk)	(revision 6009)
++++ extensions/.layer7-test	(.../trunk)	(revision 6052)
 @@ -0,0 +1,2 @@
 +#! /bin/sh
 +[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_layer7.h ] && echo layer7
 Index: extensions/libipt_connlimit.man
 ===================================================================
 --- extensions/libipt_connlimit.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_connlimit.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_connlimit.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,21 @@
 +Allows you to restrict the number of parallel TCP connections to a
 +server per client IP address (or address block).
@@ -1683,7 +1697,7 @@ Index: extensions/libipt_connlimit.man
 Index: extensions/libipt_account.man
 ===================================================================
 --- extensions/libipt_account.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_account.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_account.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,47 @@
 +Account traffic for all hosts in defined network/netmask.
 +
@@ -1735,8 +1749,8 @@ Index: extensions/libipt_account.man
 Index: extensions/libipt_ipp2p.c
 ===================================================================
 --- extensions/libipt_ipp2p.c	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_ipp2p.c	(.../trunk)	(revision 6009)
-@@ -0,0 +1,455 @@
++++ extensions/libipt_ipp2p.c	(.../trunk)	(revision 6052)
+@@ -0,0 +1,453 @@
 +
 +#include <stdio.h>
 +#include <netdb.h>
@@ -2168,21 +2182,19 @@ Index: extensions/libipt_ipp2p.c
 +		
 +
 +
-+static
-+struct iptables_match ipp2p
-+= {
-+   .next          = NULL,
-+   .name          = "ipp2p",
-+   .version       = IPTABLES_VERSION, 
-+   .size          = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
-+   .userspacesize = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
-+   .help          = &help,
-+   .init          = &init,
-+   .parse         = &parse,
-+   .final_check   = &final_check,
-+   .print         = &print,
-+   .save          = &save,
-+   .extra_opts    = opts
++static struct iptables_match ipp2p = { 
++    .next           = NULL,
++    .name           = "ipp2p",
++    .version        = IPTABLES_VERSION,
++    .size           = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
++    .userspacesize  = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
++    .help           = &help,
++    .init           = &init,
++    .parse          = &parse,
++    .final_check    = &final_check,
++    .print          = &print,
++    .save           = &save,
++    .extra_opts     = opts
 +};
 +					    
 +
@@ -2195,7 +2207,7 @@ Index: extensions/libipt_ipp2p.c
 Index: extensions/.ipp2p-test
 ===================================================================
 --- extensions/.ipp2p-test	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/.ipp2p-test	(.../trunk)	(revision 6009)
++++ extensions/.ipp2p-test	(.../trunk)	(revision 6052)
 @@ -0,0 +1,2 @@
 +#! /bin/sh
 +[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_ipp2p.h ] && echo ipp2p
@@ -2208,7 +2220,7 @@ Name: svn:executable
 Index: extensions/libipt_TARPIT.man
 ===================================================================
 --- extensions/libipt_TARPIT.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_TARPIT.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_TARPIT.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,34 @@
 +Captures and holds incoming TCP connections using no local
 +per-connection resources. Connections are accepted, but immediately
@@ -2247,7 +2259,7 @@ Index: extensions/libipt_TARPIT.man
 Index: extensions/libip6t_ULOG.c
 ===================================================================
 --- extensions/libip6t_ULOG.c	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libip6t_ULOG.c	(.../trunk)	(revision 6009)
++++ extensions/libip6t_ULOG.c	(.../trunk)	(revision 6052)
 @@ -0,0 +1,227 @@
 +/* Shared library add-on to ip6tables to add ULOG support.
 + * 
@@ -2479,7 +2491,7 @@ Index: extensions/libip6t_ULOG.c
 Index: extensions/libipt_policy.c
 ===================================================================
 --- extensions/libipt_policy.c	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_policy.c	(.../trunk)	(revision 6009)
++++ extensions/libipt_policy.c	(.../trunk)	(revision 6052)
 @@ -0,0 +1,429 @@
 +/* Shared library add-on to iptables to add policy support. */
 +#include <stdio.h>
@@ -2913,7 +2925,7 @@ Index: extensions/libipt_policy.c
 Index: extensions/libipt_IPMARK.man
 ===================================================================
 --- extensions/libipt_IPMARK.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_IPMARK.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_IPMARK.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,45 @@
 +Allows you to mark a received packet basing on its IP address. This
 +can replace many mangle/mark entries with only one, if you use
@@ -2962,8 +2974,8 @@ Index: extensions/libipt_IPMARK.man
 +decrease (e.g. twice).
 Index: extensions/libipt_tcp.c
 ===================================================================
---- extensions/libipt_tcp.c	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ extensions/libipt_tcp.c	(.../trunk)	(revision 6009)
+--- extensions/libipt_tcp.c	(.../branches/iptables-1.3.1)	(revision 6052)
++++ extensions/libipt_tcp.c	(.../trunk)	(revision 6052)
 @@ -205,7 +205,7 @@
  			exit_error(PARAMETER_PROBLEM,
  				   "Only one of `--syn' or `--tcp-flags' "
@@ -2976,7 +2988,7 @@ Index: extensions/libipt_tcp.c
 Index: extensions/libipt_ipv4options.man
 ===================================================================
 --- extensions/libipt_ipv4options.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_ipv4options.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_ipv4options.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,32 @@
 +Match on IPv4 header options like source routing, record route,
 +timestamp and router-alert.
@@ -3013,7 +3025,7 @@ Index: extensions/libipt_ipv4options.man
 Index: extensions/libipt_comment.man
 ===================================================================
 --- extensions/libipt_comment.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_comment.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_comment.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,6 @@
 +Allows you to add comments (up to 256 characters) to any rule.
 +.TP
@@ -3024,7 +3036,7 @@ Index: extensions/libipt_comment.man
 Index: extensions/libipt_connbytes.man
 ===================================================================
 --- extensions/libipt_connbytes.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_connbytes.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_connbytes.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,30 @@
 +Match by how many bytes or packets a connection (or one of the two
 +flows constituting the connection) have tranferred so far, or by
@@ -3059,7 +3071,7 @@ Index: extensions/libipt_connbytes.man
 Index: extensions/libipt_recent.man
 ===================================================================
 --- extensions/libipt_recent.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_recent.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_recent.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,93 @@
 +Allows you to dynamically create a list of IP addresses and then match
 +against that list in a few different ways.
@@ -3156,8 +3168,8 @@ Index: extensions/libipt_recent.man
 +Set to 1 to get lots of debugging info
 Index: extensions/libipt_tcp.man
 ===================================================================
---- extensions/libipt_tcp.man	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ extensions/libipt_tcp.man	(.../trunk)	(revision 6009)
+--- extensions/libipt_tcp.man	(.../branches/iptables-1.3.1)	(revision 6052)
++++ extensions/libipt_tcp.man	(.../trunk)	(revision 6052)
 @@ -32,12 +32,12 @@
  RST flags unset.
  .TP
@@ -3175,8 +3187,8 @@ Index: extensions/libipt_tcp.man
  .TP
 Index: extensions/libipt_connbytes.c
 ===================================================================
---- extensions/libipt_connbytes.c	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ extensions/libipt_connbytes.c	(.../trunk)	(revision 6009)
+--- extensions/libipt_connbytes.c	(.../branches/iptables-1.3.1)	(revision 6052)
++++ extensions/libipt_connbytes.c	(.../trunk)	(revision 6052)
 @@ -93,6 +93,7 @@
  			exit_error(PARAMETER_PROBLEM,
  				   "Unknown --connbytes-mode `%s'", optarg);
@@ -3188,7 +3200,7 @@ Index: extensions/libipt_connbytes.c
 Index: extensions/libipt_policy.man
 ===================================================================
 --- extensions/libipt_policy.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_policy.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_policy.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,46 @@
 +This modules matches the policy used by IPsec for handling a packet.
 +.TP
@@ -3239,7 +3251,7 @@ Index: extensions/libipt_policy.man
 Index: extensions/libipt_layer7.man
 ===================================================================
 --- extensions/libipt_layer7.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_layer7.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_layer7.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,13 @@
 +This module matches packets based on the application layer data of 
 +their connections.  It uses regular expression matching to compare 
@@ -3257,7 +3269,7 @@ Index: extensions/libipt_layer7.man
 Index: extensions/libipt_quota.man
 ===================================================================
 --- extensions/libipt_quota.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_quota.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_quota.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,7 @@
 +Implements network quotas by decrementing a byte counter with each
 +packet.
@@ -3269,7 +3281,7 @@ Index: extensions/libipt_quota.man
 Index: extensions/.policy-test6
 ===================================================================
 --- extensions/.policy-test6	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/.policy-test6	(.../trunk)	(revision 6009)
++++ extensions/.policy-test6	(.../trunk)	(revision 6052)
 @@ -0,0 +1,3 @@
 +#!/bin/sh
 +#
@@ -3283,7 +3295,7 @@ Name: svn:executable
 Index: extensions/libipt_ACCOUNT.man
 ===================================================================
 --- extensions/libipt_ACCOUNT.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_ACCOUNT.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_ACCOUNT.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,16 @@
 +A high performance accounting system for local networks.
 +.TP
@@ -3304,7 +3316,7 @@ Index: extensions/libipt_ACCOUNT.man
 Index: extensions/libipt_layer7.c
 ===================================================================
 --- extensions/libipt_layer7.c	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_layer7.c	(.../trunk)	(revision 6009)
++++ extensions/libipt_layer7.c	(.../trunk)	(revision 6052)
 @@ -0,0 +1,357 @@
 +/* 
 +   Shared library add-on to iptables to add layer 7 matching support. 
@@ -3666,7 +3678,7 @@ Index: extensions/libipt_layer7.c
 Index: extensions/libipt_ipp2p.man
 ===================================================================
 --- extensions/libipt_ipp2p.man	(.../branches/iptables-1.3.1)	(revision 0)
-+++ extensions/libipt_ipp2p.man	(.../trunk)	(revision 6009)
++++ extensions/libipt_ipp2p.man	(.../trunk)	(revision 6052)
 @@ -0,0 +1,43 @@
 +This module matches certain packets in P2P flows. It is not
 +designed to match all packets belonging to a P2P connection - 
@@ -3711,19 +3723,10 @@ Index: extensions/libipt_ipp2p.man
 +.B "--debug "
 +Prints some information about each hit into kernel logfile. May 
 +produce huge logfiles so beware!
-Index: extensions/svn-commit.tmp
-===================================================================
---- extensions/svn-commit.tmp	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ extensions/svn-commit.tmp	(.../trunk)	(revision 6009)
-@@ -1,4 +0,0 @@
--fix cut'n'paste error with SPT/DPT (Closes: #298)
----This line, and those below, will be ignored--
--
--M    libipt_hashlimit.c
 Index: ip6tables.c
 ===================================================================
---- ip6tables.c	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ ip6tables.c	(.../trunk)	(revision 6009)
+--- ip6tables.c	(.../branches/iptables-1.3.1)	(revision 6052)
++++ ip6tables.c	(.../trunk)	(revision 6052)
 @@ -1,4 +1,4 @@
 -/* Code to take an iptables-style command line and do it. */
 +/* Code to take an ip6tables-style command line and do it. */
@@ -3739,16 +3742,53 @@ Index: ip6tables.c
  
  static struct option original_opts[] = {
  	{ "append", 1, 0, 'A' },
-@@ -266,7 +266,7 @@
+@@ -252,6 +252,16 @@
+ 	/* dst->s6_addr = src->s6_addr; */
+ }
+ 
++static void free_opts(int reset_offset)
++{
++	if (opts != original_opts) {
++		free(opts);
++		opts = original_opts;
++		if (reset_offset)
++			global_option_offset = 0;
++	}
++}
++
+ void
+ exit_error(enum exittype status, char *msg, ...)
+ {
+@@ -266,7 +276,9 @@
  		exit_tryhelp(status);
  	if (status == VERSION_PROBLEM)
  		fprintf(stderr,
 -			"Perhaps iptables or your kernel needs to be upgraded.\n");
 +			"Perhaps ip6tables or your kernel needs to be upgraded.\n");
++	/* On error paths, make sure that we don't leak memory */
++	free_opts(1);
  	exit(status);
  }
  
-@@ -1859,7 +1859,7 @@
+@@ -277,6 +289,7 @@
+ 		fprintf(stderr, "Error occurred at line: %d\n", line);
+ 	fprintf(stderr, "Try `%s -h' or '%s --help' for more information.\n",
+ 			program_name, program_name );
++	free_opts(1);
+ 	exit(status);
+ }
+ 
+@@ -1016,6 +1029,9 @@
+ 	unsigned int num_old, num_new, i;
+ 	struct option *merge;
+ 
++	/* Release previous options merged if any */
++	free_opts(0);
++
+ 	for (num_old = 0; oldopts[num_old].name; num_old++);
+ 	for (num_new = 0; newopts[num_new].name; num_new++);
+ 
+@@ -1859,7 +1875,7 @@
  			if (!optarg)
  				optarg = argv[optind];
  
@@ -3757,7 +3797,7 @@ Index: ip6tables.c
  			if (!matches && protocol)
  				find_match(protocol, TRY_LOAD, &matches);
  
-@@ -1919,7 +1919,8 @@
+@@ -1919,7 +1935,8 @@
  				target->t = fw_calloc(1, size);
  				target->t->u.target_size = size;
  				strcpy(target->t->u.user.name, jumpto);
@@ -3767,7 +3807,7 @@ Index: ip6tables.c
  				opts = merge_options(opts, target->extra_opts, &target->option_offset);
  			}
  			break;
-@@ -1963,7 +1964,8 @@
+@@ -1963,7 +1980,8 @@
  			m->m = fw_calloc(1, size);
  			m->m->u.match_size = size;
  			strcpy(m->m->u.user.name, m->name);
@@ -3777,7 +3817,7 @@ Index: ip6tables.c
  			opts = merge_options(opts, m->extra_opts, &m->option_offset);
  		}
  		break;
-@@ -2079,7 +2081,7 @@
+@@ -2079,7 +2097,7 @@
  				 * - a protocol has been specified
  				 * - the protocol extension has not been
  				 *   loaded yet, or is loaded and unused
@@ -3786,7 +3826,7 @@ Index: ip6tables.c
  				 * - the protocol extension can be successively
  				 *   loaded
  				 */
-@@ -2104,7 +2106,8 @@
+@@ -2104,7 +2122,8 @@
  					m->m = fw_calloc(1, size);
  					m->m->u.match_size = size;
  					strcpy(m->m->u.user.name, m->name);
@@ -3796,7 +3836,7 @@ Index: ip6tables.c
  
  					opts = merge_options(opts,
  					    m->extra_opts, &m->option_offset);
-@@ -2232,7 +2235,8 @@
+@@ -2232,7 +2251,8 @@
  			target->t = fw_calloc(1, size);
  			target->t->u.target_size = size;
  			strcpy(target->t->u.user.name, jumpto);
@@ -3806,10 +3846,23 @@ Index: ip6tables.c
  		}
  
  		if (!target) {
+@@ -2332,11 +2352,7 @@
+ 	for (c = 0; c < ndaddrs; c++)
+ 		free(&daddrs[c]);
+ 
+-	if (opts != original_opts) {
+-		free(opts);
+-		opts = original_opts;
+-		global_option_offset = 0;
+-	}
++	free_opts(1);
+ 
+ 	return ret;
+ }
 Index: iptables.8.in
 ===================================================================
---- iptables.8.in	(.../branches/iptables-1.3.1)	(revision 6009)
-+++ iptables.8.in	(.../trunk)	(revision 6009)
+--- iptables.8.in	(.../branches/iptables-1.3.1)	(revision 6052)
++++ iptables.8.in	(.../trunk)	(revision 6052)
 @@ -284,10 +284,18 @@
  the fate of the packet immediately, or an extension (see
  .B EXTENSIONS
