@@ -6,10 +6,10 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_pomng_snap		20050611
+%define		_pomng_snap		20050801
 #
-%define		iptables_version	1.3.1
-%define		llh_version		7:2.6.11.2-4
+%define		iptables_version	1.3.2
+%define		llh_version		7:2.6.12.0-1
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -20,11 +20,11 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-Release:	6@%{_kernel_ver_str}
+Release:	1@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	c3358a3bd0d7755df0b64a5063db296b
+# Source0-md5:	9a951971de3f6c7f60dece4023a48687
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -125,6 +125,9 @@ iptables(8).
 %patch3 -p1
 %patch4 -p1
 chmod 755 extensions/.*-test*
+
+# needs update
+chmod 644 extensions/.geoip-test
 
 %build
 %{__make} all experimental \
