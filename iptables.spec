@@ -135,7 +135,7 @@ iptables(8).
 %patch7 -p1
 
 # removed broken ...
-#rm -f extensions/.{set,quota,geoip}-test
+rm -f extensions/.{set,quota,geoip}-test
 #rm -f extensions/.quota-test
 
 chmod 755 extensions/.*-test*
