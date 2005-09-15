@@ -6,10 +6,10 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_pomng_snap		20050801
+%define		_pomng_snap		20050915
 #
-%define		iptables_version	1.3.2
-%define		llh_version		7:2.6.12.0-1
+%define		iptables_version	1.3.3
+%define		llh_version		7:2.6.13.0-1
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -20,20 +20,34 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-Release:	1@%{_kernel_ver_str}
+Release:	0.1@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	9a951971de3f6c7f60dece4023a48687
+# Source0-md5:	86d88455520cfdc56fd7ae27897a80a4
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-Patch0:		%{name}-pom-ng-branch.diff
+#Patch0:		%{name}-pom-ng-branch.diff
 Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-1.3.0-imq1.diff
 Patch3:		grsecurity-1.2.11-iptables.patch
 Patch4:		%{name}-man.patch
+
+# patch-o-matic-ng
+# [submitted]
+Patch10:	%{name}-nf-comment.patch
+# [base]
+Patch11:	%{name}-nf-expire.patch
+# [extra]
+Patch12:	%{name}-nf-ULOG.patch
+Patch13:	%{name}-nf-geoip.patch
+Patch14:	%{name}-nf-goto.patch
+Patch15:	%{name}-nf-ipp2p.patch
+Patch16:	%{name}-nf-ip_queue_vwmark.patch
+Patch17:	%{name}-nf-policy.patch
+
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -119,15 +133,25 @@ iptables(8).
 
 %prep
 %setup -q -a1
-%patch0 -p0
+#patch0 -p0
 %{!?without_dist_kernel:%patch1 -p1}
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%patch13 -p1
+%patch14 -p1
+%patch15 -p1
+%patch16 -p1
+%patch17 -p1
+
 chmod 755 extensions/.*-test*
 
-# needs update
-chmod 644 extensions/.geoip-test
+# needs update (still valid?)
+#chmod 644 extensions/.geoip-test
 
 %build
 %{__make} all experimental \
