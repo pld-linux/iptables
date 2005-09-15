@@ -20,7 +20,8 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-Release:	0.1@%{_kernel_ver_str}
+%define		_rel 0.1
+Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
@@ -115,6 +116,7 @@ iptables.
 Summary:	Iptables init (RedHat style)
 Summary(pl):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
+Release:	%{_rel}
 PreReq:		rc-scripts
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}
