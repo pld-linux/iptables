@@ -20,7 +20,7 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-%define		_rel 0.1
+%define		_rel 0.2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -42,12 +42,13 @@ Patch10:	%{name}-nf-comment.patch
 # [base]
 Patch11:	%{name}-nf-expire.patch
 # [extra]
-Patch12:	%{name}-nf-ULOG.patch
-Patch13:	%{name}-nf-geoip.patch
-Patch14:	%{name}-nf-goto.patch
-Patch15:	%{name}-nf-ipp2p.patch
-Patch16:	%{name}-nf-ip_queue_vwmark.patch
-Patch17:	%{name}-nf-policy.patch
+Patch12:	%{name}-nf-ACCOUNT.patch
+Patch13:	%{name}-nf-ULOG.patch
+Patch14:	%{name}-nf-geoip.patch
+Patch15:	%{name}-nf-goto.patch
+Patch16:	%{name}-nf-ipp2p.patch
+Patch17:	%{name}-nf-ip_queue_vwmark.patch
+Patch18:	%{name}-nf-policy.patch
 
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
@@ -149,6 +150,7 @@ iptables(8).
 %patch15 -p1
 %patch16 -p1
 %patch17 -p1
+%patch18 -p1
 
 chmod 755 extensions/.*-test*
 
