@@ -2,9 +2,9 @@
  libipq/libipq.c         |   48 ++++++++++++++++++++++++++++++++++++++++++++++++
  2 files changed, 55 insertions(+)
 
-diff -Nur --exclude '*.orig' iptables.org/include/libipq/libipq.h iptables/include/libipq/libipq.h
---- iptables.org/include/libipq/libipq.h	2005-09-15 08:05:35.000000000 +0200
-+++ iptables/include/libipq/libipq.h	2005-09-15 10:01:34.000000000 +0200
+diff -urN --exclude '*.orig' iptables.org/include/libipq/libipq.h iptables/include/libipq/libipq.h
+--- iptables.org/include/libipq/libipq.h	2005-10-28 07:36:51.000000000 +0200
++++ iptables/include/libipq/libipq.h	2005-10-30 01:33:45.000000000 +0200
 @@ -79,6 +79,13 @@
                      size_t data_len,
                      unsigned char *buf);
@@ -19,9 +19,9 @@ diff -Nur --exclude '*.orig' iptables.org/include/libipq/libipq.h iptables/inclu
  int ipq_ctl(const struct ipq_handle *h, int request, ...);
  
  char *ipq_errstr(void);
-diff -Nur --exclude '*.orig' iptables.org/libipq/libipq.c iptables/libipq/libipq.c
---- iptables.org/libipq/libipq.c	2005-09-15 08:05:34.000000000 +0200
-+++ iptables/libipq/libipq.c	2005-09-15 10:01:34.000000000 +0200
+diff -urN --exclude '*.orig' iptables.org/libipq/libipq.c iptables/libipq/libipq.c
+--- iptables.org/libipq/libipq.c	2005-10-28 07:36:51.000000000 +0200
++++ iptables/libipq/libipq.c	2005-10-30 01:33:45.000000000 +0200
 @@ -353,6 +353,54 @@
  	return ipq_netlink_sendmsg(h, &msg, 0);
  }
