@@ -1,18 +1,18 @@
  .ipp2p-test      |    2 
- libipt_ipp2p.c   |  360 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- libipt_ipp2p.man |   43 ++++++
- 3 files changed, 405 insertions(+)
+ libipt_ipp2p.c   |  455 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ libipt_ipp2p.man |   43 +++++
+ 3 files changed, 500 insertions(+)
 
-diff -Nur --exclude '*.orig' iptables.org/extensions/.ipp2p-test iptables/extensions/.ipp2p-test
+diff -urN --exclude '*.orig' iptables.org/extensions/.ipp2p-test iptables/extensions/.ipp2p-test
 --- iptables.org/extensions/.ipp2p-test	1970-01-01 01:00:00.000000000 +0100
-+++ iptables/extensions/.ipp2p-test	2005-09-15 09:46:53.000000000 +0200
++++ iptables/extensions/.ipp2p-test	2005-10-31 19:23:09.000000000 +0100
 @@ -0,0 +1,2 @@
 +#! /bin/sh
 +[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_ipp2p.h ] && echo ipp2p
-diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/extensions/libipt_ipp2p.c
+diff -urN --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/extensions/libipt_ipp2p.c
 --- iptables.org/extensions/libipt_ipp2p.c	1970-01-01 01:00:00.000000000 +0100
-+++ iptables/extensions/libipt_ipp2p.c	2005-09-15 09:53:35.000000000 +0200
-@@ -0,0 +1,360 @@
++++ iptables/extensions/libipt_ipp2p.c	2005-10-31 19:23:09.000000000 +0100
+@@ -0,0 +1,455 @@
 +
 +#include <stdio.h>
 +#include <netdb.h>
@@ -25,25 +25,32 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +
 +#include <linux/netfilter_ipv4/ipt_ipp2p.h>
 +
++
++
++
 +static void
 +help(void)
 +{
 +    printf(
 +    "IPP2P v%s options:\n"
 +    " --ipp2p	Grab all known p2p packets\n"
++    " --ipp2p-data	Identify all known p2p download commands (obsolete)\n\n"
 +    " --edk		[TCP&UDP]	All known eDonkey/eMule/Overnet packets\n"
 +    " --dc		[TCP] 		All known Direct Connect packets\n"
 +    " --kazaa	[TCP&UDP] 	All known KaZaA packets\n"
 +    " --gnu		[TCP&UDP]	All known Gnutella packets\n"
 +    " --bit		[TCP&UDP]	All known BitTorrent packets\n"
-+    " --apple	[TCP] 		All known AppleJuice packets\n"
-+    " --winmx	[TCP] 		All known WinMX\n"
-+    " --soul		[TCP] 		All known SoulSeek\n"
-+    " --ares		[TCP] 		All known Ares\n\n"
-+    " DEBUG SUPPPORT, use only if you know why\n"
-+    " --debug		Generate kernel debug output, THIS WILL SLOW DOWN THE FILTER\n"
++    " --apple	[TCP] 		All known AppleJuice packets (beta - just a few tests until now)\n"
++    " --winmx	[TCP] 		All known WinMX (beta - need feedback)\n"
++    " --soul		[TCP] 		All known SoulSeek (beta - need feedback!)\n"
++    " --ares		[TCP] 		All known Ares - use with DROP only (beta - need feedback!)\n\n"
++    " --edk-data	[TCP] 		eDonkey/eMule/Overnet download commands (obsolete)\n"
++    " --dc-data	[TCP] 		Direct Connect download command (obsolete)\n"
++    " --kazaa-data	[TCP] 		KaZaA download command (obsolete)\n"
++    " --gnu-data	[TCP] 		Gnutella download command (obsolete)\n"
 +    "\nNote that the follwing options will have the same meaning:\n"
-+    " '--ipp2p' is equal to '--edk --dc --kazaa --gnu --bit --apple --winmx --soul --ares'\n"
++    " '--ipp2p' is equal to '--edk --dc --kazaa --gnu'\n"
++    " '--ipp2p-data' is equal to '--edk-data --dc-data --kazaa-data --gnu-data'\n"
 +    "\nIPP2P was intended for TCP only. Due to increasing usage of UDP we needed to change this.\n"
 +    "You can now use -p udp to search UDP packets only or without -p switch to search UDP and TCP packets.\n"
 +    "\nSee README included with this package for more details or visit http://www.ipp2p.org\n"
@@ -54,10 +61,17 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +    , IPP2P_VERSION);
 +}
 +
++							    
++
 +static struct option opts[] = {
 +        { "ipp2p", 0, 0, '1' },
 +        { "edk", 0, 0, '2' },	
++        { "ipp2p-data", 0, 0, '3' },		
++        { "kazaa-data", 0, 0, '4' },
++        { "edk-data", 0, 0, '5' },	
++        { "dc-data", 0, 0, '6' },
 +	{ "dc", 0, 0, '7' },
++	{ "gnu-data", 0, 0, '8' },	
 +	{ "gnu", 0, 0, '9' },
 +	{ "kazaa", 0, 0, 'a' },
 +	{ "bit", 0, 0, 'b' },
@@ -99,10 +113,10 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p' may only be "
 +				"specified once!");
-+/*	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p-data' may only be "
-+				"specified alone!");*/
++				"specified alone!");
 +	    if ((*flags) != 0)
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p' may only be "
@@ -121,10 +135,10 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p' may only be "
 +				"specified alone!");
-+/*	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p-data' may only be "
-+				"specified alone!");*/
++				"specified alone!");
 +            if ((*flags & IPP2P_DATA_EDK) == IPP2P_DATA_EDK)
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: use `--edk' OR `--edk-data' but not both of them!");
@@ -133,6 +147,86 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +	    info->cmd = *flags;	    
 +	    break;
 +
++	case '3':		/*cmd: ipp2p-data*/
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags) != 0)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++	    *flags += SHORT_HAND_DATA;
++	    info->cmd = *flags;	    
++	    break;
++
++        case '4':		/*cmd: kazaa-data*/
++            if ((*flags & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--kazaa-data' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_KAZAA) == IPP2P_KAZAA)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--kazaa' OR `--kazaa-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DATA_KAZAA;
++	    info->cmd = *flags;
++	    break;
++
++	case '5':		/*cmd: edk-data*/
++            if ((*flags & IPP2P_DATA_EDK) == IPP2P_DATA_EDK)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--edk-data' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_EDK) == IPP2P_EDK)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--edk' OR `--edk-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DATA_EDK;
++	    info->cmd = *flags;
++	    break;																											
++
++	case '6':		/*cmd: dc-data*/
++            if ((*flags & IPP2P_DATA_DC) == IPP2P_DATA_DC)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--dc-data' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_DC) == IPP2P_DC)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--dc' OR `--dc-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DATA_DC;
++	    info->cmd = *flags;
++	    break;																											
 +
 +	case '7':		/*cmd: dc*/
 +            if ((*flags & IPP2P_DC) == IPP2P_DC)
@@ -143,28 +237,49 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p' may only be "
 +				"specified alone!");
-+/*	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p-data' may only be "
-+				"specified alone!");*/
++				"specified alone!");
 +            if ((*flags & IPP2P_DATA_DC) == IPP2P_DATA_DC)
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: use `--dc' OR `--dc-data' but not both of them!");
 +	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
 +            *flags += IPP2P_DC;
 +	    info->cmd = *flags;
-+	    break;
++	    break;																											
 +
++
++	case '8':		/*cmd: gnu-data*/
++            if ((*flags & IPP2P_DATA_GNU) == IPP2P_DATA_GNU)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: `--gnu-data' may only be "
++                                "specified once!");
++	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p' may only be "
++				"specified alone!");
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++		    exit_error(PARAMETER_PROBLEM,
++				"ipp2p: `--ipp2p-data' may only be "
++				"specified alone!");
++            if ((*flags & IPP2P_GNU) == IPP2P_GNU)
++            exit_error(PARAMETER_PROBLEM,
++                                "ipp2p: use `--gnu' OR `--gnu-data' but not both of them!");
++	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
++            *flags += IPP2P_DATA_GNU;
++	    info->cmd = *flags;
++	    break;																											
 +
 +	case '9':		/*cmd: gnu*/
 +            if ((*flags & IPP2P_GNU) == IPP2P_GNU)
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: `--gnu' may only be "
 +                                "specified once!");
-+/*	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p-data' may only be "
-+				"specified alone!");*/
++				"specified alone!");
 +	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p' may only be "
@@ -175,17 +290,17 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
 +            *flags += IPP2P_GNU;
 +	    info->cmd = *flags;
-+	    break;
++	    break;																											
 +
 +	case 'a':		/*cmd: kazaa*/
 +            if ((*flags & IPP2P_KAZAA) == IPP2P_KAZAA)
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: `--kazaa' may only be "
 +                                "specified once!");
-+/*	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
++	    if ((*flags & SHORT_HAND_DATA) == SHORT_HAND_DATA)
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p-data' may only be "
-+				"specified alone!");*/
++				"specified alone!");
 +	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
 +		    exit_error(PARAMETER_PROBLEM,
 +				"ipp2p: `--ipp2p' may only be "
@@ -203,10 +318,6 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: `--bit' may only be "
 +                                "specified once!");
-+	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
-+		    exit_error(PARAMETER_PROBLEM,
-+				"ipp2p: `--ipp2p' may only be "
-+				"specified alone!");
 +	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
 +            *flags += IPP2P_BIT;
 +	    info->cmd = *flags;
@@ -217,10 +328,6 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: `--apple' may only be "
 +                                "specified once!");
-+	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
-+		    exit_error(PARAMETER_PROBLEM,
-+				"ipp2p: `--ipp2p' may only be "
-+				"specified alone!");
 +	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
 +            *flags += IPP2P_APPLE;
 +	    info->cmd = *flags;
@@ -232,10 +339,6 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: `--soul' may only be "
 +                                "specified once!");
-+	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
-+		    exit_error(PARAMETER_PROBLEM,
-+				"ipp2p: `--ipp2p' may only be "
-+				"specified alone!");
 +	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
 +            *flags += IPP2P_SOUL;
 +	    info->cmd = *flags;
@@ -247,10 +350,6 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: `--winmx' may only be "
 +                                "specified once!");
-+	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
-+		    exit_error(PARAMETER_PROBLEM,
-+				"ipp2p: `--ipp2p' may only be "
-+				"specified alone!");
 +	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
 +            *flags += IPP2P_WINMX;
 +	    info->cmd = *flags;
@@ -261,10 +360,6 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +            exit_error(PARAMETER_PROBLEM,
 +                                "ipp2p: `--ares' may only be "
 +                                "specified once!");
-+	    if ((*flags & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P)
-+		    exit_error(PARAMETER_PROBLEM,
-+				"ipp2p: `--ipp2p' may only be "
-+				"specified alone!");
 +	    if (invert) exit_error(PARAMETER_PROBLEM, "ipp2p: invert [!] is not allowed!");
 +            *flags += IPP2P_ARES;
 +	    info->cmd = *flags;
@@ -303,14 +398,14 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +    
 +    printf("ipp2p v%s", IPP2P_VERSION);
 +    if ((info->cmd & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P) printf(" --ipp2p");
-+//    if ((info->cmd & SHORT_HAND_DATA) == SHORT_HAND_DATA) printf(" --ipp2p-data");
++    if ((info->cmd & SHORT_HAND_DATA) == SHORT_HAND_DATA) printf(" --ipp2p-data");
 +    if ((info->cmd & IPP2P_KAZAA) == IPP2P_KAZAA) printf(" --kazaa");
-+//    if ((info->cmd & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA) printf(" --kazaa-data");
-+//    if ((info->cmd & IPP2P_DATA_GNU) == IPP2P_DATA_GNU) printf(" --gnu-data");
++    if ((info->cmd & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA) printf(" --kazaa-data");
++    if ((info->cmd & IPP2P_DATA_GNU) == IPP2P_DATA_GNU) printf(" --gnu-data");
 +    if ((info->cmd & IPP2P_GNU) == IPP2P_GNU) printf(" --gnu");
 +    if ((info->cmd & IPP2P_EDK) == IPP2P_EDK) printf(" --edk");
-+//    if ((info->cmd & IPP2P_DATA_EDK) == IPP2P_DATA_EDK) printf(" --edk-data");
-+//    if ((info->cmd & IPP2P_DATA_DC) == IPP2P_DATA_DC) printf(" --dc-data");
++    if ((info->cmd & IPP2P_DATA_EDK) == IPP2P_DATA_EDK) printf(" --edk-data");
++    if ((info->cmd & IPP2P_DATA_DC) == IPP2P_DATA_DC) printf(" --dc-data");
 +    if ((info->cmd & IPP2P_DC) == IPP2P_DC) printf(" --dc");
 +    if ((info->cmd & IPP2P_BIT) == IPP2P_BIT) printf(" --bit");
 +    if ((info->cmd & IPP2P_APPLE) == IPP2P_APPLE) printf(" --apple");
@@ -329,14 +424,14 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +    struct ipt_p2p_info *info = (struct ipt_p2p_info *)match->data;
 +    
 +    if ((info->cmd & SHORT_HAND_IPP2P) == SHORT_HAND_IPP2P) printf("--ipp2p ");
-+//    if ((info->cmd & SHORT_HAND_DATA) == SHORT_HAND_DATA) printf("--ipp2p-data ");
++    if ((info->cmd & SHORT_HAND_DATA) == SHORT_HAND_DATA) printf("--ipp2p-data ");
 +    if ((info->cmd & IPP2P_KAZAA) == IPP2P_KAZAA) printf("--kazaa ");
-+//    if ((info->cmd & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA) printf("--kazaa-data ");
-+//    if ((info->cmd & IPP2P_DATA_GNU) == IPP2P_DATA_GNU) printf("--gnu-data ");
++    if ((info->cmd & IPP2P_DATA_KAZAA) == IPP2P_DATA_KAZAA) printf("--kazaa-data ");
++    if ((info->cmd & IPP2P_DATA_GNU) == IPP2P_DATA_GNU) printf("--gnu-data ");
 +    if ((info->cmd & IPP2P_GNU) == IPP2P_GNU) printf("--gnu ");
 +    if ((info->cmd & IPP2P_EDK) == IPP2P_EDK) printf("--edk ");
-+//    if ((info->cmd & IPP2P_DATA_EDK) == IPP2P_DATA_EDK) printf("--edk-data ");
-+//    if ((info->cmd & IPP2P_DATA_DC) == IPP2P_DATA_DC) printf("--dc-data ");
++    if ((info->cmd & IPP2P_DATA_EDK) == IPP2P_DATA_EDK) printf("--edk-data ");
++    if ((info->cmd & IPP2P_DATA_DC) == IPP2P_DATA_DC) printf("--dc-data ");
 +    if ((info->cmd & IPP2P_DC) == IPP2P_DC) printf("--dc ");
 +    if ((info->cmd & IPP2P_BIT) == IPP2P_BIT) printf("--bit ");
 +    if ((info->cmd & IPP2P_APPLE) == IPP2P_APPLE) printf("--apple ");
@@ -349,21 +444,21 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +		
 +
 +
-+static 
-+struct iptables_match ipp2p= 
-+{ 
-+    .next           = NULL,
-+    .name           = "ipp2p",
-+    .version        = IPTABLES_VERSION,
-+    .size           = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
-+    .userspacesize  = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
-+    .help           = &help,
-+    .init           = &init,
-+    .parse          = &parse,
-+    .final_check    = &final_check,
-+    .print          = &print,
-+    .save           = &save,
-+    .extra_opts     = opts
++static
++struct iptables_match ipp2p
++= {
++   .next          = NULL,
++   .name          = "ipp2p",
++   .version       = IPTABLES_VERSION, 
++   .size          = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
++   .userspacesize = IPT_ALIGN(sizeof(struct ipt_p2p_info)),
++   .help          = &help,
++   .init          = &init,
++   .parse         = &parse,
++   .final_check   = &final_check,
++   .print         = &print,
++   .save          = &save,
++   .extra_opts    = opts
 +};
 +					    
 +
@@ -373,9 +468,9 @@ diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.c iptables/ext
 +    register_match(&ipp2p);
 +}
 +
-diff -Nur --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.man iptables/extensions/libipt_ipp2p.man
+diff -urN --exclude '*.orig' iptables.org/extensions/libipt_ipp2p.man iptables/extensions/libipt_ipp2p.man
 --- iptables.org/extensions/libipt_ipp2p.man	1970-01-01 01:00:00.000000000 +0100
-+++ iptables/extensions/libipt_ipp2p.man	2005-09-15 09:46:53.000000000 +0200
++++ iptables/extensions/libipt_ipp2p.man	2005-10-31 19:23:09.000000000 +0100
 @@ -0,0 +1,43 @@
 +This module matches certain packets in P2P flows. It is not
 +designed to match all packets belonging to a P2P connection - 
