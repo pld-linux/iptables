@@ -6,7 +6,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_pomng_snap		20050915
+%define		_pomng_snap		20051028
 #
 %define		iptables_version	1.3.3
 %define		llh_version		7:2.6.13.0-1
@@ -20,7 +20,7 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-%define		_rel 0.2
+%define		_rel 0.1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -50,6 +50,8 @@ Patch16:	%{name}-nf-ipp2p.patch
 Patch17:	%{name}-nf-ip_queue_vwmark.patch
 Patch18:	%{name}-nf-policy.patch
 
+Patch20:	%{name}-hot_dirty_fix.patch
+
 URL:		http://www.netfilter.org/
 Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
@@ -66,7 +68,7 @@ BuildRequires:	kernel-headers(netfilter) = %{_pomng_snap}
 BuildRequires:	kernel-source
 Requires:	kernel(netfilter) = %{_pomng_snap}
 %endif
-BuildRequires:	linux-libc-headers >= %{llh_version}
+#BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
 Provides:	firewall-userspace-tool
 Obsoletes:	netfilter
@@ -152,10 +154,13 @@ iptables(8).
 %patch17 -p1
 %patch18 -p1
 
+%patch20 -p1
+
 chmod 755 extensions/.*-test*
 
 # needs update (still valid?)
-#chmod 644 extensions/.geoip-test
+chmod 644 extensions/.{connbytes,geoip}-test
+chmod 644 extensions/.expire-test6
 
 %build
 %{__make} all experimental \
