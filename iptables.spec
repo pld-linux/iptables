@@ -151,7 +151,7 @@ iptables(8).
 %patch14 -p1
 %patch15 -p1
 %patch16 -p1
-%patch17 -p1
+#%patch17 -p1
 %patch18 -p1
 
 %patch20 -p1
