@@ -64,7 +64,7 @@ BuildRequires:	tetex-tex-babel
 BuildRequires:	sed >= 4.0
 %endif
 %if %{with dist_kernel} && %{_pomng_snap} != 0
-BuildRequires:	kernel-headers(netfilter) = %{_pomng_snap}
+BuildRequires:	kernel-headers(netfilter) >= %{_pomng_snap}
 BuildRequires:	kernel-source
 Requires:	kernel(netfilter) = %{_pomng_snap}
 %endif
