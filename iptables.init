@@ -141,7 +141,7 @@ case "$1" in
 	;;
 
   panic)
-	show "Changing target policies to DROP: "	
+	show "Changing target policies to DROP: "
 	iftable filter -P INPUT DROP && \
 	    iftable filter -P FORWARD DROP && \
 	    iftable filter -P OUTPUT DROP && \
