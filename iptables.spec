@@ -193,8 +193,6 @@ echo ".so iptables-restore.8" > %{name6}-restore.8
 
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
 
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/l7-protocols
-
 # Devel stuff
 cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
