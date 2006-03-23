@@ -7,8 +7,6 @@
 %bcond_without	dist_kernel	# without distribution kernel
 #
 %define		_pomng_snap		20051115
-#
-%define		iptables_version	1.3.3
 %define		llh_version		7:2.6.13.0-1
 %define		name6			ip6tables
 #
@@ -19,7 +17,7 @@ Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
 Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
-Version:	%{iptables_version}
+Version:	1.3.3
 %define		_rel 6
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
@@ -55,7 +53,6 @@ Patch20:	%{name}-hot_dirty_fix.patch
 Patch21:	%{name}-layer7-2.1.patch
 
 URL:		http://www.netfilter.org/
-Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
