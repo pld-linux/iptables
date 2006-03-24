@@ -17,13 +17,13 @@ Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
 Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
-Version:	1.3.3
-%define		_rel 6
+Version:	1.3.5
+%define		_rel 1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
-Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	86d88455520cfdc56fd7ae27897a80a4
+Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
+# Source0-md5:	00fb916fa8040ca992a5ace56d905ea5
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -43,10 +43,8 @@ Patch11:	%{name}-nf-expire.patch
 Patch12:	%{name}-nf-ACCOUNT.patch
 Patch13:	%{name}-nf-ULOG.patch
 Patch14:	%{name}-nf-geoip.patch
-Patch15:	%{name}-nf-goto.patch
 Patch16:	%{name}-nf-ipp2p.patch
 Patch17:	%{name}-nf-ip_queue_vwmark.patch
-Patch18:	%{name}-nf-policy.patch
 
 Patch20:	%{name}-hot_dirty_fix.patch
 
@@ -148,10 +146,8 @@ iptables(8).
 %patch12 -p1
 %patch13 -p1
 %patch14 -p1
-%patch15 -p1
 %patch16 -p1
 #%patch17 -p1
-%patch18 -p1
 
 %patch20 -p1
 %patch21 -p1
