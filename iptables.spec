@@ -28,28 +28,19 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-#Patch0:		%{name}-pom-ng-branch.diff
-Patch1:		%{name}-Makefile.patch
-Patch2:		%{name}-1.3.0-imq1.diff
-Patch3:		grsecurity-1.2.11-iptables.patch
-Patch4:		%{name}-man.patch
-
-# patch-o-matic-ng
-# [submitted]
-Patch10:	%{name}-nf-comment.patch
-# [base]
-Patch11:	%{name}-nf-expire.patch
-# [extra]
-Patch12:	%{name}-nf-ACCOUNT.patch
-Patch13:	%{name}-nf-ULOG.patch
-Patch14:	%{name}-nf-geoip.patch
-Patch16:	%{name}-nf-ipp2p.patch
-Patch17:	%{name}-nf-ip_queue_vwmark.patch
-
-Patch20:	%{name}-hot_dirty_fix.patch
-
-Patch21:	%{name}-layer7-2.1.patch
-
+Patch0:		%{name}-Makefile.patch
+Patch1:		%{name}-1.3.0-imq1.diff
+Patch2:		grsecurity-1.2.11-iptables.patch
+Patch3:		%{name}-man.patch
+Patch4:		%{name}-nf-comment.patch
+Patch5:		%{name}-nf-expire.patch
+Patch6:		%{name}-nf-ACCOUNT.patch
+Patch7:		%{name}-nf-ULOG.patch
+Patch8:		%{name}-nf-geoip.patch
+Patch9:	%{name}-nf-ipp2p.patch
+Patch10:	%{name}-nf-ip_queue_vwmark.patch
+Patch11:	%{name}-hot_dirty_fix.patch
+Patch12:	%{name}-layer7-2.1.patch
 URL:		http://www.netfilter.org/
 %if %{with doc}
 BuildRequires:	sgml-tools
@@ -135,22 +126,19 @@ iptables(8).
 
 %prep
 %setup -q -a1
-#patch0 -p0
-%{!?without_dist_kernel:%patch1 -p1}
+%{!?without_dist_kernel:%patch0 -p1}
+%patch1 -p1
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%patch8 -p1
+%patch9 -p1
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch16 -p1
-#%patch17 -p1
-
-%patch20 -p1
-%patch21 -p1
 
 chmod 755 extensions/.*-test*
 
