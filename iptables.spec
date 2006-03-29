@@ -6,7 +6,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_pomng_snap		20051115
+%define		_netfilter_snap		20060329
 %define		llh_version		7:2.6.13.0-1
 %define		name6			ip6tables
 #
@@ -18,7 +18,7 @@ Summary(uk):	õÔÉÌ¦ÔÉ ÄÌÑ ËÅÒÕ×ÁÎÎÑ ÐÁËÅÔÎÉÍÉ Æ¦ÌØÔÒÁÍÉ ÑÄÒÁ Linux
 Summary(zh_CN):	LinuxÄÚºË°ü¹ýÂË¹ÜÀí¹¤¾ß
 Name:		iptables
 Version:	1.3.5
-%define		_rel 1
+%define		_rel 1.2.6.16
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -28,19 +28,24 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-Patch0:		%{name}-Makefile.patch
-Patch1:		%{name}-1.3.0-imq1.diff
-Patch2:		grsecurity-1.2.11-iptables.patch
-Patch3:		%{name}-man.patch
-Patch4:		%{name}-nf-comment.patch
-Patch5:		%{name}-nf-expire.patch
-Patch6:		%{name}-nf-ACCOUNT.patch
-Patch7:		%{name}-nf-ULOG.patch
-Patch8:		%{name}-nf-geoip.patch
-Patch9:	%{name}-nf-ipp2p.patch
-Patch10:	%{name}-nf-ip_queue_vwmark.patch
-Patch11:	%{name}-hot_dirty_fix.patch
-Patch12:	%{name}-layer7-2.1.patch
+
+Patch0:		%{name}-%{_netfilter_snap}.patch
+
+Patch2:		%{name}-comment-%{_netfilter_snap}.patch
+Patch3:		%{name}-expire-%{_netfilter_snap}.patch
+#Patch0:		%{name}-Makefile.patch
+#Patch1:		%{name}-1.3.0-imq1.diff
+#Patch2:		grsecurity-1.2.11-iptables.patch
+#Patch3:		%{name}-man.patch
+#Patch4:		%{name}-nf-comment.patch
+#Patch5:		%{name}-nf-expire.patch
+#Patch6:		%{name}-nf-ACCOUNT.patch
+#Patch7:		%{name}-nf-ULOG.patch
+#Patch8:		%{name}-nf-geoip.patch
+#Patch9:	%{name}-nf-ipp2p.patch
+#Patch10:	%{name}-nf-ip_queue_vwmark.patch
+#Patch11:	%{name}-hot_dirty_fix.patch
+#Patch12:	%{name}-layer7-2.1.patch
 URL:		http://www.netfilter.org/
 %if %{with doc}
 BuildRequires:	sgml-tools
@@ -51,10 +56,10 @@ BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 BuildRequires:	sed >= 4.0
 %endif
-%if %{with dist_kernel} && %{_pomng_snap} != 0
-BuildRequires:	kernel-headers(netfilter) >= %{_pomng_snap}
+%if %{with dist_kernel} && %{_netfilter_snap} != 0
+BuildRequires:	kernel-headers(netfilter) >= %{_netfilter_snap}
 BuildRequires:	kernel-source
-Requires:	kernel(netfilter) >= %{_pomng_snap}
+Requires:	kernel(netfilter) >= %{_netfilter_snap}
 %endif
 #BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
@@ -126,25 +131,26 @@ iptables(8).
 
 %prep
 %setup -q -a1
-%{!?without_dist_kernel:%patch0 -p1}
-%patch1 -p1
-%patch2 -p1
-%patch3 -p1
-%patch4 -p1
-%patch5 -p1
-%patch6 -p1
-%patch7 -p1
-%patch8 -p1
-%patch9 -p1
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
+
+%patch0 -p1
+
+#{!?without_dist_kernel:%patch0 -p1}
+#patch1 -p1
+#patch2 -p1
+#patch3 -p1
+#patch4 -p1
+#patch5 -p1
+#patch6 -p1
+#patch7 -p1
+#patch8 -p1
+#patch9 -p1
+#patch10 -p1
+#patch11 -p1
+#patch12 -p1
 
 chmod 755 extensions/.*-test*
 
 # needs update (still valid?)
-chmod 644 extensions/.{connbytes,geoip}-test
-chmod 644 extensions/.expire-test6
 
 %build
 %{__make} all experimental \
