@@ -30,15 +30,13 @@ Source2:	%{name}.init
 Source3:	%{name6}.init
 
 Patch0:		%{name}-%{_netfilter_snap}.patch
+Patch1:		%{name}-Makefile.patch
+Patch2:		%{name}-man.patch
 
-Patch2:		%{name}-comment-%{_netfilter_snap}.patch
-Patch3:		%{name}-expire-%{_netfilter_snap}.patch
-#Patch0:		%{name}-Makefile.patch
+Patch5:		%{name}-comment-%{_netfilter_snap}.patch
+Patch6:		%{name}-expire-%{_netfilter_snap}.patch
 #Patch1:		%{name}-1.3.0-imq1.diff
 #Patch2:		grsecurity-1.2.11-iptables.patch
-#Patch3:		%{name}-man.patch
-#Patch4:		%{name}-nf-comment.patch
-#Patch5:		%{name}-nf-expire.patch
 #Patch6:		%{name}-nf-ACCOUNT.patch
 #Patch7:		%{name}-nf-ULOG.patch
 #Patch8:		%{name}-nf-geoip.patch
@@ -133,11 +131,12 @@ iptables(8).
 %setup -q -a1
 
 %patch0 -p1
+%{!?without_dist_kernel:%patch1 -p1}
+%patch2 -p1
 
-#{!?without_dist_kernel:%patch0 -p1}
-#patch1 -p1
-#patch2 -p1
-#patch3 -p1
+%patch5 -p1
+%patch6 -p1
+
 #patch4 -p1
 #patch5 -p1
 #patch6 -p1
