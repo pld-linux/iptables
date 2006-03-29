@@ -1,0 +1,367 @@
+diff -Nur iptables-1.3.5/include/ip6tables.h iptables-20060329/include/ip6tables.h
+--- iptables-1.3.5/include/ip6tables.h	2006-01-30 09:43:09.000000000 +0100
++++ iptables-20060329/include/ip6tables.h	2006-03-29 08:40:40.000000000 +0200
+@@ -13,6 +13,10 @@
+ 	struct ip6tables_rule_match *next;
+ 
+ 	struct ip6tables_match *match;
++
++	/* Multiple matches of the same type: the ones before
++	   the current one are completed from parsing point of view */	
++	unsigned int completed;
+ };
+ 
+ /* Include file for additions: new matches and targets. */
+diff -Nur iptables-1.3.5/include/iptables.h iptables-20060329/include/iptables.h
+--- iptables-1.3.5/include/iptables.h	2006-01-30 09:43:09.000000000 +0100
++++ iptables-20060329/include/iptables.h	2006-03-29 08:40:40.000000000 +0200
+@@ -29,6 +29,10 @@
+ 	struct iptables_rule_match *next;
+ 
+ 	struct iptables_match *match;
++
++	/* Multiple matches of the same type: the ones before
++	   the current one are completed from parsing point of view */	
++	unsigned int completed;
+ };
+ 
+ /* Include file for additions: new matches and targets. */
+diff -Nur iptables-1.3.5/ip6tables-restore.c iptables-20060329/ip6tables-restore.c
+--- iptables-1.3.5/ip6tables-restore.c	2005-06-24 18:34:19.000000000 +0200
++++ iptables-20060329/ip6tables-restore.c	2006-03-29 08:40:45.000000000 +0200
+@@ -7,7 +7,7 @@
+  * 	Rusty Russell <rusty@linuxcare.com.au>
+  * This code is distributed under the terms of GNU GPL v2
+  *
+- * $Id$
++ * $Id$
+  */
+ 
+ #include <getopt.h>
+@@ -266,7 +266,10 @@
+ 					char *ctrs;
+ 					ctrs = strtok(NULL, " \t\n");
+ 
+-					parse_counters(ctrs, &count);
++					if (!ctrs || !parse_counters(ctrs, &count))
++						exit_error(PARAMETER_PROBLEM,
++							  "invalid policy counters "
++							  "for chain '%s'\n", chain);
+ 
+ 				} else {
+ 					memset(&count, 0, 
+diff -Nur iptables-1.3.5/ip6tables.c iptables-20060329/ip6tables.c
+--- iptables-1.3.5/ip6tables.c	2006-01-30 09:43:12.000000000 +0100
++++ iptables-20060329/ip6tables.c	2006-03-29 08:40:45.000000000 +0200
+@@ -224,7 +224,6 @@
+ 	{ "icmpv6", IPPROTO_ICMPV6 },
+ 	{ "esp", IPPROTO_ESP },
+ 	{ "ah", IPPROTO_AH },
+-	{ "all", 0 },
+ };
+ 
+ static char *
+@@ -710,37 +709,46 @@
+ }
+ 
+ struct ip6tables_match *
+-find_match(const char *name, enum ip6t_tryload tryload, struct ip6tables_rule_match **matches)
++find_match(const char *match_name, enum ip6t_tryload tryload, struct ip6tables_rule_match **matches)
+ {
+ 	struct ip6tables_match *ptr;
+- 	int icmphack = 0;
++ 	const char *icmp6 = "icmp6";
++ 	const char *name;
+   
+ 	/* This is ugly as hell. Nonetheless, there is no way of changing
+ 	 * this without hurting backwards compatibility */
+- 	if ( (strcmp(name,"icmpv6") == 0) ||
+- 	     (strcmp(name,"ipv6-icmp") == 0) ||
+- 	     (strcmp(name,"icmp6") == 0) ) icmphack = 1;
++ 	if ( (strcmp(match_name,"icmpv6") == 0) ||
++ 	     (strcmp(match_name,"ipv6-icmp") == 0) ||
++ 	     (strcmp(match_name,"icmp6") == 0) )
++ 	     	name = icmp6;
++ 	else
++ 		name = match_name;
+  
+- 	if (!icmphack) {
+- 		for (ptr = ip6tables_matches; ptr; ptr = ptr->next) {
+- 			if (strcmp(name, ptr->name) == 0)
+- 				break;
+- 		}
+- 	} else {
+- 		for (ptr = ip6tables_matches; ptr; ptr = ptr->next) {
+- 			if (strcmp("icmp6", ptr->name) == 0)
+- 				break;
+- 		}
+-  	}
++	for (ptr = ip6tables_matches; ptr; ptr = ptr->next) {
++ 		if (strcmp(name, ptr->name) == 0) {
++			struct ip6tables_match *clone;
++			
++			/* First match of this type: */
++			if (ptr->m == NULL)
++				break;
++
++			/* Second and subsequent clones */
++			clone = fw_malloc(sizeof(struct ip6tables_match));
++			memcpy(clone, ptr, sizeof(struct ip6tables_match));
++			clone->mflags = 0;
++			/* This is a clone: */
++			clone->next = clone;
++
++			ptr = clone;
++			break;
++		}
++	}
+ 
+ #ifndef NO_SHARED_LIBS
+ 	if (!ptr && tryload != DONT_LOAD && tryload != DURING_LOAD) {
+ 		char path[strlen(lib_dir) + sizeof("/libip6t_.so")
+ 			 + strlen(name)];
+-		if (!icmphack)
+-			sprintf(path, "%s/libip6t_%s.so", lib_dir, name);
+-		else
+-			sprintf(path, "%s/libip6t_%s.so", lib_dir, "icmpv6");
++		sprintf(path, "%s/libip6t_%s.so", lib_dir, name);
+ 		if (dlopen(path, RTLD_NOW)) {
+ 			/* Found library.  If it didn't register itself,
+ 			   maybe they specified target as match. */
+@@ -774,8 +782,12 @@
+ 
+ 		newentry = fw_malloc(sizeof(struct ip6tables_rule_match));
+ 
+-		for (i = matches; *i; i = &(*i)->next);
++		for (i = matches; *i; i = &(*i)->next) {
++			if (strcmp(name, (*i)->match->name) == 0)
++				(*i)->completed = 1;
++		}
+ 		newentry->match = ptr;
++		newentry->completed = 0;
+ 		newentry->next = NULL;
+ 		*i = newentry;
+ 	}
+@@ -808,6 +820,13 @@
+ 	if (string_to_number(s, 0, 255, &proto) == -1) {
+ 		struct protoent *pent;
+ 
++		/* first deal with the special case of 'all' to prevent
++		 * people from being able to redefine 'all' in nsswitch
++		 * and/or provoke expensive [not working] ldap/nis/... 
++		 * lookups */
++		if (!strcmp(s, "all"))
++			return 0;
++
+ 		if ((pent = getprotobyname(s)))
+ 			proto = pent->p_proto;
+ 		else {
+@@ -1691,8 +1710,14 @@
+ 
+ 	for (matchp = *matches; matchp;) {
+ 		tmp = matchp->next;
+-		if (matchp->match->m)
++		if (matchp->match->m) {
+ 			free(matchp->match->m);
++			matchp->match->m = NULL;
++		}
++		if (matchp->match == matchp->match->next) {
++			free(matchp->match);
++			matchp->match = NULL;
++		}
+ 		free(matchp);
+ 		matchp = tmp;
+ 	}
+@@ -1980,7 +2005,9 @@
+ 			strcpy(m->m->u.user.name, m->name);
+ 			if (m->init != NULL)
+ 				m->init(m->m, &fw.nfcache);
+-			opts = merge_options(opts, m->extra_opts, &m->option_offset);
++			if (m != m->next)
++				/* Merge options for non-cloned matches */
++				opts = merge_options(opts, m->extra_opts, &m->option_offset);
+ 		}
+ 		break;
+ 
+@@ -2058,14 +2085,14 @@
+ 			exit_tryhelp(2);
+ 
+ 		default:
+-			/* FIXME: This scheme doesn't allow two of the same
+-			   matches --RR */
+ 			if (!target
+ 			    || !(target->parse(c - target->option_offset,
+ 					       argv, invert,
+ 					       &target->tflags,
+ 					       &fw, &target->t))) {
+ 				for (matchp = matches; matchp; matchp = matchp->next) {
++					if (matchp->completed) 
++						continue;
+ 					if (matchp->match->parse(c - matchp->match->option_offset,
+ 						     argv, invert,
+ 						     &matchp->match->mflags,
+@@ -2080,7 +2107,7 @@
+ 				   actually hear this code suck. */
+ 
+ 				/* some explanations (after four different bugs
+-				 * in 3 different releases): If we encountere a
++				 * in 3 different releases): If we encounter a
+ 				 * parameter, that has not been parsed yet,
+ 				 * it's not an option of an explicitly loaded
+ 				 * match or a target.  However, we support
+diff -Nur iptables-1.3.5/iptables-restore.c iptables-20060329/iptables-restore.c
+--- iptables-1.3.5/iptables-restore.c	2005-06-24 18:34:19.000000000 +0200
++++ iptables-20060329/iptables-restore.c	2006-03-29 08:40:45.000000000 +0200
+@@ -4,7 +4,7 @@
+  *
+  * This code is distributed under the terms of GNU GPL v2
+  *
+- * $Id$
++ * $Id$
+  */
+ 
+ #include <getopt.h>
+@@ -269,7 +269,10 @@
+ 					char *ctrs;
+ 					ctrs = strtok(NULL, " \t\n");
+ 
+-					parse_counters(ctrs, &count);
++					if (!ctrs || !parse_counters(ctrs, &count))
++						exit_error(PARAMETER_PROBLEM,
++							   "invalid policy counters "
++							   "for chain '%s'\n", chain);
+ 
+ 				} else {
+ 					memset(&count, 0, 
+diff -Nur iptables-1.3.5/iptables.c iptables-20060329/iptables.c
+--- iptables-1.3.5/iptables.c	2006-01-30 09:43:09.000000000 +0100
++++ iptables-20060329/iptables.c	2006-03-29 08:40:45.000000000 +0200
+@@ -229,7 +229,6 @@
+ 	{ "esp", IPPROTO_ESP },
+ 	{ "ah", IPPROTO_AH },
+ 	{ "sctp", IPPROTO_SCTP },
+-	{ "all", 0 },
+ };
+ 
+ static char *
+@@ -680,9 +679,24 @@
+ 	struct iptables_match *ptr;
+ 
+ 	for (ptr = iptables_matches; ptr; ptr = ptr->next) {
+-		if (strcmp(name, ptr->name) == 0)
++		if (strcmp(name, ptr->name) == 0) {
++			struct iptables_match *clone;
++			
++			/* First match of this type: */
++			if (ptr->m == NULL)
++				break;
++
++			/* Second and subsequent clones */
++			clone = fw_malloc(sizeof(struct iptables_match));
++			memcpy(clone, ptr, sizeof(struct iptables_match));
++			clone->mflags = 0;
++			/* This is a clone: */
++			clone->next = clone;
++
++			ptr = clone;
+ 			break;
+-	}
++		}
++	}		
+ 
+ #ifndef NO_SHARED_LIBS
+ 	if (!ptr && tryload != DONT_LOAD && tryload != DURING_LOAD) {
+@@ -722,8 +736,12 @@
+ 
+ 		newentry = fw_malloc(sizeof(struct iptables_rule_match));
+ 
+-		for (i = matches; *i; i = &(*i)->next);
++		for (i = matches; *i; i = &(*i)->next) {
++			if (strcmp(name, (*i)->match->name) == 0)
++				(*i)->completed = 1;
++		}
+ 		newentry->match = ptr;
++		newentry->completed = 0;
+ 		newentry->next = NULL;
+ 		*i = newentry;
+ 	}
+@@ -756,6 +774,13 @@
+ 	if (string_to_number(s, 0, 255, &proto) == -1) {
+ 		struct protoent *pent;
+ 
++		/* first deal with the special case of 'all' to prevent
++		 * people from being able to redefine 'all' in nsswitch
++		 * and/or provoke expensive [not working] ldap/nis/... 
++		 * lookups */
++		if (!strcmp(s, "all"))
++			return 0;
++
+ 		if ((pent = getprotobyname(s)))
+ 			proto = pent->p_proto;
+ 		else {
+@@ -1800,8 +1825,14 @@
+ 
+ 	for (matchp = *matches; matchp;) {
+ 		tmp = matchp->next;
+-		if (matchp->match->m)
++		if (matchp->match->m) {
+ 			free(matchp->match->m);
++			matchp->match->m = NULL;
++		}
++		if (matchp->match == matchp->match->next) {
++			free(matchp->match);
++			matchp->match = NULL;
++		}
+ 		free(matchp);
+ 		matchp = tmp;
+ 	}
+@@ -2126,7 +2157,9 @@
+ 			set_revision(m->m->u.user.name, m->revision);
+ 			if (m->init != NULL)
+ 				m->init(m->m, &fw.nfcache);
+-			opts = merge_options(opts, m->extra_opts, &m->option_offset);
++			if (m != m->next)
++				/* Merge options for non-cloned matches */
++				opts = merge_options(opts, m->extra_opts, &m->option_offset);
+ 		}
+ 		break;
+ 
+@@ -2204,14 +2237,14 @@
+ 			exit_tryhelp(2);
+ 
+ 		default:
+-			/* FIXME: This scheme doesn't allow two of the same
+-			   matches --RR */
+ 			if (!target
+ 			    || !(target->parse(c - target->option_offset,
+ 					       argv, invert,
+ 					       &target->tflags,
+ 					       &fw, &target->t))) {
+ 				for (matchp = matches; matchp; matchp = matchp->next) {
++					if (matchp->completed) 
++						continue;
+ 					if (matchp->match->parse(c - matchp->match->option_offset,
+ 						     argv, invert,
+ 						     &matchp->match->mflags,
+@@ -2226,7 +2259,7 @@
+ 				   actually hear this code suck. */
+ 
+ 				/* some explanations (after four different bugs
+-				 * in 3 different releases): If we encountere a
++				 * in 3 different releases): If we encounter a
+ 				 * parameter, that has not been parsed yet,
+ 				 * it's not an option of an explicitly loaded
+ 				 * match or a target.  However, we support
+diff -Nur iptables-1.3.5/libiptc/Makefile iptables-20060329/libiptc/Makefile
+--- iptables-1.3.5/libiptc/Makefile	2004-10-10 11:56:24.000000000 +0200
++++ iptables-20060329/libiptc/Makefile	2006-03-29 08:40:41.000000000 +0200
+@@ -2,7 +2,8 @@
+ 
+ EXTRAS+=libiptc/libiptc.a
+ 
+-DEVEL_LIBS+=libiptc/libiptc.a
++# libiptc is not a public interface and therefore not installed
++# DEVEL_LIBS+=libiptc/libiptc.a
+ 
+ ifndef TOPLEVEL_INCLUDED
+ local:
