@@ -155,7 +155,7 @@ chmod 755 extensions/.*-test*
 
 # needs update (still valid?)
 rm extensions/.string-test
-#rm extensions/.expire-test6
+rm extensions/.expire-test6
 
 %build
 %{__make} all experimental \
