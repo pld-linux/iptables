@@ -35,7 +35,7 @@ Patch2:		%{name}-man.patch
 
 Patch5:		%{name}-comment-%{_netfilter_snap}.patch
 Patch6:		%{name}-expire-%{_netfilter_snap}.patch
-#Patch1:		%{name}-1.3.0-imq1.diff
+Patch7:		%{name}-1.3.0-imq1.diff
 #Patch2:		grsecurity-1.2.11-iptables.patch
 #Patch6:		%{name}-nf-ACCOUNT.patch
 #Patch7:		%{name}-nf-ULOG.patch
@@ -44,6 +44,8 @@ Patch6:		%{name}-expire-%{_netfilter_snap}.patch
 #Patch10:	%{name}-nf-ip_queue_vwmark.patch
 #Patch11:	%{name}-hot_dirty_fix.patch
 #Patch12:	%{name}-layer7-2.1.patch
+Patch999:	%{name}-llh-dirty-hack.patch
+
 URL:		http://www.netfilter.org/
 %if %{with doc}
 BuildRequires:	sgml-tools
@@ -136,7 +138,7 @@ iptables(8).
 
 %patch5 -p1
 %patch6 -p1
-
+%patch7 -p1
 #patch4 -p1
 #patch5 -p1
 #patch6 -p1
@@ -147,9 +149,13 @@ iptables(8).
 #patch11 -p1
 #patch12 -p1
 
+%patch999 -p1
+
 chmod 755 extensions/.*-test*
 
 # needs update (still valid?)
+rm extensions/.string-test
+#rm extensions/.expire-test6
 
 %build
 %{__make} all experimental \
