@@ -36,6 +36,9 @@ Patch2:		%{name}-man.patch
 Patch5:		%{name}-comment-%{_netfilter_snap}.patch
 Patch6:		%{name}-expire-%{_netfilter_snap}.patch
 Patch7:		%{name}-1.3.0-imq1.diff
+
+Patch10:	%{name}-connbytes-xtables.patch
+
 #Patch2:		grsecurity-1.2.11-iptables.patch
 #Patch6:		%{name}-nf-ACCOUNT.patch
 #Patch7:		%{name}-nf-ULOG.patch
@@ -139,6 +142,8 @@ iptables(8).
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+
+%patch10 -p1
 #patch4 -p1
 #patch5 -p1
 #patch6 -p1
