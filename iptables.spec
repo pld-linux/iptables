@@ -6,7 +6,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_netfilter_snap		20060329
+%define		_netfilter_snap		20060504
 %define		llh_version		7:2.6.13.0-1
 %define		name6			ip6tables
 #
@@ -41,7 +41,6 @@ Patch10:	%{name}-connbytes-xtables.patch
 
 Patch12:	%{name}-ipp2p-%{_netfilter_snap}.patch
 #Patch2:		grsecurity-1.2.11-iptables.patch
-#Patch6:		%{name}-nf-ACCOUNT.patch
 #Patch7:		%{name}-nf-ULOG.patch
 #Patch8:		%{name}-nf-geoip.patch
 #Patch10:	%{name}-nf-ip_queue_vwmark.patch
@@ -148,7 +147,6 @@ iptables(8).
 %patch12 -p1
 #patch4 -p1
 #patch5 -p1
-#patch6 -p1
 #patch7 -p1
 #patch8 -p1
 #patch9 -p1
