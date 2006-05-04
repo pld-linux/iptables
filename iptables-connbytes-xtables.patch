@@ -3,8 +3,8 @@ diff -Nur iptables-1.3.5.org/extensions/.connbytes-test iptables-1.3.5/extension
 +++ iptables-1.3.5/extensions/.connbytes-test	2006-04-04 10:49:32.000000000 +0200
 @@ -1,2 +1,2 @@
  #! /bin/sh
--[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_connbytes.c ] && echo connbytes
-+[ -f $KERNEL_DIR/net/netfilter/xt_connbytes.c ] && echo connbytes
+-[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_connbytes.h ] && echo connbytes
++[ -f $KERNEL_DIR/include/linux/netfilter/xt_connbytes.h ] && echo connbytes
 diff -Nur iptables-1.3.5.org/extensions/libipt_connbytes.c iptables-1.3.5/extensions/libipt_connbytes.c
 --- iptables-1.3.5.org/extensions/libipt_connbytes.c	2006-01-30 09:43:11.000000000 +0100
 +++ iptables-1.3.5/extensions/libipt_connbytes.c	2006-04-04 11:16:08.000000000 +0200
