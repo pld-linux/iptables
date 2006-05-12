@@ -40,7 +40,7 @@ Patch7:		%{name}-1.3.0-imq1.diff
 Patch10:	%{name}-connbytes-xtables.patch
 
 Patch12:	%{name}-ipp2p-%{_netfilter_snap}.patch
-#Patch2:		grsecurity-1.2.11-iptables.patch
+Patch13:	grsecurity-1.2.11-iptables.patch
 #Patch7:		%{name}-nf-ULOG.patch
 #Patch8:		%{name}-nf-geoip.patch
 #Patch10:	%{name}-nf-ip_queue_vwmark.patch
@@ -145,6 +145,7 @@ iptables(8).
 %patch10 -p1
 
 %patch12 -p1
+%patch13 -p1
 #patch4 -p1
 #patch5 -p1
 #patch7 -p1
