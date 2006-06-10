@@ -52,6 +52,7 @@ URL:		http://www.netfilter.org/
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
+BuildRequires:	texconfig
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex
