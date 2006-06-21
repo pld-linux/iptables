@@ -20,7 +20,7 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-%define		_rel 6
+%define		_rel 7
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -35,6 +35,7 @@ Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-1.3.0-imq1.diff
 Patch3:		grsecurity-1.2.11-iptables.patch
 Patch4:		%{name}-man.patch
+Patch5:		%{name}-64bit_connmark_fix.patch
 
 # patch-o-matic-ng
 # [submitted]
@@ -145,6 +146,7 @@ iptables(8).
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %patch10 -p1
 %patch11 -p1
