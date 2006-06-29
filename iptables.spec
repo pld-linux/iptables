@@ -45,7 +45,7 @@ Patch13:	grsecurity-1.2.11-iptables.patch
 #Patch8:		%{name}-nf-geoip.patch
 #Patch10:	%{name}-nf-ip_queue_vwmark.patch
 #Patch11:	%{name}-hot_dirty_fix.patch
-#Patch12:	%{name}-layer7-2.1.patch
+Patch14:	%{name}-layer7-2.2.patch
 Patch999:	%{name}-llh-dirty-hack.patch
 
 URL:		http://www.netfilter.org/
@@ -154,7 +154,7 @@ iptables(8).
 #patch9 -p1
 #patch10 -p1
 #patch11 -p1
-#patch12 -p1
+%patch14 -p1
 
 %patch999 -p1
 
