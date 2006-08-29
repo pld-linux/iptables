@@ -6,7 +6,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_netfilter_snap		20060504
+%define		_netfilter_snap		20060829
 %define		llh_version		7:2.6.13.0-1
 %define		name6			ip6tables
 #
@@ -33,8 +33,8 @@ Patch0:		%{name}-%{_netfilter_snap}.patch
 Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-man.patch
 
-Patch5:		%{name}-comment-%{_netfilter_snap}.patch
-Patch6:		%{name}-expire-%{_netfilter_snap}.patch
+#Patch5:		%{name}-comment-%{_netfilter_snap}.patch
+#Patch6:		%{name}-expire-%{_netfilter_snap}.patch
 Patch7:		%{name}-1.3.0-imq1.diff
 
 Patch10:	%{name}-connbytes-xtables.patch
@@ -139,8 +139,8 @@ iptables(8).
 %{!?without_dist_kernel:%patch1 -p1}
 %patch2 -p1
 
-%patch5 -p1
-%patch6 -p1
+#patch5 -p1
+#patch6 -p1
 %patch7 -p1
 
 %patch10 -p1
@@ -161,8 +161,8 @@ iptables(8).
 chmod 755 extensions/.*-test*
 
 # needs update (still valid?)
-rm extensions/.string-test
-rm extensions/.expire-test6
+#rm extensions/.string-test
+#rm extensions/.expire-test6
 
 %build
 %{__make} all experimental \
