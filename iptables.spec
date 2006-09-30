@@ -17,19 +17,19 @@ Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
 Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
-Version:	1.3.5
-%define		_rel 1.2.6.17
+Version:	1.3.6
+%define		_rel 1.2.6.18
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	00fb916fa8040ca992a5ace56d905ea5
+# Source0-md5:	077e886a9c90a11bb47f3d7a4fc4a689
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
 
-Patch0:		%{name}-%{_netfilter_snap}.patch
+#Patch0:		%{name}-%{_netfilter_snap}.patch
 Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-man.patch
 
@@ -135,7 +135,7 @@ iptables(8).
 %prep
 %setup -q -a1
 
-%patch0 -p1
+#patch0 -p1
 %{!?without_dist_kernel:%patch1 -p1}
 %patch2 -p1
 
