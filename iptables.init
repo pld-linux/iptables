@@ -19,23 +19,11 @@
 
 IPTABLES_CONFIG=/etc/sysconfig/iptables
 
-if [ ! -x /usr/sbin/iptables ]; then
+if [ "$(kernelver)" -lt "002003000" ]; then
 	exit 0
 fi
 
-KERNELMAJ=`uname -r | sed                   -e 's,\..*,,'`
-KERNELMIN=`uname -r | sed -e 's,[^\.]*\.,,' -e 's,\..*,,'`
-
-if [ "$KERNELMAJ" -lt 2 ] ; then
-	exit 0
-fi
-if [ "$KERNELMAJ" -eq 2 -a "$KERNELMIN" -lt 3 ] ; then
-	exit 0
-fi
-
-
-
-if  /sbin/lsmod 2>/dev/null |grep -q ipchains ; then
+if /sbin/lsmod 2>/dev/null | grep -q ipchains ; then
 	# Don't do both
 	exit 0
 fi
@@ -189,4 +177,3 @@ case "$1" in
 esac
 
 exit 0
-
