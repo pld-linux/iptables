@@ -14,10 +14,17 @@
 #
 # config: /etc/sysconfig/iptables
 
+IPTABLES_CONFIG=/etc/sysconfig/iptables
+if [ ! -f $IPTABLES_CONFIG ]; then
+	case "$1" in
+	start|restart|force-reload)
+		exit 0
+	;;
+	esac
+fi
+
 # Source 'em up
 . /etc/rc.d/init.d/functions
-
-IPTABLES_CONFIG=/etc/sysconfig/iptables
 
 if [ "$(kernelver)" -lt "002003000" ]; then
 	exit 0
