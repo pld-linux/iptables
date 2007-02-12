@@ -4,7 +4,7 @@
 # _without_tex - without TeX documentation (HOWTOS)
 #
 Summary:	extensible packet filtering system && extensible NAT system
-Summary(pl):	system filtrowania pakietów oraz system translacji adresów (NAT)
+Summary(pl.UTF-8):   system filtrowania pakietÃ³w oraz system translacji adresÃ³w (NAT)
 Name:		iptables
 Version:	1.2.7a
 %define		_rel	6
@@ -41,21 +41,21 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 An extensible NAT system, and an extensible packet filtering system.
 Replacement of ipchains in 2.4 kernels.
 
-%description -l pl
-Wydajny system translacji adresów (NAT) oraz system filtrowania
-pakietów. Zamiennik ipchains w j±drach 2.4
+%description -l pl.UTF-8
+Wydajny system translacji adresÃ³w (NAT) oraz system filtrowania
+pakietÃ³w. Zamiennik ipchains w jÄ…drach 2.4
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
-Summary(pl):	Biblioteki i nag³ówki do tworzenia rozszerzeñ iptables
+Summary(pl.UTF-8):   Biblioteki i nagÅ‚Ã³wki do tworzenia rozszerzeÅ„ iptables
 Group:		Development/Libraries
 Requires:	%{name} = %{version}
 
 %description devel
 Libraries and headers for developing iptables extensions.
 
-%description devel -l pl
-Biblioteki i pliki nag³ówkowe niezbêdne do tworzenia rozszerzeñ dla
+%description devel -l pl.UTF-8
+Biblioteki i pliki nagÅ‚Ã³wkowe niezbÄ™dne do tworzenia rozszerzeÅ„ dla
 iptables.
 
 %prep
