@@ -11,11 +11,11 @@
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
-Summary(pl):	System filtrowania pakietСw oraz system translacji adresСw (NAT)
-Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
-Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
-Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
-Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
+Summary(pl.UTF-8):   System filtrowania pakietцЁw oraz system translacji adresцЁw (NAT)
+Summary(pt_BR.UTF-8):   Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
+Summary(ru.UTF-8):   пёя┌п╦п╩п╦я┌я▀ п╢п╩я▐ я┐п©я─п╟п╡п╩п╣п╫п╦я▐ п©п╟п╨п╣я┌п╫я▀п╪п╦ я└п╦п╩я▄я┌я─п╟п╪п╦ я▐п╢я─п╟ Linux
+Summary(uk.UTF-8):   пёя┌п╦п╩я√я┌п╦ п╢п╩я▐ п╨п╣я─я┐п╡п╟п╫п╫я▐ п©п╟п╨п╣я┌п╫п╦п╪п╦ я└я√п╩я▄я┌я─п╟п╪п╦ я▐п╢я─п╟ Linux
+Summary(zh_CN.UTF-8):   LinuxЕ├┘Ф═╦Е▄┘Х©┤Ф╩╓Г╝║Г░├Е╥╔Е┘╥
 Name:		iptables
 Version:	1.3.6
 %define		_rel 1.2.6.18
@@ -76,29 +76,29 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 An extensible NAT system, and an extensible packet filtering system.
 Replacement of ipchains in 2.4 and higher kernels.
 
-%description -l pl
-Wydajny system translacji adresСw (NAT) oraz system filtrowania
-pakietСw. Zamiennik ipchains w j╠drach 2.4 i nowszych.
+%description -l pl.UTF-8
+Wydajny system translacji adresцЁw (NAT) oraz system filtrowania
+pakietцЁw. Zamiennik ipchains w jд┘drach 2.4 i nowszych.
 
-%description -l pt_BR
-Esta И a ferramenta que controla o cСdigo de filtragem de pacotes do
-kernel 2.4, obsoletando ipchains. Com esta ferramenta vocЙ pode
+%description -l pt_BR.UTF-8
+Esta ц╘ a ferramenta que controla o cцЁdigo de filtragem de pacotes do
+kernel 2.4, obsoletando ipchains. Com esta ferramenta vocц╙ pode
 configurar filtros de pacotes, NAT, mascaramento (masquerading),
-regras dinБmicas (stateful inspection), etc.
+regras dinц╒micas (stateful inspection), etc.
 
-%description -l ru
-iptables управляют кодом фильтрации сетевых пакетов в ядре Linux. Они
-позволяют вам устанавливать межсетевые экраны (firewalls) и IP
-маскарадинг, и т.п.
+%description -l ru.UTF-8
+iptables я┐п©я─п╟п╡п╩я▐я▌я┌ п╨п╬п╢п╬п╪ я└п╦п╩я▄я┌я─п╟я├п╦п╦ я│п╣я┌п╣п╡я▀я┘ п©п╟п╨п╣я┌п╬п╡ п╡ я▐п╢я─п╣ Linux. п·п╫п╦
+п©п╬п╥п╡п╬п╩я▐я▌я┌ п╡п╟п╪ я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟я┌я▄ п╪п╣п╤я│п╣я┌п╣п╡я▀п╣ я█п╨я─п╟п╫я▀ (firewalls) п╦ IP
+п╪п╟я│п╨п╟я─п╟п╢п╦п╫пЁ, п╦ я┌.п©.
 
-%description -l uk
-iptables управляють кодом ф╕льтрац╕╖ пакет╕в мереж╕ в ядр╕ Linux. Вони
-дозволяють вам встановлювати м╕жмережев╕ екрани (firewalls) та IP
-маскарадинг, тощо.
+%description -l uk.UTF-8
+iptables я┐п©я─п╟п╡п╩я▐я▌я┌я▄ п╨п╬п╢п╬п╪ я└я√п╩я▄я┌я─п╟я├я√я≈ п©п╟п╨п╣я┌я√п╡ п╪п╣я─п╣п╤я√ п╡ я▐п╢я─я√ Linux. п▓п╬п╫п╦
+п╢п╬п╥п╡п╬п╩я▐я▌я┌я▄ п╡п╟п╪ п╡я│я┌п╟п╫п╬п╡п╩я▌п╡п╟я┌п╦ п╪я√п╤п╪п╣я─п╣п╤п╣п╡я√ п╣п╨я─п╟п╫п╦ (firewalls) я┌п╟ IP
+п╪п╟я│п╨п╟я─п╟п╢п╦п╫пЁ, я┌п╬я┴п╬.
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
-Summary(pl):	Biblioteki i nagЁСwki do tworzenia rozszerzeЯ iptables
+Summary(pl.UTF-8):   Biblioteki i nagе┌цЁwki do tworzenia rozszerzeе└ iptables
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Obsoletes:	iptables24-devel
@@ -106,13 +106,13 @@ Obsoletes:	iptables24-devel
 %description devel
 Libraries and headers for developing iptables extensions.
 
-%description devel -l pl
-Biblioteki i pliki nagЁСwkowe niezbЙdne do tworzenia rozszerzeЯ dla
+%description devel -l pl.UTF-8
+Biblioteki i pliki nagе┌цЁwkowe niezbд≥dne do tworzenia rozszerzeе└ dla
 iptables.
 
 %package init
 Summary:	Iptables init (RedHat style)
-Summary(pl):	Iptables init (w stylu RedHata)
+Summary(pl.UTF-8):   Iptables init (w stylu RedHata)
 Group:		Networking/Admin
 Release:	%{_rel}
 PreReq:		rc-scripts
@@ -126,9 +126,9 @@ Obsoletes:	iptables24-init
 Iptables-init is meant to provide an alternate way than firewall-init
 to start and stop packet filtering through iptables(8).
 
-%description init -l pl
-Iptables-init ma na celu udostЙpnienie alternatywnego w stosunku do
-firewall-init sposobu wЁ╠czania i wyЁ╠czania filtrСw IP j╠dra poprzez
+%description init -l pl.UTF-8
+Iptables-init ma na celu udostд≥pnienie alternatywnego w stosunku do
+firewall-init sposobu wе┌д┘czania i wyе┌д┘czania filtrцЁw IP jд┘dra poprzez
 iptables(8).
 
 %prep
