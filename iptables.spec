@@ -11,11 +11,11 @@
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
-Summary(pl.UTF-8):   System filtrowania pakietów oraz system translacji adresów (NAT)
-Summary(pt_BR.UTF-8):   Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
-Summary(ru.UTF-8):   Утилиты для управления пакетными фильтрами ядра Linux
-Summary(uk.UTF-8):   Утиліти для керування пакетними фільтрами ядра Linux
-Summary(zh_CN.UTF-8):   Linux内核包过滤管理工具
+Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
+Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
+Summary(ru.UTF-8):	Утилиты для управления пакетными фильтрами ядра Linux
+Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
+Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.3.6
 %define		_rel 1.2.6.18
@@ -98,7 +98,7 @@ iptables управляють кодом фільтрації пакетів м�
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
-Summary(pl.UTF-8):   Biblioteki i nagłówki do tworzenia rozszerzeń iptables
+Summary(pl.UTF-8):	Biblioteki i nagłówki do tworzenia rozszerzeń iptables
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Obsoletes:	iptables24-devel
@@ -112,7 +112,7 @@ iptables.
 
 %package init
 Summary:	Iptables init (RedHat style)
-Summary(pl.UTF-8):   Iptables init (w stylu RedHata)
+Summary(pl.UTF-8):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
 Release:	%{_rel}
 PreReq:		rc-scripts
