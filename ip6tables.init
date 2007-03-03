@@ -176,7 +176,7 @@ case "$1" in
 	;;
 
   *)
-	echo "Usage: $0 {start|stop|restart|force-reload|status|panic|save}"
+	msg_usage "$0 {start|stop|restart|force-reload|status|panic|save}"
 	exit 3
 esac
 
