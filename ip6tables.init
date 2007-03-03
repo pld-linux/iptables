@@ -142,8 +142,8 @@ case "$1" in
 		iftable nat -P OUTPUT DROP && \
 		iftable mangle -P PREROUTING DROP && \
 		iftable mangle -P OUTPUT DROP && \
-		ok "Changing target policies to DROP" || \
-		fail "Changing target policies to DROP"
+		ok || \
+		fail
 		iftable filter -F INPUT && \
 			iftable filter -F FORWARD && \
 			iftable filter -F OUTPUT && \
@@ -152,8 +152,8 @@ case "$1" in
 			iftable nat -F OUTPUT && \
 			iftable mangle -F PREROUTING && \
 			iftable mangle -F OUTPUT && \
-			ok "Flushing all chains:" || \
-			fail "Flushing all chains:"
+			ok || \
+			fail
 		iftable filter -X INPUT && \
 			iftable filter -X FORWARD && \
 			iftable filter -X OUTPUT && \
@@ -162,8 +162,8 @@ case "$1" in
 			iftable nat -X OUTPUT && \
 			iftable mangle -X PREROUTING && \
 			iftable mangle -X OUTPUT && \
-			ok "Removing user defined chains:" || \
-			fail "Removing user defined chains:"
+			ok || \
+			fail
 		;;
 
   save)
@@ -171,8 +171,8 @@ case "$1" in
 	touch $IPTABLES_CONFIG
 	chmod 600 $IPTABLES_CONFIG
 	/usr/sbin/ip6tables-save -c > $IPTABLES_CONFIG  2>/dev/null && \
-	  ok "Saving current rules to $IPTABLES_CONFIG" || \
-	  fail "Saving current rules to $IPTABLES_CONFIG"
+	  ok || \
+	  fail
 	;;
 
   *)
