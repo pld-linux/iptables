@@ -69,42 +69,40 @@ start() {
 
 		show "Applying ip6tables firewall rules"
 		grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /usr/sbin/ip6tables-restore -c && \
-			ok || \
-			fail
+			ok || fail
 		touch /var/lock/subsys/ip6tables
 	fi
 }
 
 stop() {
 	tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
-		show "Flushing all chains"
-		let ret=0
-		for i in $tables; do ip6tables -t $i -F; let ret+=$?; done
-		if [ $ret -eq 0 ]; then
-			ok
-		else
-			fail
-		fi
+	show "Flushing all chains"
+	let ret=0
+	for i in $tables; do ip6tables -t $i -F; let ret+=$?; done
+	if [ $ret -eq 0 ]; then
+		ok
+	else
+		fail
+	fi
 
-		show "Removing user defined chains"
-		let ret=0
-		for i in $tables; do ip6tables -t $i -X; let ret+=$?; done
-		if [ $ret -eq 0 ]; then
-			ok
-		else
-			fail
-		fi
-		show "Resetting built-in chains to the default ACCEPT policy"
+	show "Removing user defined chains"
+	let ret=0
+	for i in $tables; do ip6tables -t $i -X; let ret+=$?; done
+	if [ $ret -eq 0 ]; then
+		ok
+	else
+		fail
+	fi
+	show "Resetting built-in chains to the default ACCEPT policy"
 	iftable filter -P INPUT ACCEPT && \
-	   iftable filter -P OUTPUT ACCEPT && \
-	   iftable filter -P FORWARD ACCEPT && \
-	   iftable nat -P PREROUTING ACCEPT && \
-	   iftable nat -P POSTROUTING ACCEPT && \
-	   iftable nat -P OUTPUT ACCEPT && \
-	   iftable mangle -P PREROUTING ACCEPT && \
-	   iftable mangle -P OUTPUT ACCEPT && \
-	   ok || \
-	   fail
+	iftable filter -P OUTPUT ACCEPT && \
+	iftable filter -P FORWARD ACCEPT && \
+	iftable nat -P PREROUTING ACCEPT && \
+	iftable nat -P POSTROUTING ACCEPT && \
+	iftable nat -P OUTPUT ACCEPT && \
+	iftable mangle -P PREROUTING ACCEPT && \
+	iftable mangle -P OUTPUT ACCEPT && \
+	ok || fail
 	rm -f /var/lock/subsys/ip6tables
 }
 
@@ -135,44 +133,39 @@ case "$1" in
   panic)
 	show "Changing target policies to DROP"
 	iftable filter -P INPUT DROP && \
-		iftable filter -P FORWARD DROP && \
-		iftable filter -P OUTPUT DROP && \
-		iftable nat -P PREROUTING DROP && \
-		iftable nat -P POSTROUTING DROP && \
-		iftable nat -P OUTPUT DROP && \
-		iftable mangle -P PREROUTING DROP && \
-		iftable mangle -P OUTPUT DROP && \
-		ok || \
-		fail
-		iftable filter -F INPUT && \
-			iftable filter -F FORWARD && \
-			iftable filter -F OUTPUT && \
-			iftable nat -F PREROUTING && \
-			iftable nat -F POSTROUTING && \
-			iftable nat -F OUTPUT && \
-			iftable mangle -F PREROUTING && \
-			iftable mangle -F OUTPUT && \
-			ok || \
-			fail
-		iftable filter -X INPUT && \
-			iftable filter -X FORWARD && \
-			iftable filter -X OUTPUT && \
-			iftable nat -X PREROUTING && \
-			iftable nat -X POSTROUTING && \
-			iftable nat -X OUTPUT && \
-			iftable mangle -X PREROUTING && \
-			iftable mangle -X OUTPUT && \
-			ok || \
-			fail
-		;;
+	iftable filter -P FORWARD DROP && \
+	iftable filter -P OUTPUT DROP && \
+	iftable nat -P PREROUTING DROP && \
+	iftable nat -P POSTROUTING DROP && \
+	iftable nat -P OUTPUT DROP && \
+	iftable mangle -P PREROUTING DROP && \
+	iftable mangle -P OUTPUT DROP && \
+	ok || fail
+	iftable filter -F INPUT && \
+	iftable filter -F FORWARD && \
+	iftable filter -F OUTPUT && \
+	iftable nat -F PREROUTING && \
+	iftable nat -F POSTROUTING && \
+	iftable nat -F OUTPUT && \
+	iftable mangle -F PREROUTING && \
+	iftable mangle -F OUTPUT && \
+	ok || fail
+	iftable filter -X INPUT && \
+	iftable filter -X FORWARD && \
+	iftable filter -X OUTPUT && \
+	iftable nat -X PREROUTING && \
+	iftable nat -X POSTROUTING && \
+	iftable nat -X OUTPUT && \
+	iftable mangle -X PREROUTING && \
+	iftable mangle -X OUTPUT && \
+	ok || fail
+	;;
 
   save)
 	show "Saving current rules to %s" $IPTABLES_CONFIG
 	touch $IPTABLES_CONFIG
 	chmod 600 $IPTABLES_CONFIG
-	/usr/sbin/ip6tables-save -c > $IPTABLES_CONFIG  2>/dev/null && \
-	  ok || \
-	  fail
+	/usr/sbin/ip6tables-save -c > $IPTABLES_CONFIG  2>/dev/null && ok || fail
 	;;
 
   *)
