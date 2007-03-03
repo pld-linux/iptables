@@ -6,35 +6,35 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_netfilter_snap		20060829
+%define		_netfilter_snap		20060504
 %define		llh_version		7:2.6.13.0-1
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
-Summary(pl.UTF-8):	System filtrowania pakietцЁw oraz system translacji adresцЁw (NAT)
-Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
-Summary(ru.UTF-8):	пёя┌п╦п╩п╦я┌я▀ п╢п╩я▐ я┐п©я─п╟п╡п╩п╣п╫п╦я▐ п©п╟п╨п╣я┌п╫я▀п╪п╦ я└п╦п╩я▄я┌я─п╟п╪п╦ я▐п╢я─п╟ Linux
-Summary(uk.UTF-8):	пёя┌п╦п╩я√я┌п╦ п╢п╩я▐ п╨п╣я─я┐п╡п╟п╫п╫я▐ п©п╟п╨п╣я┌п╫п╦п╪п╦ я└я√п╩я▄я┌я─п╟п╪п╦ я▐п╢я─п╟ Linux
-Summary(zh_CN.UTF-8):	LinuxЕ├┘Ф═╦Е▄┘Х©┤Ф╩╓Г╝║Г░├Е╥╔Е┘╥
+Summary(pl):	System filtrowania pakietСw oraz system translacji adresСw (NAT)
+Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
+Summary(ru):	Утилиты для управления пакетными фильтрами ядра Linux
+Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
+Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
-Version:	1.3.6
-%define		_rel 1.2.6.18
+Version:	1.3.5
+%define		_rel 1.2.6.16
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	077e886a9c90a11bb47f3d7a4fc4a689
+# Source0-md5:	00fb916fa8040ca992a5ace56d905ea5
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
 
-#Patch0:		%{name}-%{_netfilter_snap}.patch
+Patch0:		%{name}-%{_netfilter_snap}.patch
 Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-man.patch
 
-#Patch5:		%{name}-comment-%{_netfilter_snap}.patch
-#Patch6:		%{name}-expire-%{_netfilter_snap}.patch
+Patch5:		%{name}-comment-%{_netfilter_snap}.patch
+Patch6:		%{name}-expire-%{_netfilter_snap}.patch
 Patch7:		%{name}-1.3.0-imq1.diff
 
 Patch10:	%{name}-connbytes-xtables.patch
@@ -52,6 +52,7 @@ URL:		http://www.netfilter.org/
 %if %{with doc}
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
+BuildRequires:	texconfig
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex
@@ -76,29 +77,29 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 An extensible NAT system, and an extensible packet filtering system.
 Replacement of ipchains in 2.4 and higher kernels.
 
-%description -l pl.UTF-8
-Wydajny system translacji adresцЁw (NAT) oraz system filtrowania
-pakietцЁw. Zamiennik ipchains w jд┘drach 2.4 i nowszych.
+%description -l pl
+Wydajny system translacji adresСw (NAT) oraz system filtrowania
+pakietСw. Zamiennik ipchains w j╠drach 2.4 i nowszych.
 
-%description -l pt_BR.UTF-8
-Esta ц╘ a ferramenta que controla o cцЁdigo de filtragem de pacotes do
-kernel 2.4, obsoletando ipchains. Com esta ferramenta vocц╙ pode
+%description -l pt_BR
+Esta И a ferramenta que controla o cСdigo de filtragem de pacotes do
+kernel 2.4, obsoletando ipchains. Com esta ferramenta vocЙ pode
 configurar filtros de pacotes, NAT, mascaramento (masquerading),
-regras dinц╒micas (stateful inspection), etc.
+regras dinБmicas (stateful inspection), etc.
 
-%description -l ru.UTF-8
-iptables я┐п©я─п╟п╡п╩я▐я▌я┌ п╨п╬п╢п╬п╪ я└п╦п╩я▄я┌я─п╟я├п╦п╦ я│п╣я┌п╣п╡я▀я┘ п©п╟п╨п╣я┌п╬п╡ п╡ я▐п╢я─п╣ Linux. п·п╫п╦
-п©п╬п╥п╡п╬п╩я▐я▌я┌ п╡п╟п╪ я┐я│я┌п╟п╫п╟п╡п╩п╦п╡п╟я┌я▄ п╪п╣п╤я│п╣я┌п╣п╡я▀п╣ я█п╨я─п╟п╫я▀ (firewalls) п╦ IP
-п╪п╟я│п╨п╟я─п╟п╢п╦п╫пЁ, п╦ я┌.п©.
+%description -l ru
+iptables управляют кодом фильтрации сетевых пакетов в ядре Linux. Они
+позволяют вам устанавливать межсетевые экраны (firewalls) и IP
+маскарадинг, и т.п.
 
-%description -l uk.UTF-8
-iptables я┐п©я─п╟п╡п╩я▐я▌я┌я▄ п╨п╬п╢п╬п╪ я└я√п╩я▄я┌я─п╟я├я√я≈ п©п╟п╨п╣я┌я√п╡ п╪п╣я─п╣п╤я√ п╡ я▐п╢я─я√ Linux. п▓п╬п╫п╦
-п╢п╬п╥п╡п╬п╩я▐я▌я┌я▄ п╡п╟п╪ п╡я│я┌п╟п╫п╬п╡п╩я▌п╡п╟я┌п╦ п╪я√п╤п╪п╣я─п╣п╤п╣п╡я√ п╣п╨я─п╟п╫п╦ (firewalls) я┌п╟ IP
-п╪п╟я│п╨п╟я─п╟п╢п╦п╫пЁ, я┌п╬я┴п╬.
+%description -l uk
+iptables управляють кодом ф╕льтрац╕╖ пакет╕в мереж╕ в ядр╕ Linux. Вони
+дозволяють вам встановлювати м╕жмережев╕ екрани (firewalls) та IP
+маскарадинг, тощо.
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
-Summary(pl.UTF-8):	Biblioteki i nagе┌цЁwki do tworzenia rozszerzeе└ iptables
+Summary(pl):	Biblioteki i nagЁСwki do tworzenia rozszerzeЯ iptables
 Group:		Development/Libraries
 Requires:	%{name} = %{version}-%{release}
 Obsoletes:	iptables24-devel
@@ -106,13 +107,13 @@ Obsoletes:	iptables24-devel
 %description devel
 Libraries and headers for developing iptables extensions.
 
-%description devel -l pl.UTF-8
-Biblioteki i pliki nagе┌цЁwkowe niezbд≥dne do tworzenia rozszerzeе└ dla
+%description devel -l pl
+Biblioteki i pliki nagЁСwkowe niezbЙdne do tworzenia rozszerzeЯ dla
 iptables.
 
 %package init
 Summary:	Iptables init (RedHat style)
-Summary(pl.UTF-8):	Iptables init (w stylu RedHata)
+Summary(pl):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
 Release:	%{_rel}
 PreReq:		rc-scripts
@@ -126,20 +127,20 @@ Obsoletes:	iptables24-init
 Iptables-init is meant to provide an alternate way than firewall-init
 to start and stop packet filtering through iptables(8).
 
-%description init -l pl.UTF-8
-Iptables-init ma na celu udostд≥pnienie alternatywnego w stosunku do
-firewall-init sposobu wе┌д┘czania i wyе┌д┘czania filtrцЁw IP jд┘dra poprzez
+%description init -l pl
+Iptables-init ma na celu udostЙpnienie alternatywnego w stosunku do
+firewall-init sposobu wЁ╠czania i wyЁ╠czania filtrСw IP j╠dra poprzez
 iptables(8).
 
 %prep
 %setup -q -a1
 
-#patch0 -p1
+%patch0 -p1
 %{!?without_dist_kernel:%patch1 -p1}
 %patch2 -p1
 
-#patch5 -p1
-#patch6 -p1
+%patch5 -p1
+%patch6 -p1
 %patch7 -p1
 
 %patch10 -p1
@@ -161,7 +162,7 @@ chmod 755 extensions/.*-test*
 
 # needs update (still valid?)
 rm extensions/.string-test
-#rm extensions/.expire-test6
+rm extensions/.expire-test6
 
 %build
 %{__make} all experimental \
