@@ -48,7 +48,7 @@ start() {
 		# If we don't clear these first, we might be adding to
 		#  pre-existing rules.
 		tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
-		show "Flushing all current rules and user defined chains:"
+		show "Flushing all current rules and user defined chains"
 		let ret=0
 		for i in $tables; do ip6tables -t $i -F; let ret+=$?; done
 		if [ $ret -eq 0 ]; then
@@ -56,7 +56,7 @@ start() {
 		else
 			fail
 		fi
-		show "Clearing all current rules and user defined chains:"
+		show "Clearing all current rules and user defined chains"
 		let ret=0
 		for i in $tables; do ip6tables -t $i -X; let ret+=$?; done
 		if [ $ret -eq 0 ]; then
@@ -67,7 +67,7 @@ start() {
 
 		for i in $tables; do ip6tables -t $i -Z; done
 
-		show "Applying ip6tables firewall rules:"
+		show "Applying ip6tables firewall rules"
 		grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /usr/sbin/ip6tables-restore -c && \
 			ok || \
 			fail
@@ -77,7 +77,7 @@ start() {
 
 stop() {
 	tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
-		show "Flushing all chains:"
+		show "Flushing all chains"
 		let ret=0
 		for i in $tables; do ip6tables -t $i -F; let ret+=$?; done
 		if [ $ret -eq 0 ]; then
@@ -86,7 +86,7 @@ stop() {
 			fail
 		fi
 
-		show "Removing user defined chains:"
+		show "Removing user defined chains"
 		let ret=0
 		for i in $tables; do ip6tables -t $i -X; let ret+=$?; done
 		if [ $ret -eq 0 ]; then
@@ -94,7 +94,7 @@ stop() {
 		else
 			fail
 		fi
-		show "Resetting built-in chains to the default ACCEPT policy:"
+		show "Resetting built-in chains to the default ACCEPT policy"
 	iftable filter -P INPUT ACCEPT && \
 	   iftable filter -P OUTPUT ACCEPT && \
 	   iftable filter -P FORWARD ACCEPT && \
@@ -133,7 +133,7 @@ case "$1" in
 	;;
 
   panic)
-	show "Changing target policies to DROP: "
+	show "Changing target policies to DROP"
 	iftable filter -P INPUT DROP && \
 		iftable filter -P FORWARD DROP && \
 		iftable filter -P OUTPUT DROP && \
@@ -167,7 +167,7 @@ case "$1" in
 		;;
 
   save)
-	show "Saving current rules to $IPTABLES_CONFIG: "
+	show "Saving current rules to %s" $IPTABLES_CONFIG
 	touch $IPTABLES_CONFIG
 	chmod 600 $IPTABLES_CONFIG
 	/usr/sbin/ip6tables-save -c > $IPTABLES_CONFIG  2>/dev/null && \
