@@ -100,7 +100,6 @@ iptables управляють кодом фільтрації пакетів м�
 Summary:	Libraries and headers for developing iptables extensions
 Summary(pl.UTF-8):	Biblioteki i nagłówki do tworzenia rozszerzeń iptables
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
 Obsoletes:	iptables24-devel
 
 %description devel
