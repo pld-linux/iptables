@@ -17,13 +17,13 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.3.6
-%define		_rel 2
+Version:	1.3.7
+%define		_rel 1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	077e886a9c90a11bb47f3d7a4fc4a689
+# Source0-md5:	dd965bdacbb86ce2a6498829fddda6b7
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -134,7 +134,7 @@ iptables(8).
 %setup -q -a1
 
 #patch0 -p1
-%{!?without_dist_kernel:%patch1 -p1}
+#%{!?without_dist_kernel:%patch1 -p1}
 %patch2 -p1
 
 #patch5 -p1
