@@ -18,7 +18,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.3.7
-%define		_rel 2
+%define		_rel 3
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -197,7 +197,7 @@ for lib in libip6t_IMQ.so libip6t_NFLOG.so libip6t_REJECT.so \
 	libipt_ROUTE.so libipt_SET.so libipt_connbytes.so \
 	libipt_dccp.so libipt_ipp2p.so libipt_ipv4options.so \
 	libipt_layer7.so libipt_quota.so libipt_recent.so \
-	libipt_set.so libipt_statistic.so libipt_stealth.so \
+	libipt_set.so libipt_statistic.so \
 	libipt_time.so libipt_u32.so                                                                                                                                               
 do                                                                                                                                                                                 
 	cp -a extensions/${lib} $RPM_BUILD_ROOT%{_libdir}/iptables
