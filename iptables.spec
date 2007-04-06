@@ -60,7 +60,7 @@ BuildRequires:	sed >= 4.0
 %endif
 %if %{with dist_kernel} && %{_netfilter_snap} != 0
 BuildRequires:	kernel-headers(netfilter) >= %{_netfilter_snap}
-BuildRequires:	kernel-source
+#BuildRequires:	kernel-source
 Requires:	kernel(netfilter) >= %{_netfilter_snap}
 %endif
 #BuildRequires:	linux-libc-headers >= %{llh_version}
@@ -168,6 +168,7 @@ rm extensions/.string-test
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	KERNEL_DIR="%{_kernelsrcdir}" \
 	LIBDIR="%{_libdir}" \
+	DO_SELINUX=1 \
 	LDLIBS="-ldl"
 
 %if %{with doc}
@@ -188,20 +189,7 @@ echo ".so iptables-restore.8" > %{name6}-restore.8
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
-for lib in libip6t_IMQ.so libip6t_NFLOG.so libip6t_REJECT.so \
-	libip6t_ROUTE.so libip6t_ah.so libip6t_esp.so \
-	libip6t_frag.so libip6t_hashlimit.so libip6t_ipv6header.so \
-	libip6t_length.so libip6t_policy.so libip6t_rt.so \
-	libip6t_sctp.so libipt_CLUSTERIP.so libipt_IMQ.so \
-	libipt_IPMARK.so libipt_IPV4OPTSSTRIP.so libipt_NFLOG.so \
-	libipt_ROUTE.so libipt_SET.so libipt_connbytes.so \
-	libipt_dccp.so libipt_ipp2p.so libipt_ipv4options.so \
-	libipt_layer7.so libipt_quota.so libipt_recent.so \
-	libipt_set.so libipt_statistic.so \
-	libipt_time.so libipt_u32.so                                                                                                                                               
-do                                                                                                                                                                                 
-	cp -a extensions/${lib} $RPM_BUILD_ROOT%{_libdir}/iptables
-done
+install extensions/*so $RPM_BUILD_ROOT%{_libdir}/iptables
 
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
 
