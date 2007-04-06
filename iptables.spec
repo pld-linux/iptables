@@ -18,7 +18,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.3.7
-%define		_rel 1
+%define		_rel 2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -187,6 +187,21 @@ echo ".so iptables-restore.8" > %{name6}-restore.8
 	BINDIR=%{_sbindir} \
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
+
+for lib in libip6t_IMQ.so libip6t_NFLOG.so libip6t_REJECT.so \
+	libip6t_ROUTE.so libip6t_ah.so libip6t_esp.so \
+	libip6t_frag.so libip6t_hashlimit.so libip6t_ipv6header.so \
+	libip6t_length.so libip6t_policy.so libip6t_rt.so \
+	libip6t_sctp.so libipt_CLUSTERIP.so libipt_IMQ.so \
+	libipt_IPMARK.so libipt_IPV4OPTSSTRIP.so libipt_NFLOG.so \
+	libipt_ROUTE.so libipt_SET.so libipt_connbytes.so \
+	libipt_dccp.so libipt_ipp2p.so libipt_ipv4options.so \
+	libipt_layer7.so libipt_quota.so libipt_recent.so \
+	libipt_set.so libipt_statistic.so libipt_stealth.so \
+	libipt_time.so libipt_u32.so                                                                                                                                               
+do                                                                                                                                                                                 
+	cp -a extensions/${lib} $RPM_BUILD_ROOT%{_libdir}/iptables
+done
 
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
 
