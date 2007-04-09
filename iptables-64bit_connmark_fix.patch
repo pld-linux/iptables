@@ -1,0 +1,130 @@
+--- iptables-1.3.3/extensions/libipt_connmark.c	2005-02-19 20:19:17.000000000 +0100
++++ iptables-1.3.5/extensions/libipt_connmark.c	2006-01-30 09:43:11.000000000 +0100
+@@ -66,17 +66,13 @@
+ 		char *end;
+ 	case '1':
+ 		check_inverse(optarg, &invert, &optind, 0);
+-#ifdef KERNEL_64_USERSPACE_32
+-		markinfo->mark = strtoull(optarg, &end, 0);
+-		markinfo->mask = ~0ULL;
+-		if (*end == '/')
+-			markinfo->mask = strtoull(end+1, &end, 0);
+-#else
++
+ 		markinfo->mark = strtoul(optarg, &end, 0);
+-		markinfo->mask = ~0UL;
++		markinfo->mask = 0xffffffffUL;
++		
+ 		if (*end == '/')
+ 			markinfo->mask = strtoul(end+1, &end, 0);
+-#endif
++
+ 		if (*end != '\0' || end == optarg)
+ 			exit_error(PARAMETER_PROBLEM, "Bad MARK value `%s'", optarg);
+ 		if (invert)
+@@ -90,25 +86,14 @@
+ 	return 1;
+ }
+ 
+-#ifdef KERNEL_64_USERSPACE_32
+-static void
+-print_mark(unsigned long long mark, unsigned long long mask, int numeric)
+-{
+-	if(mask != ~0ULL)
+-		printf("0x%llx/0x%llx ", mark, mask);
+-	else
+-		printf("0x%llx ", mark);
+-}
+-#else
+ static void
+ print_mark(unsigned long mark, unsigned long mask, int numeric)
+ {
+-	if(mask != ~0UL)
++	if(mask != 0xffffffffUL)
+ 		printf("0x%lx/0x%lx ", mark, mask);
+ 	else
+ 		printf("0x%lx ", mark);
+ }
+-#endif
+ 
+ /* Final check; must have specified --mark. */
+ static void
+--- iptables-1.3.3/extensions/libipt_CONNMARK.c	2005-07-05 00:11:28.000000000 +0200
++++ iptables-1.3.5/extensions/libipt_CONNMARK.c	2006-01-30 09:43:09.000000000 +0100
+@@ -72,25 +72,17 @@
+ 	struct ipt_connmark_target_info *markinfo
+ 		= (struct ipt_connmark_target_info *)(*target)->data;
+ 
+-#ifdef KERNEL_64_USERSPACE_32
+-	markinfo->mask = ~0ULL;
+-#else
+-	markinfo->mask = ~0UL;
+-#endif
++	markinfo->mask = 0xffffffffUL;
+ 
+ 	switch (c) {
+ 		char *end;
+ 	case '1':
+ 		markinfo->mode = IPT_CONNMARK_SET;
+-#ifdef KERNEL_64_USERSPACE_32
+-		markinfo->mark = strtoull(optarg, &end, 0);
+-		if (*end == '/' && end[1] != '\0')
+-		    markinfo->mask = strtoull(end+1, &end, 0);
+-#else
++
+ 		markinfo->mark = strtoul(optarg, &end, 0);
+ 		if (*end == '/' && end[1] != '\0')
+ 		    markinfo->mask = strtoul(end+1, &end, 0);
+-#endif
++
+ 		if (*end != '\0' || end == optarg)
+ 			exit_error(PARAMETER_PROBLEM, "Bad MARK value `%s'", optarg);
+ 		if (*flags)
+@@ -116,11 +108,8 @@
+ 		if (!*flags)
+ 			exit_error(PARAMETER_PROBLEM,
+ 			           "CONNMARK target: Can't specify --mask without a operation");
+-#ifdef KERNEL_64_USERSPACE_32
+-		markinfo->mask = strtoull(optarg, &end, 0);
+-#else
+ 		markinfo->mask = strtoul(optarg, &end, 0);
+-#endif
++
+ 		if (*end != '\0' || end == optarg)
+ 			exit_error(PARAMETER_PROBLEM, "Bad MASK value `%s'", optarg);
+ 		break;
+@@ -139,22 +128,6 @@
+ 		           "CONNMARK target: No operation specified");
+ }
+ 
+-#ifdef KERNEL_64_USERSPACE_32
+-static void
+-print_mark(unsigned long long mark)
+-{
+-	printf("0x%llx", mark);
+-}
+-
+-static void
+-print_mask(const char *text, unsigned long long mask)
+-{
+-	if (mask != ~0ULL)
+-		printf("%s0x%llx", text, mask);
+-}
+-
+-#else
+-
+ static void
+ print_mark(unsigned long mark)
+ {
+@@ -164,10 +137,9 @@
+ static void
+ print_mask(const char *text, unsigned long mask)
+ {
+-	if (mask != ~0UL)
++	if (mask != 0xffffffffUL)
+ 		printf("%s0x%lx", text, mask);
+ }
+-#endif
+ 
+ 
+ /* Prints out the target info. */
