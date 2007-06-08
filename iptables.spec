@@ -20,7 +20,7 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-%define		_rel 14
+%define		_rel 15
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -108,7 +108,6 @@ iptables управляють кодом ф╕льтрац╕╖ пакет╕в мереж╕ в ядр╕ Linux. Вони
 Summary:	Libraries and headers for developing iptables extensions
 Summary(pl):	Biblioteki i nagЁСwki do tworzenia rozszerzeЯ iptables
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
 Obsoletes:	iptables24-devel
 
 %description devel
