@@ -11,7 +11,7 @@ diff -Nur iptables-1.3.5.org/extensions/libipt_connbytes.c iptables-1.3.5/extens
 @@ -6,7 +6,7 @@
  #include <getopt.h>
  #include <iptables.h>
- #include <linux/netfilter_ipv4/ip_conntrack.h>
+ #include <linux/netfilter/nf_conntrack_common.h>
 -#include <linux/netfilter_ipv4/ipt_connbytes.h>
 +#include <linux/netfilter/xt_connbytes.h>
  
