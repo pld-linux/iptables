@@ -6,8 +6,8 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_netfilter_snap		20060829
-%define		llh_version		7:2.6.13.0-1
+%define		_netfilter_snap		20070806
+%define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -18,7 +18,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.3.8
-%define		_rel 1
+%define		_rel 1.1
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -28,24 +28,12 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-
-#Patch0:		%{name}-%{_netfilter_snap}.patch
-Patch1:		%{name}-Makefile.patch
-Patch2:		%{name}-man.patch
-
-#Patch5:		%{name}-comment-%{_netfilter_snap}.patch
-#Patch6:		%{name}-expire-%{_netfilter_snap}.patch
-Patch7:		%{name}-1.3.0-imq1.diff
-
-Patch10:	%{name}-connbytes-xtables.patch
-
-Patch12:	%{name}-ipp2p-%{_netfilter_snap}.patch
-Patch13:	grsecurity-1.2.11-iptables.patch
-#Patch7:		%{name}-nf-ULOG.patch
-#Patch8:		%{name}-nf-geoip.patch
-#Patch10:	%{name}-nf-ip_queue_vwmark.patch
-#Patch11:	%{name}-hot_dirty_fix.patch
-Patch14:	%{name}-layer7-2.3.patch
+Patch0:		%{name}-%{_netfilter_snap}.patch
+Patch1:		%{name}-man.patch
+Patch2:		%{name}-1.3.0-imq1.diff
+Patch3:		%{name}-connbytes-xtables.patch
+Patch4:		grsecurity-1.2.11-iptables.patch
+Patch5:		%{name}-layer7-2.3.patch
 Patch999:	%{name}-llh-dirty-hack.patch
 
 URL:		http://www.netfilter.org/
@@ -132,35 +120,16 @@ iptables(8).
 
 %prep
 %setup -q -a1
-
-#patch0 -p1
-#%{!?without_dist_kernel:%patch1 -p1}
+%patch0 -p1
+%patch1 -p1
 %patch2 -p1
+%patch3 -p1
+%patch4 -p1
+%patch5 -p1
 
-#patch5 -p1
-#patch6 -p1
-%patch7 -p1
-
-%patch10 -p1
-
-%patch12 -p1
-%patch13 -p1
-#patch4 -p1
-#patch5 -p1
-#patch7 -p1
-#patch8 -p1
-#patch9 -p1
-#patch10 -p1
-#patch11 -p1
-%patch14 -p1
-
-%patch999 -p1
+#patch999 -p1
 
 chmod 755 extensions/.*-test*
-
-# needs update (still valid?)
-rm extensions/.string-test
-#rm extensions/.expire-test6
 
 %build
 %{__make} all experimental \
