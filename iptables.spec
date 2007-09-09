@@ -34,6 +34,7 @@ Patch2:		%{name}-1.3.0-imq1.diff
 Patch3:		%{name}-connbytes-xtables.patch
 Patch4:		grsecurity-1.2.11-iptables.patch
 Patch5:		%{name}-layer7-2.3.patch
+Patch6:		%{name}-old-1.3.7.patch
 Patch999:	%{name}-llh-dirty-hack.patch
 
 URL:		http://www.netfilter.org/
@@ -126,6 +127,7 @@ iptables(8).
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
+%patch6 -p1
 
 #patch999 -p1
 
