@@ -36,6 +36,8 @@ Patch4:		grsecurity-1.2.11-iptables.patch
 Patch5:		%{name}-layer7-2.3.patch
 Patch6:		%{name}-old-1.3.7.patch
 Patch7:		%{name}-account.patch
+# http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch
+Patch8:		%{name}-1.3.5-owner-xid.patch
 Patch999:	%{name}-llh-dirty-hack.patch
 
 URL:		http://www.netfilter.org/
@@ -130,6 +132,7 @@ iptables(8).
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%patch8 -p1
 
 #patch999 -p1
 
