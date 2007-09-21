@@ -18,7 +18,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.3.8
-%define		_rel 1.1
+%define		_rel 1.2
 Release:	%{_rel}@%{_kernel_ver_str}
 License:	GPL
 Group:		Networking/Daemons
@@ -152,6 +152,10 @@ chmod 755 extensions/.*-test*
 sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 %endif
 
+# Make a library, needed for OpenVCP
+ar rcs libiptables.a iptables.o
+ar rcs libip6tables.a ip6tables.o
+
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}/man3}
@@ -171,6 +175,7 @@ echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
 
 # Devel stuff
 cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
+install lib*.a $RPM_BUILD_ROOT%{_libdir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
 
