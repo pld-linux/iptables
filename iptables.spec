@@ -3,7 +3,7 @@
 #		- fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 #
 # Conditional build:
-%bcond_without	doc		# without documentation (HOWTOS) which needed TeX
+%bcond_with	doc		# with documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
 %define		_pomng_snap		20051115
@@ -167,7 +167,7 @@ chmod 644 extensions/.{connbytes,geoip}-test
 chmod 644 extensions/.expire-test6
 
 %build
-%{__make} all experimental \
+%{__make} -j 1 all experimental \
 	CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	KERNEL_DIR="%{_kernelsrcdir}" \
