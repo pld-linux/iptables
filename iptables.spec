@@ -5,6 +5,7 @@
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
+%bcond_without  vserver         # kernel build without vserver
 #
 %define		_netfilter_snap		20070806
 %define		llh_version		7:2.6.22.1
@@ -132,7 +133,9 @@ iptables(8).
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
+%if %{with vserver}
 %patch8 -p1
+%endif
 
 #patch999 -p1
 
