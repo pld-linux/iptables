@@ -3,7 +3,7 @@
 #		- fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 #
 # Conditional build:
-%bcond_without	doc		# without documentation (HOWTOS) which needed TeX
+%bcond_with	doc		# with documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
 %define		_pomng_snap		20051115
@@ -11,6 +11,7 @@
 %define		iptables_version	1.3.3
 %define		llh_version		7:2.6.13.0-1
 %define		name6			ip6tables
+%define		_rel 17
 #
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietСw oraz system translacji adresСw (NAT)
@@ -20,8 +21,7 @@ Summary(uk):	Утил╕ти для керування пакетними ф╕льтрами ядра Linux
 Summary(zh_CN):	Linuxдз╨к╟Э╧Щбк╧эюМ╧╓╬ъ
 Name:		iptables
 Version:	%{iptables_version}
-%define		_rel 5
-Release:	%{_rel}@%{_kernel_ver_str}
+Release:	%{_rel}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
@@ -30,12 +30,12 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-#Patch0:		%{name}-pom-ng-branch.diff
+#Patch0:	%{name}-pom-ng-branch.diff
 Patch1:		%{name}-Makefile.patch
 Patch2:		%{name}-1.3.0-imq1.diff
-Patch3:		grsecurity-1.2.11-iptables.patch
+Patch3:		grsecurity-1.2.11-%{name}.patch
 Patch4:		%{name}-man.patch
-
+Patch5:		%{name}-64bit_connmark_fix.patch
 # patch-o-matic-ng
 # [submitted]
 Patch10:	%{name}-nf-comment.patch
@@ -49,19 +49,17 @@ Patch15:	%{name}-nf-goto.patch
 Patch16:	%{name}-nf-ipp2p.patch
 Patch17:	%{name}-nf-ip_queue_vwmark.patch
 Patch18:	%{name}-nf-policy.patch
-
 Patch20:	%{name}-hot_dirty_fix.patch
-
+Patch21:	%{name}-layer7-2.1.patch
 URL:		http://www.netfilter.org/
-Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
 %if %{with doc}
+BuildRequires:	sed >= 4.0
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
-BuildRequires:	sed >= 4.0
 %endif
 %if %{with dist_kernel} && %{_pomng_snap} != 0
 BuildRequires:	kernel-headers(netfilter) >= %{_pomng_snap}
@@ -71,10 +69,10 @@ Requires:	kernel(netfilter) >= %{_pomng_snap}
 #BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
 Provides:	firewall-userspace-tool
-Obsoletes:	netfilter
 Obsoletes:	ipchains
 Obsoletes:	iptables-ipp2p
 Obsoletes:	iptables24-compat
+Obsoletes:	netfilter
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -105,7 +103,6 @@ iptables управляють кодом ф╕льтрац╕╖ пакет╕в мереж╕ в ядр╕ Linux. Вони
 Summary:	Libraries and headers for developing iptables extensions
 Summary(pl):	Biblioteki i nagЁСwki do tworzenia rozszerzeЯ iptables
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
 Obsoletes:	iptables24-devel
 
 %description devel
@@ -118,11 +115,11 @@ iptables.
 %package init
 Summary:	Iptables init (RedHat style)
 Summary(pl):	Iptables init (w stylu RedHata)
-Group:		Networking/Admin
 Release:	%{_rel}
-PreReq:		rc-scripts
+Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}
+Requires:	rc-scripts
 Obsoletes:	firewall-init
 Obsoletes:	firewall-init-ipchains
 Obsoletes:	iptables24-init
@@ -143,7 +140,7 @@ iptables(8).
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
-
+%patch5 -p1
 %patch10 -p1
 %patch11 -p1
 %patch12 -p1
@@ -153,8 +150,8 @@ iptables(8).
 %patch16 -p1
 #%patch17 -p1
 %patch18 -p1
-
 %patch20 -p1
+%patch21 -p1
 
 chmod 755 extensions/.*-test*
 
@@ -163,7 +160,7 @@ chmod 644 extensions/.{connbytes,geoip}-test
 chmod 644 extensions/.expire-test6
 
 %build
-%{__make} all experimental \
+%{__make} -j 1 all experimental \
 	CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	KERNEL_DIR="%{_kernelsrcdir}" \
@@ -189,8 +186,6 @@ echo ".so iptables-restore.8" > %{name6}-restore.8
 	LIBDIR=%{_libdir}
 
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
-
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/l7-protocols
 
 # Devel stuff
 cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
