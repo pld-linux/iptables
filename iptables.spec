@@ -19,7 +19,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.3.8
-%define		_rel 6
+%define		_rel 7
 Release:	%{_rel}
 License:	GPL
 Group:		Networking/Daemons
