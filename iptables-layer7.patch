@@ -1,13 +1,13 @@
-diff -Nurp iptables-1.3.3/extensions/.layer7-test iptables-1.3.3-layer7/extensions/.layer7-test
---- iptables-1.3.3/extensions/.layer7-test	1969-12-31 18:00:00.000000000 -0600
-+++ iptables-1.3.3-layer7/extensions/.layer7-test	2005-08-14 17:13:04.000000000 -0500
+diff -Nurp iptables-1.3.8/extensions/.layer7-test iptables-1.3.8-layer7/extensions/.layer7-test
+--- iptables-1.3.8/extensions/.layer7-test	1969-12-31 18:00:00.000000000 -0600
++++ iptables-1.3.8-layer7/extensions/.layer7-test	2007-07-04 19:08:07.000000000 -0500
 @@ -0,0 +1,2 @@
 +#! /bin/sh
-+[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_layer7.h ] && echo layer7
-diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/extensions/libipt_layer7.c
---- iptables-1.3.3/extensions/libipt_layer7.c	1969-12-31 18:00:00.000000000 -0600
-+++ iptables-1.3.3-layer7/extensions/libipt_layer7.c	2006-01-18 00:05:35.000000000 -0600
-@@ -0,0 +1,378 @@
++[ -f $KERNEL_DIR/include/linux/netfilter/xt_layer7.h ] && echo layer7
+diff -Nurp iptables-1.3.8/extensions/libipt_layer7.c iptables-1.3.8-layer7/extensions/libipt_layer7.c
+--- iptables-1.3.8/extensions/libipt_layer7.c	1969-12-31 18:00:00.000000000 -0600
++++ iptables-1.3.8-layer7/extensions/libipt_layer7.c	2007-07-04 19:23:04.000000000 -0500
+@@ -0,0 +1,394 @@
 +/* 
 +   Shared library add-on to iptables to add layer 7 matching support. 
 +  
@@ -34,7 +34,7 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +#include <dirent.h>
 +
 +#include <iptables.h>
-+#include <linux/netfilter_ipv4/ipt_layer7.h>
++#include <linux/netfilter/xt_layer7.h>
 +
 +#define MAX_FN_LEN 256
 +
@@ -59,7 +59,7 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +};
 +
 +/* reads filename, puts protocol info into layer7_protocol_info, number of protocols to numprotos */
-+int parse_protocol_file(char * filename, const unsigned char * protoname, struct ipt_layer7_info *info)
++int parse_protocol_file(char * filename, const char * protoname, struct xt_layer7_info *info)
 +{
 +	FILE * f;
 +	char * line = NULL;
@@ -83,10 +83,25 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +
 +		if(datatype == protocol)
 +		{
++			/* Ignore everything on the line beginning with the 
++			first space or tab . For instance, this allows the 
++			protocol line in http.pat to be "http " (or 
++			"http I am so cool") instead of just "http". */
++			if(strchr(line, ' ')){
++				char * space = strchr(line, ' ');
++				space[0] = '\0';
++			}
++			if(strchr(line, '\t')){
++				char * space = strchr(line, '\t');
++				space[0] = '\0';
++			}
++
++			/* sanity check.  First non-comment non-blank 
++			line must be the same as the file name. */
 +			if(strcmp(line, protoname))
 +				exit_error(OTHER_PROBLEM, 
 +					"Protocol name (%s) doesn't match file name (%s).  Bailing out\n",
-+					protoname, filename);
++					line, filename);
 +
 +			if(strlen(line) >= MAX_PROTOCOL_LEN)
 +				 exit_error(PARAMETER_PROBLEM, 
@@ -166,6 +181,7 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +			case 0x3f:
 +			case 0x5b:
 +			case 0x5c:
++			case 0x5d:
 +			case 0x5e:
 +			case 0x7c:
 +				fprintf(stderr, 
@@ -251,7 +267,7 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +}
 +
 +static void
-+parse_layer7_protocol(const unsigned char *s, struct ipt_layer7_info *info)
++parse_layer7_protocol(const char *s, struct xt_layer7_info *info)
 +{
 +	char filename[MAX_FN_LEN];
 +	char * dir = NULL;
@@ -304,8 +320,8 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +      const struct ipt_entry *entry, unsigned int *nfcache,
 +      struct ipt_entry_match **match)
 +{
-+	struct ipt_layer7_info *layer7info = 
-+		(struct ipt_layer7_info *)(*match)->data;
++	struct xt_layer7_info *layer7info = 
++		(struct xt_layer7_info *)(*match)->data;
 +
 +	switch (c) {
 +	case '1':
@@ -357,14 +373,14 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +{
 +	printf("LAYER7 ");
 +
-+	print_protocol(((struct ipt_layer7_info *)match->data)->protocol,
-+		  ((struct ipt_layer7_info *)match->data)->invert, numeric);
++	print_protocol(((struct xt_layer7_info *)match->data)->protocol,
++		  ((struct xt_layer7_info *)match->data)->invert, numeric);
 +}
 +/* Saves the union ipt_matchinfo in parsable form to stdout. */
 +static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
 +{
-+        const struct ipt_layer7_info *info =
-+            (const struct ipt_layer7_info*) match->data;
++        const struct xt_layer7_info *info =
++            (const struct xt_layer7_info*) match->data;
 +
 +        printf("--l7proto %s%s ", (info->invert)   ? "! ": "", info->protocol);
 +}
@@ -372,8 +388,8 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +static struct iptables_match layer7 = { 
 +    .name          = "layer7",
 +    .version       = IPTABLES_VERSION,
-+    .size          = IPT_ALIGN(sizeof(struct ipt_layer7_info)),
-+    .userspacesize = IPT_ALIGN(sizeof(struct ipt_layer7_info)),
++    .size          = IPT_ALIGN(sizeof(struct xt_layer7_info)),
++    .userspacesize = IPT_ALIGN(sizeof(struct xt_layer7_info)),
 +    .help          = &help,
 +    .parse         = &parse,
 +    .final_check   = &final_check,
@@ -386,10 +402,10 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.c iptables-1.3.3-layer7/exten
 +{
 +	register_match(&layer7);
 +}
-diff -Nurp iptables-1.3.3/extensions/libipt_layer7.man iptables-1.3.3-layer7/extensions/libipt_layer7.man
---- iptables-1.3.3/extensions/libipt_layer7.man	1969-12-31 18:00:00.000000000 -0600
-+++ iptables-1.3.3-layer7/extensions/libipt_layer7.man	2005-08-14 17:13:04.000000000 -0500
-@@ -0,0 +1,13 @@
+diff -Nurp iptables-1.3.8/extensions/libipt_layer7.man iptables-1.3.8-layer7/extensions/libipt_layer7.man
+--- iptables-1.3.8/extensions/libipt_layer7.man	1969-12-31 18:00:00.000000000 -0600
++++ iptables-1.3.8-layer7/extensions/libipt_layer7.man	2007-07-04 19:06:03.000000000 -0500
+@@ -0,0 +1,14 @@
 +This module matches packets based on the application layer data of 
 +their connections.  It uses regular expression matching to compare 
 +the application layer data to regular expressions found it the layer7 
@@ -398,8 +414,9 @@ diff -Nurp iptables-1.3.3/extensions/libipt_layer7.man iptables-1.3.3-layer7/ext
 +.TP
 +.BI "--l7proto " "\fIprotocol\fP"
 +Match the specified protocol.  The protocol name must match a file 
-+name in /etc/l7-protocols/
++name in /etc/l7-protocols/ or one of its first-level child directories.
 +.TP
 +.BI "--l7dir " "\fIdirectory\fP"
-+Use \fIdirectory\fP instead of /etc/l7-protocols/
++Use \fIdirectory\fP instead of /etc/l7-protocols/.  This option must be 
++specified before --l7proto.
 +
