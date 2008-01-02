@@ -19,7 +19,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.3.8
-%define		_rel 7
+%define		_rel 8
 Release:	%{_rel}
 License:	GPL
 Group:		Networking/Daemons
@@ -31,10 +31,11 @@ Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-%{_netfilter_snap}.patch
 Patch1:		%{name}-man.patch
+# http://www.linuximq.net/patchs/iptables-1.3.6-imq.diff
 Patch2:		%{name}-1.3.0-imq1.diff
 Patch3:		%{name}-connbytes-xtables.patch
 Patch4:		grsecurity-1.2.11-iptables.patch
-Patch5:		%{name}-layer7-2.3.patch
+Patch5:		%{name}-layer7.patch
 Patch6:		%{name}-old-1.3.7.patch
 Patch7:		%{name}-account.patch
 # http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch
