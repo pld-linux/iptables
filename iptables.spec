@@ -209,6 +209,7 @@ fi
 %attr(755,root,root) %{_sbindir}/ip6tables-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-save
 %dir %{_libdir}/iptables
+%if %{with dist_kernel}
 %attr(755,root,root) %{_libdir}/iptables/libip6t_CONNMARK.so
 %attr(755,root,root) %{_libdir}/iptables/libip6t_CONNSECMARK.so
 %attr(755,root,root) %{_libdir}/iptables/libip6t_HL.so
@@ -323,6 +324,9 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libipt_u32.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_udp.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_unclean.so
+%else
+%attr(755,root,root) %{_libdir}/iptables/*.so
+%endif
 %{_mandir}/man8/*
 
 %files devel
