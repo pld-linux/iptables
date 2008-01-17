@@ -54,7 +54,7 @@ BuildRequires:	tetex-tex-babel
 %endif
 %if %{with dist_kernel} && %{netfilter_snap} != 0
 BuildRequires:	kernel-headers(netfilter) >= %{netfilter_snap}
-BuildRequires:	kernel-source
+BuildRequires:	kernel%{_alt_kernel}-source
 Requires:	kernel(netfilter) >= %{netfilter_snap}
 %endif
 #BuildRequires:	linux-libc-headers >= %{llh_version}
