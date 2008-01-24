@@ -11,7 +11,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 9
+%define		rel 10
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -55,7 +55,6 @@ BuildRequires:	tetex-tex-babel
 %if %{with dist_kernel} && %{netfilter_snap} != 0
 BuildRequires:	kernel%{_alt_kernel}-headers(netfilter) >= %{netfilter_snap}
 BuildRequires:	kernel%{_alt_kernel}-source
-Requires:	kernel(netfilter) >= %{netfilter_snap}
 %endif
 #BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
