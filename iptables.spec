@@ -6,13 +6,13 @@
 %bcond_with	doc		# with documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 #
-%define		_pomng_snap		20051115
+%define		netfilter_snap		20051115
 #
 %define		iptables_version	1.3.3
 %define		llh_version		7:2.6.13.0-1
 %define		name6			ip6tables
-%define		_rel 17
-#
+
+%define		rel 18
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -21,7 +21,7 @@ Summary(uk):	õÔÉÌ¦ÔÉ ÄÌÑ ËÅÒÕ×ÁÎÎÑ ÐÁËÅÔÎÉÍÉ Æ¦ÌØÔÒÁÍÉ ÑÄÒÁ Linux
 Summary(zh_CN):	LinuxÄÚºË°ü¹ýÂË¹ÜÀí¹¤¾ß
 Name:		iptables
 Version:	%{iptables_version}
-Release:	%{_rel}
+Release:	%{rel}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
@@ -61,10 +61,9 @@ BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 %endif
-%if %{with dist_kernel} && %{_pomng_snap} != 0
-BuildRequires:	kernel-headers(netfilter) >= %{_pomng_snap}
-BuildRequires:	kernel-source
-Requires:	kernel(netfilter) >= %{_pomng_snap}
+%if %{with dist_kernel} && %{netfilter_snap} != 0
+BuildRequires:	kernel%{_alt_kernel}-headers(netfilter) >= %{netfilter_snap}
+BuildRequires:	kernel%{_alt_kernel}-source
 %endif
 #BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
@@ -115,7 +114,7 @@ iptables.
 %package init
 Summary:	Iptables init (RedHat style)
 Summary(pl):	Iptables init (w stylu RedHata)
-Release:	%{_rel}
+Release:	%{rel}
 Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}
