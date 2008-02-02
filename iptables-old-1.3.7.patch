@@ -1,6 +1,6 @@
 --- /dev/null	2005-12-16 15:49:47.000000000 +0100
 +++ iptables-1.3.8/extensions/libipt_rpc.c	2006-12-04 12:15:20.000000000 +0100
-@@ -0,0 +1,373 @@
+@@ -0,0 +1,372 @@
 +/* RPC extension for IP connection matching, Version 2.2
 + * (C) 2000 by Marcelo Barbosa Lima <marcelo.lima@dcc.unicamp.br>
 + *	- original rpc tracking module
@@ -178,7 +178,7 @@
 +};
 +
 +
-+static void init(struct ipt_entry_match *match, unsigned int *nfcache)
++static void init(struct xt_entry_match *match)
 +{
 +	struct ipt_rpc_info *rpcinfo = ((struct ipt_rpc_info *)match->data);
 +
@@ -191,7 +191,7 @@
 +}
 +
 +
-+static void parse_rpcs_string(char *string, struct ipt_entry_match **match)
++static void parse_rpcs_string(char *string, struct xt_entry_match **match)
 +{
 +	char err1[64] = "%s invalid --rpcs option-set: `%s' (at character %i)";
 +	char err2[64] = "%s unable to resolve rpc name entry: `%s'";
@@ -262,9 +262,8 @@
 +
 +
 +static int parse(int c, char **argv, int invert, unsigned int *flags,
-+		const struct ipt_entry *entry,
-+		unsigned int *nfcache,
-+		struct ipt_entry_match **match)
++		const void *entry,
++		struct xt_entry_match **match)
 +{
 +	struct ipt_rpc_info *rpcinfo = (struct ipt_rpc_info *)(*match)->data;
 +
@@ -312,8 +311,8 @@
 +}
 +
 +
-+static void print(const struct ipt_ip *ip,
-+		const struct ipt_entry_match *match,
++static void print(const void *ip,
++		const struct xt_entry_match *match,
 +		int numeric)
 +{
 +	struct ipt_rpc_info *rpcinfo = ((struct ipt_rpc_info *)match->data);
@@ -336,7 +335,7 @@
 +}
 +
 +
-+static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++static void save(const void *ip, const struct xt_entry_match *match)
 +{
 +	struct ipt_rpc_info *rpcinfo = ((struct ipt_rpc_info *)match->data);
 +
@@ -428,7 +427,7 @@
 +
 +/* Initialize the target. */
 +static void
-+init(struct ipt_entry_target *t, unsigned int *nfcache)
++init(struct xt_entry_target *t)
 +{
 +	struct ipt_route_target_info *route_info = 
 +		(struct ipt_route_target_info*)t->data;
@@ -450,8 +449,8 @@
 +   ate an option */
 +static int
 +parse(int c, char **argv, int invert, unsigned int *flags,
-+      const struct ipt_entry *entry,
-+      struct ipt_entry_target **target)
++      const void *entry,
++      struct xt_entry_target **target)
 +{
 +	struct ipt_route_target_info *route_info = 
 +		(struct ipt_route_target_info*)(*target)->data;
@@ -568,8 +567,8 @@
 +
 +/* Prints out the targinfo. */
 +static void
-+print(const struct ipt_ip *ip,
-+      const struct ipt_entry_target *target,
++print(const void *ip,
++      const struct xt_entry_target *target,
 +      int numeric)
 +{
 +	const struct ipt_route_target_info *route_info
@@ -597,8 +596,8 @@
 +}
 +
 +
-+static void save(const struct ipt_ip *ip, 
-+		 const struct ipt_entry_target *target)
++static void save(const void *ip, 
++		 const struct xt_entry_target *target)
 +{
 +	const struct ipt_route_target_info *route_info
 +		= (const struct ipt_route_target_info *)target->data;
@@ -725,7 +724,7 @@
 +
 +/* Initialize the target. */
 +static void
-+init(struct ip6t_entry_target *t, unsigned int *nfcache)
++init(struct xt_entry_target *t)
 +{
 +	struct ip6t_route_target_info *route_info = 
 +		(struct ip6t_route_target_info*)t->data;
@@ -750,8 +749,8 @@
 +   ate an option */
 +static int
 +parse(int c, char **argv, int invert, unsigned int *flags,
-+      const struct ip6t_entry *entry,
-+      struct ip6t_entry_target **target)
++      const void *entry,
++      struct xt_entry_target **target)
 +{
 +	struct ip6t_route_target_info *route_info = 
 +		(struct ip6t_route_target_info*)(*target)->data;
@@ -843,8 +842,8 @@
 +
 +/* Prints out the targinfo. */
 +static void
-+print(const struct ip6t_ip6 *ip,
-+      const struct ip6t_entry_target *target,
++print(const void *ip,
++      const struct xt_entry_target *target,
 +      int numeric)
 +{
 +	const struct ip6t_route_target_info *route_info
@@ -872,8 +871,8 @@
 +}
 +
 +
-+static void save(const struct ip6t_ip6 *ip, 
-+		 const struct ip6t_entry_target *target)
++static void save(const void *ip, 
++		 const struct xt_entry_target *target)
 +{
 +	const struct ip6t_route_target_info *route_info
 +		= (const struct ip6t_route_target_info *)target->data;

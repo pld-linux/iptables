@@ -317,8 +317,8 @@ diff -Nurp iptables-1.3.8/extensions/libipt_layer7.c iptables-1.3.8-layer7/exten
 +
 +/* Function which parses command options; returns true if it ate an option */
 +static int parse(int c, char **argv, int invert, unsigned int *flags,
-+      const struct ipt_entry *entry, unsigned int *nfcache,
-+      struct ipt_entry_match **match)
++      const void *entry,
++      struct xt_entry_match **match)
 +{
 +	struct xt_layer7_info *layer7info = 
 +		(struct xt_layer7_info *)(*match)->data;
@@ -367,8 +367,8 @@ diff -Nurp iptables-1.3.8/extensions/libipt_layer7.c iptables-1.3.8-layer7/exten
 +}
 +
 +/* Prints out the matchinfo. */
-+static void print(const struct ipt_ip *ip,
-+      const struct ipt_entry_match *match,
++static void print(const void *ip,
++      const struct xt_entry_match *match,
 +      int numeric)
 +{
 +	printf("LAYER7 ");
@@ -377,7 +377,7 @@ diff -Nurp iptables-1.3.8/extensions/libipt_layer7.c iptables-1.3.8-layer7/exten
 +		  ((struct xt_layer7_info *)match->data)->invert, numeric);
 +}
 +/* Saves the union ipt_matchinfo in parsable form to stdout. */
-+static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++static void save(const void *ip, const struct xt_entry_match *match)
 +{
 +        const struct xt_layer7_info *info =
 +            (const struct xt_layer7_info*) match->data;
