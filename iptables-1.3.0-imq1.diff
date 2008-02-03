@@ -6,7 +6,7 @@
 +[ -f $KERNEL_DIR/net/ipv6/netfilter/ip6t_IMQ.c ] && echo IMQ
 --- userspace/extensions.orig/libip6t_IMQ.c	Thu Jan  1 01:00:00 1970
 +++ userspace/extensions/libip6t_IMQ.c	Mon Jun 16 10:12:47 2003
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,100 @@
 +/* Shared library add-on to iptables to add IMQ target support. */
 +#include <stdio.h>
 +#include <string.h>
@@ -34,20 +34,19 @@
 +
 +/* Initialize the target. */
 +static void
-+init(struct ip6t_entry_target *t, unsigned int *nfcache)
++init(struct xt_entry_target *t)
 +{
 +	struct ip6t_imq_info *mr = (struct ip6t_imq_info*)t->data;
 +
 +	mr->todev = 0;
-+	*nfcache |= NFC_UNKNOWN;
 +}
 +
 +/* Function which parses command options; returns true if it
 +   ate an option */
 +static int
 +parse(int c, char **argv, int invert, unsigned int *flags,
-+      const struct ip6t_entry *entry,
-+      struct ip6t_entry_target **target)
++      const void *entry,
++      struct xt_entry_target **target)
 +{
 +	struct ip6t_imq_info *mr = (struct ip6t_imq_info*)(*target)->data;
 +	
@@ -71,8 +70,8 @@
 +
 +/* Prints out the targinfo. */
 +static void
-+print(const struct ip6t_ip6 *ip,
-+      const struct ip6t_entry_target *target,
++print(const void *ip,
++      const struct xt_entry_target *target,
 +      int numeric)
 +{
 +	struct ip6t_imq_info *mr = (struct ip6t_imq_info*)target->data;
@@ -82,7 +81,7 @@
 +
 +/* Saves the union ipt_targinfo in parsable form to stdout. */
 +static void
-+save(const struct ip6t_ip6 *ip, const struct ip6t_entry_target *target)
++save(const void *ip, const struct xt_entry_target *target)
 +{
 +	struct ip6t_imq_info *mr = (struct ip6t_imq_info*)target->data;
 +
@@ -116,7 +115,7 @@
 +[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_IMQ.c ] && echo IMQ
 --- userspace/extensions.orig/libipt_IMQ.c	Thu Jan  1 01:00:00 1970
 +++ userspace/extensions/libipt_IMQ.c	Mon Jun 16 10:12:47 2003
-@@ -0,0 +1,101 @@
+@@ -0,0 +1,100 @@
 +/* Shared library add-on to iptables to add IMQ target support. */
 +#include <stdio.h>
 +#include <string.h>
@@ -144,20 +143,19 @@
 +
 +/* Initialize the target. */
 +static void
-+init(struct ipt_entry_target *t, unsigned int *nfcache)
++init(struct xt_entry_target *t)
 +{
 +	struct ipt_imq_info *mr = (struct ipt_imq_info*)t->data;
 +
 +	mr->todev = 0;
-+	*nfcache |= NFC_UNKNOWN;
 +}
 +
 +/* Function which parses command options; returns true if it
 +   ate an option */
 +static int
 +parse(int c, char **argv, int invert, unsigned int *flags,
-+      const struct ipt_entry *entry,
-+      struct ipt_entry_target **target)
++      const void *entry,
++      struct xt_entry_target **target)
 +{
 +	struct ipt_imq_info *mr = (struct ipt_imq_info*)(*target)->data;
 +	
@@ -181,8 +179,8 @@
 +
 +/* Prints out the targinfo. */
 +static void
-+print(const struct ipt_ip *ip,
-+      const struct ipt_entry_target *target,
++print(const void *ip,
++      const struct xt_entry_target *target,
 +      int numeric)
 +{
 +	struct ipt_imq_info *mr = (struct ipt_imq_info*)target->data;
@@ -192,7 +190,7 @@
 +
 +/* Saves the union ipt_targinfo in parsable form to stdout. */
 +static void
-+save(const struct ipt_ip *ip, const struct ipt_entry_target *target)
++save(const void *ip, const struct xt_entry_target *target)
 +{
 +	struct ipt_imq_info *mr = (struct ipt_imq_info*)target->data;
 +
