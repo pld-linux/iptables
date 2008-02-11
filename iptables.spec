@@ -11,7 +11,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 3
+%define		rel 4
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -176,7 +176,7 @@ install extensions/*so $RPM_BUILD_ROOT%{_libdir}/iptables
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
 
 # Devel stuff
-cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
+cp -a include/{lib*,ip*,xtables.h} $RPM_BUILD_ROOT%{_includedir}
 install lib*.a $RPM_BUILD_ROOT%{_libdir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
