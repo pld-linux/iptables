@@ -11,7 +11,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 4
+%define		rel 5
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -40,6 +40,7 @@ Patch7:		%{name}-account.patch
 # http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch
 Patch8:		%{name}-1.3.5-owner-xid.patch
 Patch9:		%{name}-geoip-dbpath.patch
+Patch10:	%{name}-batch.patch
 Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
 %if %{with doc}
@@ -135,13 +136,14 @@ iptables(8).
 %patch8 -p1
 %endif
 %patch9 -p1
+%patch10 -p0
 
 #patch999 -p1
 
 chmod 755 extensions/.*-test*
 
 %build
-%{__make} -j1 all experimental \
+%{__make} -j1 all experimental iptables-batch ip6tables-batch \
 	CC="%{__cc}" \
 	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	KERNEL_DIR="%{_kernelsrcdir}" \
@@ -171,6 +173,8 @@ echo ".so iptables-restore.8" > %{name6}-restore.8
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
+install iptables-batch $RPM_BUILD_ROOT%{_sbindir}
+install ip6tables-batch $RPM_BUILD_ROOT%{_sbindir}
 install extensions/*so $RPM_BUILD_ROOT%{_libdir}/iptables
 
 echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
@@ -201,10 +205,12 @@ fi
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_sbindir}/iptables
+%attr(755,root,root) %{_sbindir}/iptables-batch
 %attr(755,root,root) %{_sbindir}/iptables-restore
 %attr(755,root,root) %{_sbindir}/iptables-save
 %attr(755,root,root) %{_sbindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/ip6tables
+%attr(755,root,root) %{_sbindir}/ip6tables-batch
 %attr(755,root,root) %{_sbindir}/ip6tables-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-save
 %dir %{_libdir}/iptables
