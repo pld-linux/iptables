@@ -11,7 +11,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 5
+%define		rel 7
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -237,7 +237,6 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libipt_addrtype.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_ah.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_CLUSTERIP.so
-%attr(755,root,root) %{_libdir}/iptables/libipt_connlimit.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_conntrack.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_DNAT.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_ecn.so
@@ -268,12 +267,10 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libipt_SET.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_SNAT.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_TARPIT.so
-%attr(755,root,root) %{_libdir}/iptables/libipt_time.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_tos.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_TOS.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_TTL.so
-%attr(755,root,root) %{_libdir}/iptables/libipt_u32.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_ULOG.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_unclean.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_CLASSIFY.so
