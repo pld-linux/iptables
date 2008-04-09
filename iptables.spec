@@ -11,7 +11,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 5
+%define		rel 6
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -184,6 +184,10 @@ cp -a include/{lib*,ip*,xtables.h} $RPM_BUILD_ROOT%{_includedir}
 install lib*.a $RPM_BUILD_ROOT%{_libdir}
 install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
 install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
+# with kernel 2.6.22 we use old libipt_ modules
+rm -f $RPM_BUILD_ROOT%{_libdir}/iptables/libxt_connlimit.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/iptables/libxt_time.so
+rm -f $RPM_BUILD_ROOT%{_libdir}/iptables/libxt_u32.so
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
@@ -279,7 +283,6 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libxt_CLASSIFY.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_comment.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_connbytes.so
-%attr(755,root,root) %{_libdir}/iptables/libxt_connlimit.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_connmark.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_CONNMARK.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_CONNSECMARK.so
@@ -310,9 +313,7 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libxt_tcpmss.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_TCPMSS.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_tcp.so
-%attr(755,root,root) %{_libdir}/iptables/libxt_time.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_TRACE.so
-%attr(755,root,root) %{_libdir}/iptables/libxt_u32.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_udp.so
 %else
 %attr(755,root,root) %{_libdir}/iptables/*.so
