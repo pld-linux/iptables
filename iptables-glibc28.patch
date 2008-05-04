@@ -1,0 +1,30 @@
+--- iptables-1.4.0/libiptc/libip6tc.c~	2007-10-15 12:45:08.000000000 +0000
++++ iptables-1.4.0/libiptc/libip6tc.c	2008-05-04 22:10:04.887401645 +0000
+@@ -112,8 +112,13 @@
+ 
+ #include "libiptc.c"
+ 
++#if __GLIBC_PREREQ(2, 8)
++#define BIT6(a, l) \
++ ((ntohl(a->__in6_u.__u6_addr32[(l) / 32]) >> (31 - ((l) & 31))) & 1)
++#else
+ #define BIT6(a, l) \
+  ((ntohl(a->in6_u.u6_addr32[(l) / 32]) >> (31 - ((l) & 31))) & 1)
++#endif
+ 
+ int
+ ipv6_prefix_length(const struct in6_addr *a)
+--- iptables-1.4.0/ip6tables.c~	2007-12-22 12:44:18.000000000 +0000
++++ iptables-1.4.0/ip6tables.c	2008-05-04 22:18:07.976519241 +0000
+@@ -678,7 +678,11 @@
+ 	for (i = 0, j = 0; i < n; i++) {
+ 		int k;
+ 		for (k = 0; k < 4; k++)
++#if __GLIBC_PREREQ(2, 8)
++			addrp[j].__in6_u.__u6_addr32[k] &= maskp->__in6_u.__u6_addr32[k];
++#else
+ 			addrp[j].in6_u.u6_addr32[k] &= maskp->in6_u.u6_addr32[k];
++#endif
+ 		j++;
+ 		for (k = 0; k < j - 1; k++) {
+ 			if (IN6_ARE_ADDR_EQUAL(&addrp[k], &addrp[j - 1])) {
