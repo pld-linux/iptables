@@ -42,6 +42,8 @@ Patch8:		%{name}-1.3.5-owner-xid.patch
 Patch9:		%{name}-geoip-dbpath.patch
 Patch10:	%{name}-batch.patch
 Patch11:	%{name}-glibc28.patch
+# http://www.balabit.com/downloads/files/tproxy/tproxy-iptables-20080204-1915.patch
+Patch12:	%{name}-tproxy.patch
 Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
 %if %{with doc}
@@ -139,6 +141,7 @@ iptables(8).
 %patch9 -p1
 %patch10 -p0
 %patch11 -p1
+%patch12 -p0
 
 #patch999 -p1
 
