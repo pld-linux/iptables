@@ -1,6 +1,7 @@
 #
 # TODO:
-#		- fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
+# - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
+# - owner needs rewrite to xt, imq update
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
@@ -11,7 +12,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 7
+%define		rel 7.1
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -136,7 +137,7 @@ iptables(8).
 %patch6 -p1
 %patch7 -p1
 %if %{with vserver}
-%patch8 -p1
+#patch8 -p1
 %endif
 %patch9 -p1
 %patch10 -p0
@@ -228,7 +229,7 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libip6t_hl.so
 %attr(755,root,root) %{_libdir}/iptables/libip6t_HL.so
 %attr(755,root,root) %{_libdir}/iptables/libip6t_icmp6.so
-%attr(755,root,root) %{_libdir}/iptables/libip6t_IMQ.so
+#attr(755,root,root) %{_libdir}/iptables/libip6t_IMQ.so
 %attr(755,root,root) %{_libdir}/iptables/libip6t_ipv6header.so
 %attr(755,root,root) %{_libdir}/iptables/libip6t_LOG.so
 %attr(755,root,root) %{_libdir}/iptables/libip6t_mh.so
@@ -248,7 +249,7 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libipt_ECN.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_geoip.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_icmp.so
-%attr(755,root,root) %{_libdir}/iptables/libipt_IMQ.so
+#attr(755,root,root) %{_libdir}/iptables/libipt_IMQ.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_IPMARK.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_ipp2p.so
 %attr(755,root,root) %{_libdir}/iptables/libipt_iprange.so
@@ -305,6 +306,7 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libxt_quota.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_sctp.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_SECMARK.so
+%attr(755,root,root) %{_libdir}/iptables/libxt_socket.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_standard.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_state.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_statistic.so
@@ -313,6 +315,7 @@ fi
 %attr(755,root,root) %{_libdir}/iptables/libxt_TCPMSS.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_tcp.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_time.so
+%attr(755,root,root) %{_libdir}/iptables/libxt_TPROXY.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_TRACE.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_u32.so
 %attr(755,root,root) %{_libdir}/iptables/libxt_udp.so
