@@ -24,7 +24,7 @@ Index: extensions/libxt_socket.c
 +
 +static void socket_mt_help(void)
 +{
-+	printf("socket v%s has no options\n\n", IPTABLES_VERSION);
++	printf("socket v%s has no options\n\n", XTABLES_VERSION);
 +}
 +
 +static int socket_mt_parse(int c, char **argv, int invert, unsigned int *flags,
@@ -39,7 +39,7 @@ Index: extensions/libxt_socket.c
 +
 +static struct xtables_match socket_mt_reg = {
 +	.name          = "socket",
-+	.version       = IPTABLES_VERSION,
++	.version       = XTABLES_VERSION,
 +	.family        = AF_INET,
 +	.size          = XT_ALIGN(0),
 +	.userspacesize = XT_ALIGN(0),
@@ -90,7 +90,7 @@ Index: extensions/libxt_socket.c
 +"  --on-port port                   Redirect connection to port, or the original port if 0\n"
 +"  --on-ip ip                       Optionally redirect to the given IP\n"
 +"  --tproxy-mark value/mask         Mark packets with the given value/mask\n\n",
-+IPTABLES_VERSION);
++XTABLES_VERSION);
 +}
 +
 +static void parse_tproxy_lport(const char *s, struct xt_tproxy_target_info *info)
@@ -107,7 +107,7 @@ Index: extensions/libxt_socket.c
 +{
 +	struct in_addr *laddr;
 +
-+	if ((laddr = dotted_to_addr(s)) == NULL)
++	if ((laddr = numeric_to_ipaddr(s)) == NULL)
 +		exit_error(PARAMETER_PROBLEM, "bad --on-ip \"%s\"", s);
 +	info->laddr = laddr->s_addr;
 +}
@@ -118,7 +118,7 @@ Index: extensions/libxt_socket.c
 +	char *slash;
 +
 +	slash = strchr(s, '/');
-+	info->mark_mask = ULONG_MAX;
++	info->mark_mask = UINT_MAX;
 +	if (slash != NULL) {
 +		*slash = '\0';
 +		if (string_to_number_l(slash + 1, 0, ULONG_MAX, &tmp) < 0)
@@ -176,7 +176,7 @@ Index: extensions/libxt_socket.c
 +{
 +	const struct xt_tproxy_target_info *info = (const void *)target->data;
 +	printf("TPROXY redirect %s:%u mark 0x%x/0x%x",
-+	       addr_to_dotted((const struct in_addr *)&info->laddr),
++	       ipaddr_to_numeric((const struct in_addr *)&info->laddr),
 +	       ntohs(info->lport), (unsigned int)info->mark_value,
 +	       (unsigned int)info->mark_mask);
 +}
@@ -187,7 +187,7 @@ Index: extensions/libxt_socket.c
 +
 +	printf("--on-port %u ", ntohs(info->lport));
 +	printf("--on-ip %s ",
-+	       addr_to_dotted((const struct in_addr *)&info->laddr));
++	       ipaddr_to_numeric((const struct in_addr *)&info->laddr));
 +	printf("--tproxy-mark 0x%x/0x%x ",
 +	       (unsigned int)info->mark_value, (unsigned int)info->mark_mask);
 +}
@@ -195,7 +195,7 @@ Index: extensions/libxt_socket.c
 +static struct xtables_target tproxy_tg_reg = {
 +	.name          = "TPROXY",
 +	.family        = AF_INET,
-+	.version       = IPTABLES_VERSION,
++	.version       = XTABLES_VERSION,
 +	.size          = XT_ALIGN(sizeof(struct xt_tproxy_target_info)),
 +	.userspacesize = XT_ALIGN(sizeof(struct xt_tproxy_target_info)),
 +	.help          = tproxy_tg_help,
