@@ -8,6 +8,50 @@
 @@ -0,0 +1,2 @@
 +#! /bin/sh
 +[ -f $KERNEL_DIR/net/netfilter/xt_socket.c ] && echo socket
+Index: extensions/libxt_socket.c
+===================================================================
+--- extensions/libxt_socket.c	(revision 0)
++++ extensions/libxt_socket.c	(revision 0)
+@@ -0,0 +1,39 @@
++/*
++ * Shared library add-on to iptables to add early socket matching support.
++ *
++ * Copyright (C) 2007-2008 BalaBit IT Ltd.
++ */
++#include <stdio.h>
++#include <getopt.h>
++#include <iptables.h>
++
++static void socket_mt_help(void)
++{
++	printf("socket v%s has no options\n\n", IPTABLES_VERSION);
++}
++
++static int socket_mt_parse(int c, char **argv, int invert, unsigned int *flags,
++                        const void *entry, struct xt_entry_match **match)
++{
++	return 0;
++}
++
++static void socket_mt_check(unsigned int flags)
++{
++}
++
++static struct xtables_match socket_mt_reg = {
++	.name          = "socket",
++	.version       = IPTABLES_VERSION,
++	.family        = AF_INET,
++	.size          = XT_ALIGN(0),
++	.userspacesize = XT_ALIGN(0),
++	.parse         = socket_mt_parse,
++	.final_check   = socket_mt_check,
++	.help          = socket_mt_help,
++};
++
++void _init(void)
++{
++	xtables_register_match(&socket_mt_reg);
++}
 --- extensions/libxt_TPROXY.c	(revision 0)
 +++ extensions/libxt_TPROXY.c	(revision 0)
 @@ -0,0 +1,155 @@
@@ -63,7 +107,7 @@
 +{
 +	struct in_addr *laddr;
 +
-+	if ((laddr = numeric_to_ipaddr(s)) == NULL)
++	if ((laddr = dotted_to_addr(s)) == NULL)
 +		exit_error(PARAMETER_PROBLEM, "bad --on-ip \"%s\"", s);
 +	info->laddr = laddr->s_addr;
 +}
@@ -132,7 +176,7 @@
 +{
 +	const struct xt_tproxy_target_info *info = (const void *)target->data;
 +	printf("TPROXY redirect %s:%u mark 0x%x/0x%x",
-+	       ipaddr_to_numeric((const struct in_addr *)&info->laddr),
++	       addr_to_dotted((const struct in_addr *)&info->laddr),
 +	       ntohs(info->lport), (unsigned int)info->mark_value,
 +	       (unsigned int)info->mark_mask);
 +}
@@ -143,7 +187,7 @@
 +
 +	printf("--on-port %u ", ntohs(info->lport));
 +	printf("--on-ip %s ",
-+	       ipaddr_to_numeric((const struct in_addr *)&info->laddr));
++	       addr_to_dotted((const struct in_addr *)&info->laddr));
 +	printf("--tproxy-mark 0x%x/0x%x ",
 +	       (unsigned int)info->mark_value, (unsigned int)info->mark_mask);
 +}
@@ -165,50 +209,6 @@
 +void _init(void)
 +{
 +	xtables_register_target(&tproxy_tg_reg);
-+}
-Index: extensions/libxt_socket.c
-===================================================================
---- extensions/libxt_socket.c	(revision 0)
-+++ extensions/libxt_socket.c	(revision 0)
-@@ -0,0 +1,39 @@
-+/*
-+ * Shared library add-on to iptables to add early socket matching support.
-+ *
-+ * Copyright (C) 2007-2008 BalaBit IT Ltd.
-+ */
-+#include <stdio.h>
-+#include <getopt.h>
-+#include <iptables.h>
-+
-+static void socket_mt_help(void)
-+{
-+	printf("socket v%s has no options\n\n", IPTABLES_VERSION);
-+}
-+
-+static int socket_mt_parse(int c, char **argv, int invert, unsigned int *flags,
-+                        const void *entry, struct xt_entry_match **match)
-+{
-+	return 0;
-+}
-+
-+static void socket_mt_check(unsigned int flags)
-+{
-+}
-+
-+static struct xtables_match socket_mt_reg = {
-+	.name          = "socket",
-+	.version       = IPTABLES_VERSION,
-+	.family        = AF_INET,
-+	.size          = XT_ALIGN(0),
-+	.userspacesize = XT_ALIGN(0),
-+	.parse         = socket_mt_parse,
-+	.final_check   = socket_mt_check,
-+	.help          = socket_mt_help,
-+};
-+
-+void _init(void)
-+{
-+	xtables_register_match(&socket_mt_reg);
 +}
 Index: include/linux/netfilter/xt_TPROXY.h
 ===================================================================
