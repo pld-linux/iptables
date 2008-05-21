@@ -39,7 +39,7 @@ diff -uprN iptables./extensions/libipt_IPMARK.c iptables/extensions/libipt_IPMAR
 +"  --and-mask value       logical AND ip address with this value becomes MARK\n"
 +"  --or-mask value        logical OR ip address with this value becomes MARK\n"
 +"\n",
-+IPTABLES_VERSION);
++XTABLES_VERSION);
 +}
 +
 +static struct option opts[] = {
@@ -173,10 +173,10 @@ diff -uprN iptables./extensions/libipt_IPMARK.c iptables/extensions/libipt_IPMAR
 +		printf("--or-mask 0x%lx ", ipmarkinfo->ormask);
 +}
 +
-+static struct iptables_target ipmark = { 
++static struct xtables_target ipmark = { 
 +	.next		= NULL,
 +	.name		= "IPMARK",
-+	.version	= IPTABLES_VERSION,
++	.version	= XTABLES_VERSION,
 +	.size		= IPT_ALIGN(sizeof(struct ipt_ipmark_target_info)),
 +	.userspacesize	= IPT_ALIGN(sizeof(struct ipt_ipmark_target_info)),
 +	.help		= &help,
@@ -190,7 +190,7 @@ diff -uprN iptables./extensions/libipt_IPMARK.c iptables/extensions/libipt_IPMAR
 +
 +void _init(void)
 +{
-+	register_target(&ipmark);
++	xtables_register_target(&ipmark);
 +}
 diff -uprN iptables./extensions/libipt_IPMARK.man iptables/extensions/libipt_IPMARK.man
 --- iptables./extensions/libipt_IPMARK.man	1970-01-01 01:00:00.000000000 +0100
