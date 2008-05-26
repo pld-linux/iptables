@@ -24,7 +24,7 @@
 +	printf(
 +"IMQ target v%s options:\n"
 +"  --todev <N>		enqueue to imq<N>, defaults to 0\n", 
-+IPTABLES_VERSION);
++XTABLES_VERSION);
 +}
 +
 +static struct option opts[] = {
@@ -88,10 +88,10 @@
 +	printf("--todev %u", mr->todev);
 +}
 +
-+static struct ip6tables_target imq = {
++static struct xtables_target imq = {
 +	.next		= NULL,
 +	.name		= "IMQ",
-+	.version	= IPTABLES_VERSION,
++	.version	= XTABLES_VERSION,
 +	.size		= IP6T_ALIGN(sizeof(struct ip6t_imq_info)),
 +	.userspacesize	= IP6T_ALIGN(sizeof(struct ip6t_imq_info)),
 +	.help		= &help,
@@ -103,9 +103,9 @@
 +	.extra_opts	= opts
 +};
 +
-+static __attribute__((constructor)) void _init(void)
++__attribute__((constructor)) void _init(void)
 +{
-+	register_target6(&imq);
++	xtables_register_target(&imq);
 +}
 --- iptables-1.4.0.orig/extensions.orig/.IMQ-test	Thu Jan  1 01:00:00 1970
 +++ iptables-1.4.0/extensions/.IMQ-test	Mon Jun 16 10:12:47 2003
@@ -133,7 +133,7 @@
 +	printf(
 +"IMQ target v%s options:\n"
 +"  --todev <N>		enqueue to imq<N>, defaults to 0\n", 
-+IPTABLES_VERSION);
++XTABLES_VERSION);
 +}
 +
 +static struct option opts[] = {
@@ -197,10 +197,10 @@
 +	printf("--todev %u", mr->todev);
 +}
 +
-+static struct iptables_target imq = {
++static struct xtables_target imq = {
 +	.next		= NULL,
 +	.name		= "IMQ",
-+	.version	= IPTABLES_VERSION,
++	.version	= XTABLES_VERSION,
 +	.size		= IPT_ALIGN(sizeof(struct ipt_imq_info)),
 +	.userspacesize	= IPT_ALIGN(sizeof(struct ipt_imq_info)),
 +	.help		= &help,
@@ -212,8 +212,8 @@
 +	.extra_opts	= opts
 +};
 +
-+static __attribute__((constructor)) void _init(void)
++void _init(void)
 +{
-+	register_target(&imq);
++	xtables_register_target(&imq);
 +}
 
