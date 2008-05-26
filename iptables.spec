@@ -1,8 +1,9 @@
 #
 # TODO:
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
-# - owner needs rewrite to xt, imq update
+# - owner needs rewrite to xt
 # - batch needs update/rewrite
+# - add manual sections from xtable-addons
 # - ACCOUNT has been removed from iptables-20070806.patch, now should be taken
 #   from http://www.intra2net.com/de/produkte/opensource/ipt_account/libipt_ACCOUNT-1.3.tar.gz
 #
@@ -37,7 +38,7 @@ Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-%{netfilter_snap}.patch
 Patch1:		%{name}-man.patch
-# http://www.linuximq.net/patchs/iptables-1.4.0-imq.diff
+# based on http://www.linuximq.net/patchs/iptables-1.4.0-imq.diff
 Patch2:		%{name}-imq.patch
 # based on http://people.netfilter.org/ole/pom/IPMARK
 Patch3:		%{name}-IPMARK.patch
@@ -143,7 +144,7 @@ iptables(8).
 %setup -q -n %{name}-%{version}-%{_rc} -a1
 %patch0 -p1
 %patch1 -p1
-#patch2 -p1
+%patch2 -p1
 %patch3 -p1
 %patch4 -p1
 %patch5 -p1
@@ -223,10 +224,12 @@ fi
 %attr(755,root,root) %{_bindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/iptables
 #attr(755,root,root) %{_sbindir}/iptables-batch
+%attr(755,root,root) %{_sbindir}/iptables-multi
 %attr(755,root,root) %{_sbindir}/iptables-restore
 %attr(755,root,root) %{_sbindir}/iptables-save
 %attr(755,root,root) %{_sbindir}/ip6tables
 #attr(755,root,root) %{_sbindir}/ip6tables-batch
+%attr(755,root,root) %{_sbindir}/ip6tables-multi
 %attr(755,root,root) %{_sbindir}/ip6tables-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-save
 %dir %{_libdir}/xtables
@@ -239,7 +242,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libip6t_hl.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_HL.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_icmp6.so
-#attr(755,root,root) %{_libdir}/xtables/libip6t_IMQ.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ipv6header.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_LOG.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_mh.so
@@ -257,7 +260,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_ECN.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_geoip.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
-#attr(755,root,root) %{_libdir}/xtables/libipt_IMQ.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_IPMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ipp2p.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
@@ -311,6 +314,8 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_physdev.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_pkttype.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_quota.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_RATEEST.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_rateest.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_sctp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_SECMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_socket.so
@@ -320,6 +325,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_string.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_tcpmss.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_TCPMSS.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TCPOPTSTRIP.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_tcp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_time.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_tos.so
