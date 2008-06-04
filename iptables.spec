@@ -40,8 +40,8 @@ Patch0:		%{name}-%{netfilter_snap}.patch
 Patch1:		%{name}-man.patch
 # based on http://www.linuximq.net/patchs/iptables-1.4.0-imq.diff
 Patch2:		%{name}-imq.patch
-# based on http://people.netfilter.org/ole/pom/IPMARK
-Patch3:		%{name}-IPMARK.patch
+# http://www.balabit.com/downloads/files/tproxy/tproxy-iptables-20080204-1915.patch
+Patch3:		%{name}-tproxy.patch
 Patch4:		%{name}-stealth.patch
 # almost based on iptables-1.4-for-kernel-2.6.20forward-layer7-2.18.patch
 # http://switch.dl.sourceforge.net/sourceforge/l7-filter/netfilter-layer7-v2.18.tar.gz
@@ -51,11 +51,8 @@ Patch6:		%{name}-old-1.3.7.patch
 Patch7:		%{name}-account.patch
 # http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch
 Patch8:		%{name}-1.3.5-owner-xid.patch
-Patch9:		%{name}-geoip-dbpath.patch
-Patch10:	%{name}-batch.patch
-Patch11:	%{name}-glibc28.patch
-# http://www.balabit.com/downloads/files/tproxy/tproxy-iptables-20080204-1915.patch
-Patch12:	%{name}-tproxy.patch
+Patch9:		%{name}-batch.patch
+Patch10:	%{name}-glibc28.patch
 Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf
@@ -145,7 +142,7 @@ iptables(8).
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p1
+%patch3 -p0
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
@@ -153,10 +150,8 @@ iptables(8).
 %if %{with vserver}
 #patch8 -p1
 %endif
-%patch9 -p1
-#patch10 -p0
-%patch11 -p1
-%patch12 -p0
+#patch9 -p0
+%patch10 -p1
 
 #patch999 -p1
 
@@ -258,11 +253,8 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_DNAT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ecn.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ECN.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_geoip.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_IMQ.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_IPMARK.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_ipp2p.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_layer7.so
@@ -281,7 +273,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_set.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SET.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SNAT.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_TARPIT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_TTL.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ULOG.so
