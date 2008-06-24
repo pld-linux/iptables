@@ -15,9 +15,8 @@
 %define		netfilter_snap		20070806
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
-%define		_rc			rc1
 #
-%define		rel 7.%{_rc}.1
+%define		rel 8
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -29,9 +28,8 @@ Version:	1.4.1
 Release:	%{rel}
 License:	GPL
 Group:		Networking/Daemons
-#Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}-rc1.tar.bz2
-# Source0-md5:	36a4921fa21ec4b99cc68cd9c4d0e080
+Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
+# Source0-md5:	e628f033b95741266a315d54fe73db9c
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -57,6 +55,7 @@ Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	libtool
 %if %{with doc}
 BuildRequires:	sed >= 4.0
 BuildRequires:	sgml-tools
@@ -138,7 +137,7 @@ firewall-init sposobu włączania i wyłączania filtrów IP jądra poprzez
 iptables(8).
 
 %prep
-%setup -q -n %{name}-%{version}-%{_rc} -a1
+%setup -q -a1
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
@@ -151,13 +150,14 @@ iptables(8).
 #patch8 -p1
 %endif
 #patch9 -p0
-%patch10 -p1
+#%patch10 -p1
 
 #patch999 -p1
 
 chmod 755 extensions/.*-test*
 
 %build
+%{__libtoolize}
 %{__aclocal}
 %{__automake}
 %configure \
@@ -273,6 +273,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_set.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SET.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SNAT.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_TTL.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ULOG.so
