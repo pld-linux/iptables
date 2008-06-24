@@ -16,7 +16,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 8
+%define		rel 9
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -50,7 +50,7 @@ Patch7:		%{name}-account.patch
 # http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch
 Patch8:		%{name}-1.3.5-owner-xid.patch
 Patch9:		%{name}-batch.patch
-Patch10:	%{name}-glibc28.patch
+Patch10:	%{name}-headers.patch
 Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf
@@ -150,7 +150,7 @@ iptables(8).
 #patch8 -p1
 %endif
 #patch9 -p0
-#%patch10 -p1
+%patch10 -p1
 
 #patch999 -p1
 
@@ -336,8 +336,8 @@ fi
 %{?with_doc:%doc iptables-howtos/netfilter-hacking-HOWTO*}
 %{_libdir}/lib*.a
 %{_includedir}/*.h
-%dir %{_includedir}/libip*
-%{_includedir}/libip*/*.h
+%dir %{_includedir}/libiptc
+%{_includedir}/libiptc/*.h
 %{_mandir}/man3/*
 
 %files init
