@@ -1,21 +1,30 @@
---- Makefile
-+++ Makefile
-@@ -107,6 +107,12 @@
- 	$(CC) $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIBDIR)\" $(LDFLAGS) -o $@ $^ $(LDLIBS)
- endif
+diff -urN iptables-1.4.1.1.orig/ip6tables-multi.c iptables-1.4.1.1/ip6tables-multi.c
+--- iptables-1.4.1.1.orig/ip6tables-multi.c	2008-06-16 15:12:40.000000000 +0200
++++ iptables-1.4.1.1/ip6tables-multi.c	2008-08-24 10:39:07.000000000 +0200
+@@ -24,6 +24,9 @@
+     
+     if (!strcmp(progname, "ip6tables-restore"))
+       return ip6tables_restore_main(argc, argv);
++
++    if (!strcmp(progname, "ip6tables-batch"))
++      return ip6tables_batch_main(argc, argv);
+     
+     fprintf(stderr, "ip6tables multi-purpose version: unknown applet name %s\n", progname);
+     exit(1);
+diff -urN iptables-1.4.1.1.orig/ip6tables-multi.h iptables-1.4.1.1/ip6tables-multi.h
+--- iptables-1.4.1.1.orig/ip6tables-multi.h	2008-06-16 15:12:40.000000000 +0200
++++ iptables-1.4.1.1/ip6tables-multi.h	2008-08-24 10:39:07.000000000 +0200
+@@ -4,5 +4,6 @@
+ extern int ip6tables_main(int, char **);
+ extern int ip6tables_save_main(int, char **);
+ extern int ip6tables_restore_main(int, char **);
++extern int ip6tables_batch_main(int, char **);
  
-+iptables-batch: iptables-batch.c iptables.o xtables.o $(STATIC_LIBS) libiptc/libiptc.a
-+	$(CC) $(CFLAGS) -DIPT_LIB_DIR=\"$(IPT_LIBDIR)\" $(LDFLAGS) -o $@ $^ $(LDLIBS)
-+
-+ip6tables-batch: iptables-batch.c ip6tables.o xtables.o $(STATIC6_LIBS) libiptc/libiptc.a
-+	$(CC) $(CFLAGS) -DIP6T_LIB_DIR=\"$(IPT_LIBDIR)\" $(LDFLAGS) -o $@ $^ $(LDLIBS)
-+
- $(DESTDIR)$(BINDIR)/iptables: iptables
- 	@[ -d $(DESTDIR)$(BINDIR) ] || mkdir -p $(DESTDIR)$(BINDIR)
- 	cp $< $@
---- iptables-batch.c
-+++ iptables-batch.c
-@@ -0,0 +1,454 @@
+ #endif /* _IP6TABLES_MULTI_H */
+diff -urN iptables-1.4.1.1.orig/iptables-batch.c iptables-1.4.1.1/iptables-batch.c
+--- iptables-1.4.1.1.orig/iptables-batch.c	1970-01-01 01:00:00.000000000 +0100
++++ iptables-1.4.1.1/iptables-batch.c	2008-08-24 10:42:00.000000000 +0200
+@@ -0,0 +1,471 @@
 +/*
 + * Author: Ludwig Nussel <ludwig.nussel@suse.de>
 + *
@@ -55,10 +64,12 @@
 +#include <errno.h>
 +#include <string.h>
 +
-+#ifdef IP6T_LIB_DIR
++#ifdef BATCH_IPV6
 +#include <ip6tables.h>
++#include "ip6tables-multi.h"
 +#else
 +#include <iptables.h>
++#include "iptables-multi.h"
 +#endif
 +
 +static char* errstr = NULL;
@@ -195,7 +206,7 @@
 +struct table_handle
 +{
 +	char* name;
-+#ifdef IP6T_LIB_DIR
++#ifdef BATCH_IPV6
 +	ip6tc_handle_t handle;
 +#else
 +	iptc_handle_t handle;
@@ -272,7 +283,7 @@
 +	if(!find_table(argc, argv))
 +		return 0;
 +
-+#ifdef IP6T_LIB_DIR
++#ifdef BATCH_IPV6
 +	ret = do_command6(argc, argv, &table, &current_table->handle);
 +
 +	if (!ret)
@@ -319,7 +330,7 @@
 +	{
 +		if(tables[i].handle)
 +		{
-+#ifdef IP6T_LIB_DIR
++#ifdef BATCH_IPV6
 +			if(!ip6tc_commit(&tables[i].handle))
 +			{
 +				fprintf(stderr, "commit failed on table %s: %s\n", tables[i].name, ip6tc_strerror(errno));
@@ -348,8 +359,16 @@
 +	exit(0);
 +}
 +
++#if defined(IPTABLES_MULTI) && defined(BATCH_IPV4)
++int
++iptables_batch_main(int argc, char *argv[])
++#elif defined(IPTABLES_MULTI) && defined(BATCH_IPV6)
++int
++ip6tables_batch_main(int argc, char *argv[])
++#else
 +int
 +main(int argc, char *argv[])
++#endif
 +{
 +	int ret = 1;
 +	int numtok;
@@ -360,20 +379,27 @@
 +	char* nargv[256];
 +	FILE* fp = stdin;
 +
-+#ifdef IP6T_LIB_DIR
++#ifdef BATCH_IPV6
 +	program_name = "ip6tables-batch";
 +
-+	lib_dir = getenv("IP6TABLES_LIB_DIR");
-+	if (!lib_dir)
-+		lib_dir = IP6T_LIB_DIR;
++	lib_dir = getenv("XTABLES_LIBDIR");
++	if (!lib_dir) {
++		lib_dir = getenv("IP6TABLES_LIB_DIR");
++		if (!lib_dir)
++			lib_dir = XTABLES_LIBDIR;
++	}
 +#else
 +	program_name = "iptables-batch";
 +
-+	lib_dir = getenv("IPTABLES_LIB_DIR");
-+	if (!lib_dir)
-+		lib_dir = IPT_LIB_DIR;
++	lib_dir = getenv("XTABLES_LIBDIR");
++	if (!lib_dir) {
++		lib_dir = getenv("IPTABLES_LIB_DIR");
++		if (!lib_dir)
++			lib_dir = XTABLES_LIBDIR;
++	}
++
 +#endif
-+	program_version = IPTABLES_VERSION;
++	program_version = XTABLES_VERSION;
 +
 +#ifdef NO_SHARED_LIBS
 +	init_extensions();
@@ -441,7 +467,7 @@
 +		dumpargv(nargc, nargv);
 +#endif
 +
-+#ifdef IP6T_LIB_DIR
++#ifdef BATCH_IPV6
 +		if(!strcmp(nargv[0], "ip6tables"))
 +#else
 +		if(!strcmp(nargv[0], "iptables"))
@@ -470,3 +496,94 @@
 +
 +	exit(!ret);
 +}
+diff -urN iptables-1.4.1.1.orig/iptables-multi.c iptables-1.4.1.1/iptables-multi.c
+--- iptables-1.4.1.1.orig/iptables-multi.c	2008-06-16 15:12:40.000000000 +0200
++++ iptables-1.4.1.1/iptables-multi.c	2008-08-24 10:39:07.000000000 +0200
+@@ -28,6 +28,9 @@
+     
+     if (!strcmp(progname, "iptables-xml"))
+       return iptables_xml_main(argc, argv);
++
++    if (!strcmp(progname, "iptables-batch"))
++      return iptables_batch_main(argc, argv);
+     
+     fprintf(stderr, "iptables multi-purpose version: unknown applet name %s\n", progname);
+     exit(1);
+diff -urN iptables-1.4.1.1.orig/iptables-multi.h iptables-1.4.1.1/iptables-multi.h
+--- iptables-1.4.1.1.orig/iptables-multi.h	2008-06-16 15:12:40.000000000 +0200
++++ iptables-1.4.1.1/iptables-multi.h	2008-08-24 10:39:07.000000000 +0200
+@@ -5,5 +5,6 @@
+ extern int iptables_save_main(int, char **);
+ extern int iptables_restore_main(int, char **);
+ extern int iptables_xml_main(int, char **);
++extern int iptables_batch_main(int, char **);
+ 
+ #endif /* _IPTABLES_MULTI_H */
+diff -urN iptables-1.4.1.1.orig/Makefile.am iptables-1.4.1.1/Makefile.am
+--- iptables-1.4.1.1.orig/Makefile.am	2008-06-16 15:12:40.000000000 +0200
++++ iptables-1.4.1.1/Makefile.am	2008-08-24 10:43:30.000000000 +0200
+@@ -18,8 +18,9 @@
+ 
+ iptables_multi_SOURCES    = iptables-multi.c iptables-save.c \
+                             iptables-restore.c iptables-xml.c \
+-                            iptables-standalone.c iptables.c xtables.c
+-iptables_multi_CFLAGS     = ${AM_CFLAGS} -DIPTABLES_MULTI
++                            iptables-standalone.c iptables.c xtables.c \
++                            iptables-batch.c
++iptables_multi_CFLAGS     = ${AM_CFLAGS} -DIPTABLES_MULTI -DBATCH_IPV4
+ iptables_multi_LDFLAGS    = ${iptables_LDFLAGS}
+ iptables_multi_LDADD      = ${iptables_LDADD}
+ 
+@@ -31,9 +32,14 @@
+ iptables_save_LDFLAGS     = ${iptables_LDFLAGS}
+ iptables_save_LDADD       = ${iptables_LDADD}
+ 
++iptables_batch_SOURCES    = iptables-batch.c iptables.c xtables.c
++iptables_batch_CFLAGS     = ${AM_CFLAGS} -DBATCH_IPV4
++iptables_batch_LDFLAGS    = ${iptables_LDFLAGS}
++iptables_batch_LDADD      = ${iptables_LDADD}
++
+ # iptables-multi, semi-static
+ iptables_static_SOURCES   = ${iptables_multi_SOURCES}
+-iptables_static_CFLAGS    = ${iptables_multi_CFLAGS} -DNO_SHARED_LIBS=1
++iptables_static_CFLAGS    = ${iptables_multi_CFLAGS} -DNO_SHARED_LIBS=1 -DBATCH_IPV4
+ iptables_static_LDADD     = -lm libiptc/libiptc.a extensions/libext4.a
+ 
+ iptables_xml_SOURCES      = iptables-xml.c
+@@ -45,8 +51,8 @@
+ 
+ ip6tables_multi_SOURCES   = ip6tables-multi.c ip6tables-save.c \
+                             ip6tables-restore.c ip6tables-standalone.c \
+-                            ip6tables.c xtables.c
+-ip6tables_multi_CFLAGS    = ${AM_CFLAGS} -DIPTABLES_MULTI
++                            ip6tables.c xtables.c iptables-batch.c
++ip6tables_multi_CFLAGS    = ${AM_CFLAGS} -DIPTABLES_MULTI -DBATCH_IPV6
+ ip6tables_multi_LDFLAGS   = ${ip6tables_LDFLAGS}
+ ip6tables_multi_LDADD     = ${ip6tables_LDADD}
+ 
+@@ -58,9 +64,14 @@
+ ip6tables_save_LDFLAGS    = ${ip6tables_LDFLAGS}
+ ip6tables_save_LDADD      = ${ip6tables_LDADD}
+ 
++ip6tables_batch_SOURCES   = iptables-batch.c ip6tables.c xtables.c
++ip6tables_batch_CFLAGS     = ${AM_CFLAGS} -DBATCH_IPV6
++ip6tables_batch_LDFLAGS   = ${ip6tables_LDFLAGS}
++ip6tables_batch_LDADD     = ${ip6tables_LDADD}
++
+ # iptables-multi, semi-static
+ ip6tables_static_SOURCES    = ${ip6tables_multi_SOURCES}
+-ip6tables_static_CFLAGS     = ${ip6tables_multi_CFLAGS} -DNO_SHARED_LIBS=1
++ip6tables_static_CFLAGS     = ${ip6tables_multi_CFLAGS} -DNO_SHARED_LIBS=1 -DBATCH_IPV6
+ ip6tables_static_LDADD      = -lm libiptc/libiptc.a extensions/libext6.a
+ 
+ noinst_LIBRARIES := libiptc/libiptc.a
+@@ -83,7 +94,8 @@
+ endif
+ if ENABLE_SHARED
+ sbin_PROGRAMS += iptables iptables-multi iptables-restore iptables-save \
+-                 ip6tables ip6tables-multi ip6tables-restore ip6tables-save
++                 ip6tables ip6tables-multi ip6tables-restore ip6tables-save \
++                 iptables-batch ip6tables-batch
+ endif
+ 
+ iptables.8: ${srcdir}/iptables.8.in extensions/matches4.man extensions/targets4.man
