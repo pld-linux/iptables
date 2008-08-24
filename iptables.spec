@@ -2,7 +2,6 @@
 # TODO:
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 # - owner needs rewrite to xt
-# - batch needs update/rewrite
 # - add manual sections from xtable-addons
 # - ACCOUNT has been removed from iptables-20070806.patch, now should be taken
 #   from http://www.intra2net.com/de/produkte/opensource/ipt_account/libipt_ACCOUNT-1.3.tar.gz
@@ -151,7 +150,7 @@ iptables(8).
 #patch8 -p1
 %patch11 -p1
 %endif
-#patch9 -p0
+%patch9 -p1
 %patch10 -p1
 
 #patch999 -p1
@@ -196,9 +195,6 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
-#install iptables-batch $RPM_BUILD_ROOT%{_sbindir}
-#install ip6tables-batch $RPM_BUILD_ROOT%{_sbindir}
-
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 
@@ -220,12 +216,12 @@ fi
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_bindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/iptables
-#attr(755,root,root) %{_sbindir}/iptables-batch
+%attr(755,root,root) %{_sbindir}/iptables-batch
 %attr(755,root,root) %{_sbindir}/iptables-multi
 %attr(755,root,root) %{_sbindir}/iptables-restore
 %attr(755,root,root) %{_sbindir}/iptables-save
 %attr(755,root,root) %{_sbindir}/ip6tables
-#attr(755,root,root) %{_sbindir}/ip6tables-batch
+%attr(755,root,root) %{_sbindir}/ip6tables-batch
 %attr(755,root,root) %{_sbindir}/ip6tables-multi
 %attr(755,root,root) %{_sbindir}/ip6tables-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-save
