@@ -195,6 +195,9 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
+# install library needed for collectd:
+install libiptc/libiptc.a $RPM_BUILD_ROOT%{_libdir}
+
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 
