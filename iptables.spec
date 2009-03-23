@@ -15,7 +15,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 4
+%define		rel 0.1
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -23,12 +23,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.1.1
+Version:	1.4.3
 Release:	%{rel}
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	723fa88d8a0915e184f99e03e9bf06cb
+# Source0-md5:	952f8df5815b658bdf34b8d58fe94c63
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -141,7 +141,7 @@ iptables(8).
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
-%patch3 -p0
+#%patch3 -p0
 %patch4 -p1
 %patch5 -p1
 %patch6 -p1
@@ -151,7 +151,7 @@ iptables(8).
 %patch11 -p1
 %endif
 %patch9 -p1
-%patch10 -p1
+#%patch10 -p1
 
 #patch999 -p1
 
@@ -196,7 +196,7 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}
 	LIBDIR=%{_libdir}
 
 # install library needed for collectd:
-install libiptc/libiptc.a $RPM_BUILD_ROOT%{_libdir}
+#install libiptc/libiptc.a $RPM_BUILD_ROOT%{_libdir}
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
@@ -265,7 +265,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_NETMAP.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_policy.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_realm.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_recent.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_REDIRECT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_REJECT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ROUTE.so
@@ -306,6 +305,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_owner.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_physdev.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_pkttype.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_recent.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_quota.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_RATEEST.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_rateest.so
