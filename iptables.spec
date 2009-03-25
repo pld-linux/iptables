@@ -16,7 +16,7 @@
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
 #
-%define		rel 1
+%define		rel 2
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -366,9 +366,9 @@ fi
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %ghost %attr(755,root,root) %{_libdir}/libiptc.so.0
+%attr(755,root,root) %ghost %{_libdir}/libiptc.so.0
 %attr(755,root,root) %{_libdir}/libiptc.so.*.*
-%attr(755,root,root) %ghost %attr(755,root,root) %{_libdir}/libxtables.so.1
+%attr(755,root,root) %ghost %{_libdir}/libxtables.so.1
 %attr(755,root,root) %{_libdir}/libxtables.so.*.*
 
 %files devel
