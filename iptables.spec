@@ -10,6 +10,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without  vserver         # kernel build without vserver
+%bcond_with	batch
 #
 %define		netfilter_snap		20070806
 %define		llh_version		7:2.6.22.1
@@ -102,10 +103,22 @@ iptables управляють кодом фільтрації пакетів м�
 дозволяють вам встановлювати міжмережеві екрани (firewalls) та IP
 маскарадинг, тощо.
 
+%package libs
+Summary:	iptables libraries
+Summary(pl.UTF-8):	Biblioteki iptables
+Group:		Development/Libraries
+
+%description libs
+iptables libraries.
+
+%description libs -l pl.UTF-8
+Biblioteki iptables.
+
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
 Summary(pl.UTF-8):	Biblioteki i nagłówki do tworzenia rozszerzeń iptables
 Group:		Development/Libraries
+Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 Obsoletes:	iptables24-devel
 
 %description devel
@@ -114,6 +127,18 @@ Libraries and headers for developing iptables extensions.
 %description devel -l pl.UTF-8
 Biblioteki i pliki nagłówkowe niezbędne do tworzenia rozszerzeń dla
 iptables.
+
+%package static
+Summary:	Static iptables libraries
+Summary(pl.UTF-8):	Biblioteki statyczne iptables
+Group:		Development/Libraries
+Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
+
+%description static
+Static iptables libraries.
+
+%description devel -l pl.UTF-8
+Biblioteki statyczne iptables.
 
 %package init
 Summary:	Iptables init (RedHat style)
@@ -150,7 +175,9 @@ iptables(8).
 #patch8 -p1
 %patch11 -p1
 %endif
+%if %{with batch}
 %patch9 -p1
+%endif
 #%patch10 -p1
 
 #patch999 -p1
@@ -204,6 +231,9 @@ install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 %clean
 rm -rf $RPM_BUILD_ROOT
 
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
+
 %post init
 /sbin/chkconfig --add %{name}
 /sbin/chkconfig --add %{name6}
@@ -219,15 +249,17 @@ fi
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_bindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/iptables
-%attr(755,root,root) %{_sbindir}/iptables-batch
 %attr(755,root,root) %{_sbindir}/iptables-multi
 %attr(755,root,root) %{_sbindir}/iptables-restore
 %attr(755,root,root) %{_sbindir}/iptables-save
 %attr(755,root,root) %{_sbindir}/ip6tables
-%attr(755,root,root) %{_sbindir}/ip6tables-batch
 %attr(755,root,root) %{_sbindir}/ip6tables-multi
 %attr(755,root,root) %{_sbindir}/ip6tables-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-save
+%if %{with batch}
+%attr(755,root,root) %{_sbindir}/iptables-batch
+%attr(755,root,root) %{_sbindir}/ip6tables-batch
+%endif
 %dir %{_libdir}/xtables
 %if %{with dist_kernel}
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ah.so
@@ -332,14 +364,26 @@ fi
 %endif
 %{_mandir}/man8/*
 
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %ghost %attr(755,root,root) %{_libdir}/libiptc.so.0
+%attr(755,root,root) %{_libdir}/libiptc.so.*.*
+%attr(755,root,root) %ghost %attr(755,root,root) %{_libdir}/libxtables.so.1
+%attr(755,root,root) %{_libdir}/libxtables.so.*.*
+
 %files devel
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/netfilter-hacking-HOWTO*}
-%{_libdir}/lib*.a
+%attr(755,root,root) %{_libdir}/lib*.so
+%{_libdir}/lib*.la
 %{_includedir}/*.h
-%dir %{_includedir}/libiptc
-%{_includedir}/libiptc/*.h
+%{_includedir}/libiptc
+%{_pkgconfigdir}/*.pc
 %{_mandir}/man3/*
+
+%files static
+%defattr(644,root,root,755)
+%{_libdir}/lib*.a
 
 %files init
 %defattr(644,root,root,755)
