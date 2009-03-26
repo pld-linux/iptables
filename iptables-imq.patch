@@ -52,8 +52,8 @@
 +	
 +	switch(c) {
 +	case '1':
-+		if (check_inverse(optarg, &invert, NULL, 0))
-+			exit_error(PARAMETER_PROBLEM,
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --todev");
 +		mr->todev=atoi(optarg);
 +		break;
@@ -161,8 +161,8 @@
 +	
 +	switch(c) {
 +	case '1':
-+		if (check_inverse(optarg, &invert, NULL, 0))
-+			exit_error(PARAMETER_PROBLEM,
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --todev");
 +		mr->todev=atoi(optarg);
 +		break;

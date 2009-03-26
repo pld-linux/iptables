@@ -219,7 +219,7 @@
 +				*dst = *src;
 +
 +			} else {
-+				exit_error(PARAMETER_PROBLEM, err1, preerr,
++				xtables_error(PARAMETER_PROBLEM, err1, preerr,
 +					   string, src - string + 1);
 +
 +			}
@@ -228,7 +228,7 @@
 +			*dst = '\0';
 +			if ( idup == 1 ) {
 +				if ( (rpcent_ptr = getrpcbyname(dup)) == NULL )
-+					exit_error(PARAMETER_PROBLEM, err2,
++					xtables_error(PARAMETER_PROBLEM, err2,
 +						   preerr, dup);
 +				idup = rpcent_ptr->r_number;
 +			} else {
@@ -237,7 +237,7 @@
 +
 +			rpcinfo->i_procs++;
 +			if ( rpcinfo->i_procs > IPT_RPC_MAX_ENTS )
-+				exit_error(PARAMETER_PROBLEM, err3, preerr,
++				xtables_error(PARAMETER_PROBLEM, err3, preerr,
 +					   IPT_RPC_MAX_ENTS);
 +				
 +			c_procs  = (char *)rpcinfo->c_procs;
@@ -272,10 +272,10 @@
 +	{
 +	case '1':
 +		if (invert)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +                                   "%s unexpected '!' with --rpcs\n", preerr);
 +		if (*flags & IPT_RPC_RPCS)
-+                        exit_error(PARAMETER_PROBLEM,
++                        xtables_error(PARAMETER_PROBLEM,
 +                                   "%s repeated use of --rpcs\n", preerr);
 +		parse_rpcs_string(optarg, match);
 +
@@ -284,10 +284,10 @@
 +
 +	case '2':
 +		if (invert)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +                                   "%s unexpected '!' with --strict\n", preerr);
 +		if (*flags & IPT_RPC_STRC)
-+                        exit_error(PARAMETER_PROBLEM,
++                        xtables_error(PARAMETER_PROBLEM,
 +                                   "%s repeated use of --strict\n", preerr);
 +		rpcinfo->strict = 1;
 +		*flags |= IPT_RPC_STRC;
@@ -458,19 +458,19 @@
 +	switch (c) {
 +	case '1':
 +		if (*flags & IPT_ROUTE_OPT_OIF)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --oif twice");
 +
 +		if (*flags & IPT_ROUTE_OPT_IIF)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't use --oif and --iif together");
 +
-+		if (check_inverse(optarg, &invert, NULL, 0))
-+			exit_error(PARAMETER_PROBLEM,
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --oif");
 +
 +		if (strlen(optarg) > sizeof(route_info->oif) - 1)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Maximum interface name length %lu",
 +				   sizeof(route_info->oif) - 1);
 +
@@ -480,19 +480,19 @@
 +
 +	case '2':
 +		if (*flags & IPT_ROUTE_OPT_IIF)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --iif twice");
 +
 +		if (*flags & IPT_ROUTE_OPT_OIF)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't use --iif and --oif together");
 +
-+		if (check_inverse(optarg, &invert, NULL, 0))
-+			exit_error(PARAMETER_PROBLEM,
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --iif");
 +
 +		if (strlen(optarg) > sizeof(route_info->iif) - 1)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Maximum interface name length %lu",
 +				   sizeof(route_info->iif) - 1);
 +
@@ -502,15 +502,15 @@
 +
 +	case '3':
 +		if (*flags & IPT_ROUTE_OPT_GW)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --gw twice");
 +
-+		if (check_inverse(optarg, &invert, NULL, 0))
-+			exit_error(PARAMETER_PROBLEM,
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --gw");
 +
 +		if (!inet_aton(optarg, (struct in_addr*)&route_info->gw)) {
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Invalid IP address %s",
 +				   optarg);
 +		}
@@ -520,10 +520,10 @@
 +
 +	case '4':
 +		if (*flags & IPT_ROUTE_OPT_CONTINUE)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --continue twice");
 +		if (*flags & IPT_ROUTE_OPT_TEE)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --continue AND --tee");
 +
 +		route_info->flags |= IPT_ROUTE_CONTINUE;
@@ -533,10 +533,10 @@
 +
 +	case '5':
 +		if (*flags & IPT_ROUTE_OPT_TEE)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --tee twice");
 +		if (*flags & IPT_ROUTE_OPT_CONTINUE)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --tee AND --continue");
 +
 +		route_info->flags |= IPT_ROUTE_TEE;
@@ -556,11 +556,11 @@
 +final_check(unsigned int flags)
 +{
 +	if (!flags)
-+		exit_error(PARAMETER_PROBLEM,
++		xtables_error(PARAMETER_PROBLEM,
 +		           "ROUTE target: oif, iif or gw option required");
 +
 +	if ((flags & (IPT_ROUTE_OPT_CONTINUE|IPT_ROUTE_OPT_TEE)) && (flags & IPT_ROUTE_OPT_IIF))
-+		exit_error(PARAMETER_PROBLEM,
++		xtables_error(PARAMETER_PROBLEM,
 +			   "ROUTE target: can't continue traversing the rules with iif option");
 +}
 +
@@ -758,15 +758,15 @@
 +	switch (c) {
 +	case '1':
 +		if (*flags & IP6T_ROUTE_OPT_OIF)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --oif twice");
 +
-+		if (check_inverse(optarg, &invert, NULL, 0))
-+			exit_error(PARAMETER_PROBLEM,
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --oif");
 +
 +		if (strlen(optarg) > sizeof(route_info->oif) - 1)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Maximum interface name length %lu",
 +				   sizeof(route_info->oif) - 1);
 +
@@ -775,21 +775,21 @@
 +		break;
 +
 +	case '2':
-+		exit_error(PARAMETER_PROBLEM,
++		xtables_error(PARAMETER_PROBLEM,
 +			   "--iif option not implemented");
 +		break;
 +
 +	case '3':
 +		if (*flags & IP6T_ROUTE_OPT_GW)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --gw twice");
 +
-+		if (check_inverse(optarg, &invert, NULL, 0))
-+			exit_error(PARAMETER_PROBLEM,
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --gw");
 +
 +		if (!inet_pton(AF_INET6, optarg, (struct in6_addr*)&route_info->gw)) {
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Invalid IPv6 address %s",
 +				   optarg);
 +		}
@@ -799,10 +799,10 @@
 +
 +	case '4':
 +		if (*flags & IP6T_ROUTE_OPT_CONTINUE)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --continue twice");
 +		if (*flags & IP6T_ROUTE_OPT_TEE)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --continue AND --tee");
 +
 +		route_info->flags |= IP6T_ROUTE_CONTINUE;
@@ -812,10 +812,10 @@
 +
 +	case '5':
 +		if (*flags & IP6T_ROUTE_OPT_TEE)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --tee twice");
 +		if (*flags & IP6T_ROUTE_OPT_CONTINUE)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --tee AND --continue");
 +
 +		route_info->flags |= IP6T_ROUTE_TEE;
@@ -835,7 +835,7 @@
 +final_check(unsigned int flags)
 +{
 +	if (!flags)
-+		exit_error(PARAMETER_PROBLEM,
++		xtables_error(PARAMETER_PROBLEM,
 +		           "ROUTE target: oif or gw option required");
 +}
 +

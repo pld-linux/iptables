@@ -90,7 +90,7 @@
 +
 +static void parsenetwork(const char *parameter, u_int32_t *network) {
 +  if (!parseip(parameter, network))
-+    exit_error(PARAMETER_PROBLEM, "account: wrong ip in network");
++    xtables_error(PARAMETER_PROBLEM, "account: wrong ip in network");
 +}
 +
 +static void parsenetmaskasbits(const char *parameter, u_int32_t *netmask) {
@@ -98,14 +98,14 @@
 +  u_int32_t bits;
 +  
 +  if ((bits = strtol(parameter, (char **)NULL, 10)) < 0 || bits > 32)
-+    exit_error(PARAMETER_PROBLEM, "account: wrong netmask");
++    xtables_error(PARAMETER_PROBLEM, "account: wrong netmask");
 +
 +  *netmask = 0xffffffff << (32 - bits);
 +}
 +
 +static void parsenetmaskasip(const char *parameter, u_int32_t *netmask) {
 +  if (!parseip(parameter, netmask))
-+    exit_error(PARAMETER_PROBLEM, "account: wrong ip in netmask");
++    xtables_error(PARAMETER_PROBLEM, "account: wrong ip in netmask");
 +}
 +
 +static void parsenetmask(const char *parameter, u_int32_t *netmask) 
@@ -123,7 +123,7 @@
 +
 +  if (strlen(parameter) > 31)
 +    /* text is to long, even for 255.255.255.255/255.255.255.255 */
-+    exit_error(PARAMETER_PROBLEM, "account: wrong network/netmask");
++    xtables_error(PARAMETER_PROBLEM, "account: wrong network/netmask");
 +
 +  strncpy(buffer, parameter, 31);
 +  buffer[31] = 0;
@@ -137,7 +137,7 @@
 +  parsenetwork(buffer, network);
 +
 +  if ((*network & *netmask) != *network)
-+    exit_error(PARAMETER_PROBLEM, "account: wrong network/netmask");
++    xtables_error(PARAMETER_PROBLEM, "account: wrong network/netmask");
 +}
 +
 +
@@ -196,7 +196,7 @@
 +    case 201:
 +      parse_network(optarg, info);
 +      if (!valid_network_and_netmask(info))
-+        exit_error(PARAMETER_PROBLEM, "account: wrong network/netmask");
++        xtables_error(PARAMETER_PROBLEM, "account: wrong network/netmask");
 +      *flags = 1;
 +      break;
 +      
@@ -206,7 +206,7 @@
 +        strncpy(info->name, optarg, IPT_ACCOUNT_NAME_LEN);
 +        info->name[IPT_ACCOUNT_NAME_LEN] = '\0';
 +      } else
-+        exit_error(PARAMETER_PROBLEM, "account: Too long table name");      
++        xtables_error(PARAMETER_PROBLEM, "account: Too long table name");      
 +      break;  
 +    /* --ashort */
 +    case 203:
@@ -221,7 +221,7 @@
 +/* Final check whether network/netmask was specified */
 +static void final_check(unsigned int flags) {
 +  if (!flags)
-+    exit_error(PARAMETER_PROBLEM, "account: You need specify '--aaddr' parameter");
++    xtables_error(PARAMETER_PROBLEM, "account: You need specify '--aaddr' parameter");
 +}
 +
 +/* Function used for printing rule with account match for iptables -L */
@@ -264,8 +264,8 @@
 +  .next = NULL,
 +  .name = "account",
 +  .version = XTABLES_VERSION,
-+  .size = IPT_ALIGN(sizeof(struct t_ipt_account_info)),
-+  .userspacesize = IPT_ALIGN(sizeof(struct t_ipt_account_info)),
++  .size = XT_ALIGN(sizeof(struct t_ipt_account_info)),
++  .userspacesize = XT_ALIGN(sizeof(struct t_ipt_account_info)),
 +  .help = &help,
 +  .init = &init,
 +  .parse = &parse,

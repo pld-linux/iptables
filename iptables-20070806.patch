@@ -154,16 +154,16 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +		/* strict-source-routing */
 +	case '1':
 +		if (invert) 
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "ipv4options: unexpected `!' with --ssrr");
 +		if (*flags & IPT_IPV4OPTION_MATCH_SSRR)
-+                        exit_error(PARAMETER_PROBLEM,
++                        xtables_error(PARAMETER_PROBLEM,
 +                                   "Can't specify --ssrr twice");
 +		if (*flags & IPT_IPV4OPTION_MATCH_LSRR)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --ssrr with --lsrr");
 +		if (*flags & IPT_IPV4OPTION_DONT_MATCH_SRR)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --ssrr with --no-srr");
 +
 +		info->options |= IPT_IPV4OPTION_MATCH_SSRR;
@@ -173,16 +173,16 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +		/* loose-source-routing */
 +	case '2':
 +		if (invert) 
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "ipv4options: unexpected `!' with --lsrr");
 +		if (*flags & IPT_IPV4OPTION_MATCH_SSRR)
-+                        exit_error(PARAMETER_PROBLEM,
++                        xtables_error(PARAMETER_PROBLEM,
 +                                   "Can't specify --lsrr twice");
 +		if (*flags & IPT_IPV4OPTION_MATCH_LSRR)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --lsrr with --ssrr");
 +		if (*flags & IPT_IPV4OPTION_DONT_MATCH_SRR)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --lsrr with --no-srr");
 +		info->options |= IPT_IPV4OPTION_MATCH_LSRR;
 +		*flags |= IPT_IPV4OPTION_MATCH_LSRR;
@@ -191,16 +191,16 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +		/* no-source-routing */
 +	case '3':
 +		if (invert) 
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +					   "ipv4options: unexpected `!' with --no-srr");
 +		if (*flags & IPT_IPV4OPTION_DONT_MATCH_SRR)
-+                        exit_error(PARAMETER_PROBLEM,
++                        xtables_error(PARAMETER_PROBLEM,
 +                                   "Can't specify --no-srr twice");
 +		if (*flags & IPT_IPV4OPTION_MATCH_SSRR)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --no-srr with --ssrr");
 +		if (*flags & IPT_IPV4OPTION_MATCH_LSRR)
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --no-srr with --lsrr");
 +		info->options |= IPT_IPV4OPTION_DONT_MATCH_SRR;
 +		*flags |= IPT_IPV4OPTION_DONT_MATCH_SRR;
@@ -209,16 +209,16 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +		/* record-route */
 +	case '4':
 +		if ((!invert) && (*flags & IPT_IPV4OPTION_MATCH_RR))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --rr twice");	
 +		if (invert && (*flags & IPT_IPV4OPTION_DONT_MATCH_RR))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --rr twice");
 +		if ((!invert) && (*flags & IPT_IPV4OPTION_DONT_MATCH_RR))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --rr with ! --rr");
 +		if (invert && (*flags & IPT_IPV4OPTION_MATCH_RR))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --rr with --rr");
 +		if (invert) {
 +			info->options |= IPT_IPV4OPTION_DONT_MATCH_RR;
@@ -233,16 +233,16 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +		/* timestamp */
 +	case '5':
 +		if ((!invert) && (*flags & IPT_IPV4OPTION_MATCH_TIMESTAMP))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --ts twice");	
 +		if (invert && (*flags & IPT_IPV4OPTION_DONT_MATCH_TIMESTAMP))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --ts twice");
 +		if ((!invert) && (*flags & IPT_IPV4OPTION_DONT_MATCH_TIMESTAMP))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --ts with ! --ts");
 +		if (invert && (*flags & IPT_IPV4OPTION_MATCH_TIMESTAMP))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --ts with --ts");
 +		if (invert) {
 +			info->options |= IPT_IPV4OPTION_DONT_MATCH_TIMESTAMP;
@@ -257,16 +257,16 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +		/* router-alert  */
 +	case '6':
 +		if ((!invert) && (*flags & IPT_IPV4OPTION_MATCH_ROUTER_ALERT))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --ra twice");	
 +		if (invert && (*flags & IPT_IPV4OPTION_DONT_MATCH_ROUTER_ALERT))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --rr twice");
 +		if ((!invert) && (*flags & IPT_IPV4OPTION_DONT_MATCH_ROUTER_ALERT))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --ra with ! --ra");
 +		if (invert && (*flags & IPT_IPV4OPTION_MATCH_ROUTER_ALERT))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --ra with --ra");
 +		if (invert) {
 +			info->options |= IPT_IPV4OPTION_DONT_MATCH_ROUTER_ALERT;
@@ -281,20 +281,20 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +		/* any option */
 +	case '7' :
 +		if ((!invert) && (*flags & IPT_IPV4OPTION_MATCH_ANY_OPT))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --any-opt twice");
 +		if (invert && (*flags & IPT_IPV4OPTION_MATCH_ANY_OPT))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --any-opt with --any-opt");
 +		if (invert && (*flags & IPT_IPV4OPTION_DONT_MATCH_ROUTER_ALERT))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --any-opt twice");
 +		if ((!invert) &&
 +		    ((*flags & IPT_IPV4OPTION_DONT_MATCH_SRR)       ||
 +		     (*flags & IPT_IPV4OPTION_DONT_MATCH_RR)        ||
 +		     (*flags & IPT_IPV4OPTION_DONT_MATCH_TIMESTAMP) ||
 +		     (*flags & IPT_IPV4OPTION_DONT_MATCH_ROUTER_ALERT)))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --any-opt with any other negative ipv4options match");
 +		if (invert &&
 +		    ((*flags & IPT_IPV4OPTION_MATCH_LSRR)      ||
@@ -302,7 +302,7 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +		     (*flags & IPT_IPV4OPTION_MATCH_RR)        ||
 +		     (*flags & IPT_IPV4OPTION_MATCH_TIMESTAMP) ||
 +		     (*flags & IPT_IPV4OPTION_MATCH_ROUTER_ALERT)))
-+			exit_error(PARAMETER_PROBLEM,
++			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify ! --any-opt with any other positive ipv4options match");
 +		if (invert) {
 +			info->options |= IPT_IPV4OPTION_DONT_MATCH_ANY_OPT;
@@ -324,7 +324,7 @@ diff -urN iptables-1.3.8/extensions/libipt_ipv4options.c iptables/extensions/lib
 +final_check(unsigned int flags)
 +{
 +	if (flags == 0)
-+		exit_error(PARAMETER_PROBLEM,
++		xtables_error(PARAMETER_PROBLEM,
 +			   "ipv4options match: you must specify some parameters. See iptables -m ipv4options --help for help.'");
 +}
 +
