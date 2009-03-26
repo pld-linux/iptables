@@ -15,8 +15,6 @@
 %define		netfilter_snap		20070806
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
-#
-%define		rel 3
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
@@ -25,7 +23,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.3
-Release:	%{rel}
+Release:	4
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
@@ -107,6 +105,7 @@ iptables управляють кодом фільтрації пакетів м�
 Summary:	iptables libraries
 Summary(pl.UTF-8):	Biblioteki iptables
 Group:		Development/Libraries
+Conflicts:	iptables < 1.4.3-1
 
 %description libs
 iptables libraries.
@@ -143,7 +142,6 @@ Biblioteki statyczne iptables.
 %package init
 Summary:	Iptables init (RedHat style)
 Summary(pl.UTF-8):	Iptables init (w stylu RedHata)
-Release:	%{rel}
 Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}
