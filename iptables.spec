@@ -10,7 +10,7 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without  vserver         # kernel build without vserver
-%bcond_with	batch
+%bcond_without	batch		# build iptables-batch
 #
 %define		netfilter_snap		20070806
 %define		llh_version		7:2.6.22.1
@@ -23,7 +23,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.3.1
-Release:	0.8
+Release:	1
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
