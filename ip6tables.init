@@ -27,11 +27,6 @@ fi
 # Source 'em up
 . /etc/rc.d/init.d/functions
 
-# Not supported in vserver
-if is_yes "$VSERVER"; then
-	exit 0
-fi
-
 if [ "$(kernelver)" -lt "002003000" ]; then
 	exit 0
 fi
