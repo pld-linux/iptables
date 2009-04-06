@@ -580,13 +580,16 @@ diff -urN iptables-1.4.1.1.orig/Makefile.am iptables-1.4.1.1/Makefile.am
  ip6tables_static_LDADD      = libiptc/libiptc.la extensions/libext6.a -lm
  
  bin_PROGRAMS     = iptables-xml
-@@ -89,7 +99,8 @@
+@@ -104,10 +104,10 @@
  endif
  if ENABLE_SHARED
- sbin_PROGRAMS += iptables iptables-multi iptables-restore iptables-save \
--                 ip6tables ip6tables-multi ip6tables-restore ip6tables-save
-+                 ip6tables ip6tables-multi ip6tables-restore ip6tables-save \
-+                 iptables-batch ip6tables-batch
+ if ENABLE_IPV4
+-sbin_PROGRAMS += iptables iptables-multi iptables-restore iptables-save
++sbin_PROGRAMS += iptables iptables-multi iptables-restore iptables-save iptables-batch
+ endif
+ if ENABLE_IPV6
+-sbin_PROGRAMS += ip6tables ip6tables-multi ip6tables-restore ip6tables-save
++sbin_PROGRAMS += ip6tables ip6tables-multi ip6tables-restore ip6tables-save ip6tables-batch
+ endif
  endif
  
- iptables.8: ${srcdir}/iptables.8.in extensions/matches4.man extensions/targets4.man
