@@ -268,7 +268,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libip6t_hl.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_HL.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_icmp6.so
-%attr(755,root,root) %{_libdir}/xtables/libip6t_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ipv6header.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_LOG.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_mh.so
@@ -285,7 +284,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_ecn.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ECN.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_layer7.so
@@ -322,6 +320,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_esp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_hashlimit.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_helper.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_iprange.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_length.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_limit.so
