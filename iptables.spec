@@ -185,6 +185,7 @@ chmod 755 extensions/.*-test*
 %build
 %{__libtoolize}
 %{__aclocal}
+%{__autoconf}
 %{__automake}
 %configure \
 	--with-kbuild=%{_kernelsrcdir} \
