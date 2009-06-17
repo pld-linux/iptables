@@ -22,12 +22,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.3.2
+Version:	1.4.4
 Release:	1
 License:	GPL
 Group:		Networking/Daemons
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	545698693b636cfc844aafc6729fd48a
+# Source0-md5:	08cd9196881657ea0615d926334cb7e9
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -272,7 +272,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ipv6header.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_LOG.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_mh.so
-%attr(755,root,root) %{_libdir}/xtables/libip6t_policy.so
+#%attr(755,root,root) %{_libdir}/xtables/libip6t_policy.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_REJECT.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ROUTE.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_rt.so
@@ -292,7 +292,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_MASQUERADE.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_MIRROR.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_NETMAP.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_policy.so
+#%attr(755,root,root) %{_libdir}/xtables/libipt_policy.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_realm.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_REDIRECT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_REJECT.so
@@ -308,6 +308,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_ULOG.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_unclean.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CLASSIFY.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_cluster.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_comment.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_connbytes.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_connlimit.so
@@ -335,6 +336,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_owner.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_physdev.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_pkttype.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_policy.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_recent.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_quota.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_RATEEST.so
