@@ -1,0 +1,240 @@
+diff -Nurp iptables-1.3.5.orig/extensions/libip6t_owner.c iptables-1.3.5.owner-xid/extensions/libip6t_owner.c
+--- iptables-1.3.5.orig/extensions/libip6t_owner.c	2005-06-29 18:39:54.000000000 +0200
++++ iptables-1.3.5.owner-xid/extensions/libip6t_owner.c	2006-09-05 20:00:31.000000000 +0200
+@@ -22,6 +22,8 @@ help(void)
+ "[!] --pid-owner processid  Match local pid\n"
+ "[!] --sid-owner sessionid  Match local sid\n"
+ "[!] --cmd-owner name       Match local command name\n"
++"[!] --nid-owner nid        Match local nid\n"
++"[!] --xid-owner xid        Match local xid\n"
+ "\n",
+ IPTABLES_VERSION);
+ #else
+@@ -31,6 +33,8 @@ IPTABLES_VERSION);
+ "[!] --gid-owner groupid    Match local gid\n"
+ "[!] --pid-owner processid  Match local pid\n"
+ "[!] --sid-owner sessionid  Match local sid\n"
++"[!] --nid-owner nid        Match local nid\n"
++"[!] --xid-owner xid        Match local xid\n"
+ "\n",
+ IPTABLES_VERSION);
+ #endif /* IP6T_OWNER_COMM */
+@@ -44,6 +48,8 @@ static struct option opts[] = {
+ #ifdef IP6T_OWNER_COMM
+ 	{ "cmd-owner", 1, NULL, '5' },
+ #endif
++	{ "nid-owner", 1, NULL, '6' },
++	{ "xid-owner", 1, NULL, '7' },
+ 	{ }
+ };
+ 
+@@ -129,6 +135,28 @@ parse(int c, char **argv, int invert, un
+ 		*flags = 1;
+ 		break;
+ #endif
++
++	case '6':
++		check_inverse(optarg, &invert, &optind, 0);
++		ownerinfo->nid = strtoul(optarg, &end, 0);
++		if (*end != '\0' || end == optarg)
++			exit_error(PARAMETER_PROBLEM, "Bad OWNER NID value `%s'", optarg);
++		if (invert)
++			ownerinfo->invert |= IP6T_OWNER_NID;
++		ownerinfo->match |= IP6T_OWNER_NID;
++		*flags = 1;
++		break;
++		
++	case '7':
++		check_inverse(optarg, &invert, &optind, 0);
++		ownerinfo->xid = strtoul(optarg, &end, 0);
++		if (*end != '\0' || end == optarg)
++			exit_error(PARAMETER_PROBLEM, "Bad OWNER XID value `%s'", optarg);
++		if (invert)
++			ownerinfo->invert |= IP6T_OWNER_XID;
++		ownerinfo->match |= IP6T_OWNER_XID;
++		*flags = 1;
++		break;
+ 		
+ 	default:
+ 		return 0;
+@@ -182,6 +210,12 @@ print_item(struct ip6t_owner_info *info,
+ 			printf("%.*s ", (int)sizeof(info->comm), info->comm);
+ 			break;
+ #endif
++		case IP6T_OWNER_NID:
++			printf("%u ", info->nid);
++			break;
++		case IP6T_OWNER_XID:
++			printf("%u ", info->xid);
++			break;
+ 		default:
+ 			break;
+ 		}
+@@ -212,6 +246,8 @@ print(const struct ip6t_ip6 *ip,
+ #ifdef IP6T_OWNER_COMM
+ 	print_item(info, IP6T_OWNER_COMM, numeric, "OWNER CMD match ");
+ #endif
++	print_item(info, IP6T_OWNER_NID, numeric, "OWNER NID match ");
++	print_item(info, IP6T_OWNER_XID, numeric, "OWNER XID match ");
+ }
+ 
+ /* Saves the union ip6t_matchinfo in parsable form to stdout. */
+@@ -227,6 +263,8 @@ save(const struct ip6t_ip6 *ip, const st
+ #ifdef IP6T_OWNER_COMM
+ 	print_item(info, IP6T_OWNER_COMM, 0, "--cmd-owner ");
+ #endif
++	print_item(info, IP6T_OWNER_NID, 0, "--nid-owner ");
++	print_item(info, IP6T_OWNER_XID, 0, "--xid-owner ");
+ }
+ 
+ static struct ip6tables_match owner = {
+diff -Nurp iptables-1.3.5.orig/extensions/libip6t_owner.man iptables-1.3.5.owner-xid/extensions/libip6t_owner.man
+--- iptables-1.3.5.orig/extensions/libip6t_owner.man	2006-01-30 09:41:00.000000000 +0100
++++ iptables-1.3.5.owner-xid/extensions/libip6t_owner.man	2006-09-05 19:54:47.000000000 +0200
+@@ -20,4 +20,12 @@ process id.
+ Matches if the packet was created by a process in the given session
+ group.
+ .TP
++.BI "--nid-owner " "network context id"
++Matches if the packet was created by a process with the given
++network context id.
++.TP
++.BI "--xid-owner " "context id"
++Matches if the packet was created by a process with the given
++context id.
++.TP
+ .B NOTE: pid, sid and command matching are broken on SMP
+diff -Nurp iptables-1.3.5.orig/extensions/libipt_owner.c iptables-1.3.5.owner-xid/extensions/libipt_owner.c
+--- iptables-1.3.5.orig/extensions/libipt_owner.c	2006-01-30 09:43:10.000000000 +0100
++++ iptables-1.3.5.owner-xid/extensions/libipt_owner.c	2006-09-05 20:02:30.000000000 +0200
+@@ -22,6 +22,8 @@ help(void)
+ "[!] --pid-owner processid  Match local pid\n"
+ "[!] --sid-owner sessionid  Match local sid\n"
+ "[!] --cmd-owner name       Match local command name\n"
++"[!] --nid-owner nid        Match local nid\n"
++"[!] --xid-owner xid        Match local xid\n"
+ "NOTE: pid, sid and command matching are broken on SMP\n"
+ "\n",
+ IPTABLES_VERSION);
+@@ -32,6 +34,8 @@ IPTABLES_VERSION);
+ "[!] --gid-owner groupid    Match local gid\n"
+ "[!] --pid-owner processid  Match local pid\n"
+ "[!] --sid-owner sessionid  Match local sid\n"
++"[!] --nid-owner nid        Match local nid\n"
++"[!] --xid-owner xid        Match local xid\n"
+ "NOTE: pid and sid matching are broken on SMP\n"
+ "\n",
+ IPTABLES_VERSION);
+@@ -46,6 +50,8 @@ static struct option opts[] = {
+ #ifdef IPT_OWNER_COMM
+ 	{ "cmd-owner", 1, NULL, '5' },
+ #endif
++	{ "nid-owner", 1, NULL, '6' },
++	{ "xid-owner", 1, NULL, '7' },
+ 	{ }
+ };
+ 
+@@ -131,6 +137,28 @@ parse(int c, char **argv, int invert, un
+ 		break;
+ #endif
+ 
++	case '6':
++		check_inverse(optarg, &invert, &optind, 0);
++		ownerinfo->nid = strtoul(optarg, &end, 0);
++		if (*end != '\0' || end == optarg)
++			exit_error(PARAMETER_PROBLEM, "Bad OWNER NID value `%s'", optarg);
++		if (invert)
++			ownerinfo->invert |= IPT_OWNER_NID;
++		ownerinfo->match |= IPT_OWNER_NID;
++		*flags = 1;
++		break;
++
++	case '7':
++		check_inverse(optarg, &invert, &optind, 0);
++		ownerinfo->xid = strtoul(optarg, &end, 0);
++		if (*end != '\0' || end == optarg)
++			exit_error(PARAMETER_PROBLEM, "Bad OWNER XID value `%s'", optarg);
++		if (invert)
++			ownerinfo->invert |= IPT_OWNER_XID;
++		ownerinfo->match |= IPT_OWNER_XID;
++		*flags = 1;
++		break;
++
+ 	default:
+ 		return 0;
+ 	}
+@@ -183,6 +211,12 @@ print_item(struct ipt_owner_info *info, 
+ 			printf("%.*s ", (int)sizeof(info->comm), info->comm);
+ 			break;
+ #endif
++		case IPT_OWNER_NID:
++			printf("%u ", info->nid);
++			break;
++		case IPT_OWNER_XID:
++			printf("%u ", info->xid);
++			break;
+ 		default:
+ 			break;
+ 		}
+@@ -213,6 +247,8 @@ print(const struct ipt_ip *ip,
+ #ifdef IPT_OWNER_COMM
+ 	print_item(info, IPT_OWNER_COMM, numeric, "OWNER CMD match ");
+ #endif
++	print_item(info, IPT_OWNER_NID, numeric, "OWNER NID match ");
++	print_item(info, IPT_OWNER_XID, numeric, "OWNER XID match ");
+ }
+ 
+ /* Saves the union ipt_matchinfo in parsable form to stdout. */
+@@ -228,6 +264,8 @@ save(const struct ipt_ip *ip, const stru
+ #ifdef IPT_OWNER_COMM
+ 	print_item(info, IPT_OWNER_COMM, 0, "--cmd-owner ");
+ #endif
++	print_item(info, IPT_OWNER_NID, 0, "--nid-owner ");
++	print_item(info, IPT_OWNER_XID, 0, "--xid-owner ");
+ }
+ 
+ static struct iptables_match owner = { 
+diff -Nurp iptables-1.3.5.orig/extensions/libipt_owner.man iptables-1.3.5.owner-xid/extensions/libipt_owner.man
+--- iptables-1.3.5.orig/extensions/libipt_owner.man	2004-10-10 11:56:26.000000000 +0200
++++ iptables-1.3.5.owner-xid/extensions/libipt_owner.man	2006-09-05 19:54:53.000000000 +0200
+@@ -25,4 +25,12 @@ Matches if the packet was created by a p
+ (this option is present only if iptables was compiled under a kernel
+ supporting this feature)
+ .TP
++.BI "--nid-owner " "network context id"
++Matches if the packet was created by a process with the given
++network context id.
++.TP
++.BI "--xid-owner " "context id"
++Matches if the packet was created by a process with the given
++context id.
++.TP
+ .B NOTE: pid, sid and command matching are broken on SMP
+diff -Nurp iptables-1.3.5.orig/include/linux/netfilter_ipv6/ip6t_owner.h iptables-1.3.5.owner-xid/include/linux/netfilter_ipv6/ip6t_owner.h
+--- iptables-1.3.5.orig/include/linux/netfilter_ipv6/ip6t_owner.h	2004-10-10 11:56:23.000000000 +0200
++++ iptables-1.3.5.owner-xid/include/linux/netfilter_ipv6/ip6t_owner.h	2006-09-05 19:52:12.000000000 +0200
+@@ -1,11 +1,15 @@
+ #ifndef _IP6T_OWNER_H
+ #define _IP6T_OWNER_H
+ 
++#include <linux/types.h>
++
+ /* match and invert flags */
+ #define IP6T_OWNER_UID	0x01
+ #define IP6T_OWNER_GID	0x02
+ #define IP6T_OWNER_PID	0x04
+ #define IP6T_OWNER_SID	0x08
++#define IP6T_OWNER_NID	0x20
++#define IP6T_OWNER_XID	0x40
+ 
+ struct ip6t_owner_info {
+     uid_t uid;
+@@ -13,6 +17,8 @@ struct ip6t_owner_info {
+     pid_t pid;
+     pid_t sid;
+     u_int8_t match, invert;	/* flags */
++    u_int32_t nid;
++    u_int32_t xid;
+ };
+ 
+ #endif /*_IPT_OWNER_H*/

@@ -1,0 +1,939 @@
+--- /dev/null	2005-12-16 15:49:47.000000000 +0100
++++ iptables-1.3.8/extensions/libipt_rpc.c	2006-12-04 12:15:20.000000000 +0100
+@@ -0,0 +1,372 @@
++/* RPC extension for IP connection matching, Version 2.2
++ * (C) 2000 by Marcelo Barbosa Lima <marcelo.lima@dcc.unicamp.br>
++ *	- original rpc tracking module
++ *	- "recent" connection handling for kernel 2.3+ netfilter
++ *
++ * (C) 2001 by Rusty Russell <rusty@rustcorp.com.au>
++ *	- upgraded conntrack modules to oldnat api - kernel 2.4.0+
++ *
++ * (C) 2002,2003 by Ian (Larry) Latter <Ian.Latter@mq.edu.au>
++ *	- upgraded conntrack modules to newnat api - kernel 2.4.20+
++ *	- extended matching to support filtering on procedures
++ *
++ * libipt_rpc.c,v 2.2 2003/01/12 18:30:00
++ *
++ *	This program is free software; you can redistribute it and/or
++ *	modify it under the terms of the GNU General Public License
++ *	as published by the Free Software Foundation; either version
++ *	2 of the License, or (at your option) any later version.
++ **
++ *	Userspace library syntax:
++ *	--rpc [--rpcs procedure1,procedure2,...procedure128] [--static]
++ *
++ *	Procedures can be supplied in either numeric or named formats.
++ *	Without --rpcs, this module will behave as the old record-rpc.
++ **
++ *	Note to all:
++ *
++ *	RPCs should not be exposed to the internet - ask the Pentagon;
++ *
++ *	  "The unidentified crackers pleaded guilty in July to charges
++ *	   of juvenile delinquency stemming from a string of Pentagon
++ *	   network intrusions in February.
++ *
++ *	   The youths, going by the names TooShort and Makaveli, used
++ *	   a common server security hole to break in, according to
++ *	   Dane Jasper, owner of the California Internet service
++ *	   provider, Sonic. They used the hole, known as the 'statd'
++ *	   exploit, to attempt more than 800 break-ins, Jasper said."
++ *
++ *	From: Wired News; "Pentagon Kids Kicked Off Grid" - Nov 6, 1998
++ *	URL:  http://www.wired.com/news/politics/0,1283,16098,00.html
++ **
++ */
++
++#include <stdio.h>
++#include <netdb.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <rpc/rpc.h>
++
++#include <iptables.h>
++#include <linux/netfilter_ipv4/ipt_rpc.h>
++#include <time.h>
++
++
++const int IPT_RPC_RPCS = 1;
++const int IPT_RPC_STRC = 2;
++
++const int IPT_RPC_INT_LBL = 1;
++const int IPT_RPC_INT_NUM = 2;
++const int IPT_RPC_INT_BTH = 3;
++
++const int IPT_RPC_CHAR_LEN = 11;
++const int IPT_RPC_MAX_ENTS = 128;
++
++const char preerr[11] = "RPC match:";
++
++
++static int k_itoa(char *string, int number)
++{
++	int maxoctet = IPT_RPC_CHAR_LEN - 1;
++	int store[IPT_RPC_CHAR_LEN];
++	int counter;
++
++
++        for (counter=0 ; maxoctet != 0 && number != 0; counter++, maxoctet--) {
++		store[counter] = number / 10;
++		store[counter] = number - ( store[counter] * 10 );
++		number = number / 10;
++        }
++
++        for ( ; counter != 0; counter--, string++)
++		*string = store[counter - 1] + 48;
++
++	*string = 0;
++
++	return(0);
++}
++
++
++static int k_atoi(char *string)
++{
++	unsigned int result = 0;
++	int maxoctet = IPT_RPC_CHAR_LEN;
++
++
++        for ( ; *string != 0 && maxoctet != 0; maxoctet--, string++) {
++                if (*string < 0)
++                        return(0);
++                if (*string == 0)
++                        break;
++                if (*string < 48 || *string > 57) {
++                        return(0);
++                }
++                result = result * 10 + ( *string - 48 );
++        }
++
++	return(result);
++}
++
++
++static void print_rpcs(char *c_procs, int i_procs, int labels)
++{
++	int   proc_ctr;
++	char *proc_ptr;
++	unsigned int proc_num;
++	struct rpcent *rpcent;
++
++
++	for (proc_ctr=0; proc_ctr <= i_procs; proc_ctr++) {
++
++		if ( proc_ctr != 0 )
++			printf(",");
++
++		proc_ptr = c_procs;
++		proc_ptr += proc_ctr * IPT_RPC_CHAR_LEN;
++		proc_num = k_atoi(proc_ptr);
++
++		/* labels(1) == no labels, only numbers
++		 * labels(2) == no numbers, only labels
++		 * labels(3) == both labels and numbers
++		 */
++
++		if (labels == IPT_RPC_INT_LBL || labels == IPT_RPC_INT_BTH ) {
++			if ( (rpcent = getrpcbynumber(proc_num)) == NULL )
++				printf("unknown");
++			else
++				printf("%s", rpcent->r_name);
++		}
++
++		if (labels == IPT_RPC_INT_BTH )
++			printf("(");
++
++		if (labels == IPT_RPC_INT_NUM || labels == IPT_RPC_INT_BTH )
++			printf("%i", proc_num);
++
++		if (labels == IPT_RPC_INT_BTH )
++			printf(")");
++
++	}
++
++}
++
++
++static void help(void) 
++{
++	printf(
++		"RPC v%s options:\n"
++		"  --rpcs list,of,procedures"
++		"\ta list of rpc program numbers to apply\n"
++		"\t\t\t\tie. 100003,mountd,rquotad (numeric or\n"
++		"\t\t\t\tname form; see /etc/rpc).\n"
++		"  --strict"
++		"\t\t\ta flag to force the drop of packets\n"
++		"\t\t\t\tnot containing \"get\" portmapper requests.\n",
++		XTABLES_VERSION);
++}
++
++
++static struct option opts[] = {
++	{ "rpcs", 1, 0, '1'},
++	{ "strict", 0, 0, '2'},
++	{0}
++};
++
++
++static void init(struct xt_entry_match *match)
++{
++	struct ipt_rpc_info *rpcinfo = ((struct ipt_rpc_info *)match->data);
++
++
++
++	/* initialise those funky user vars */
++	rpcinfo->i_procs = -1;
++	rpcinfo->strict  =  0;
++	memset((char *)rpcinfo->c_procs, 0, sizeof(rpcinfo->c_procs));
++}
++
++
++static void parse_rpcs_string(char *string, struct xt_entry_match **match)
++{
++	char err1[64] = "%s invalid --rpcs option-set: `%s' (at character %i)";
++	char err2[64] = "%s unable to resolve rpc name entry: `%s'";
++	char err3[64] = "%s maximum number of --rpc options (%i) exceeded";
++	char buf[256];
++	char *dup = buf;
++	int idup = 0;
++	int term = 0;
++	char *src, *dst;
++	char *c_procs;
++	struct rpcent *rpcent_ptr;
++	struct ipt_rpc_info *rpcinfo = (struct ipt_rpc_info *)(*match)->data;
++
++
++	memset(buf, 0, sizeof(buf));
++
++	for (src=string, dst=buf; term != 1 ; src++, dst++) {
++
++		if ( *src != ',' && *src != '\0' ) {
++			if ( ( *src >= 65 && *src <= 90 ) || ( *src >= 97 && *src <= 122) ) {
++				*dst = *src;
++				idup = 1;
++
++			} else if ( *src >= 48 && *src <= 57 ) {
++				*dst = *src;
++
++			} else {
++				xtables_error(PARAMETER_PROBLEM, err1, preerr,
++					   string, src - string + 1);
++
++			}
++
++		} else {
++			*dst = '\0';
++			if ( idup == 1 ) {
++				if ( (rpcent_ptr = getrpcbyname(dup)) == NULL )
++					xtables_error(PARAMETER_PROBLEM, err2,
++						   preerr, dup);
++				idup = rpcent_ptr->r_number;
++			} else {
++				idup = k_atoi(dup);
++			}
++
++			rpcinfo->i_procs++;
++			if ( rpcinfo->i_procs > IPT_RPC_MAX_ENTS )
++				xtables_error(PARAMETER_PROBLEM, err3, preerr,
++					   IPT_RPC_MAX_ENTS);
++				
++			c_procs  = (char *)rpcinfo->c_procs;
++			c_procs += rpcinfo->i_procs * IPT_RPC_CHAR_LEN;
++			
++			memset(buf, 0, sizeof(buf));
++			k_itoa((char *)dup, idup);
++
++			strcpy(c_procs, dup);
++	
++			if ( *src == '\0')
++				term = 1;
++
++			idup = 0;
++			memset(buf, 0, sizeof(buf));
++			dst = (char *)buf - 1;
++		}
++	}
++
++	return;
++}
++
++
++static int parse(int c, char **argv, int invert, unsigned int *flags,
++		const void *entry,
++		struct xt_entry_match **match)
++{
++	struct ipt_rpc_info *rpcinfo = (struct ipt_rpc_info *)(*match)->data;
++
++
++	switch (c)
++	{
++	case '1':
++		if (invert)
++			xtables_error(PARAMETER_PROBLEM,
++                                   "%s unexpected '!' with --rpcs\n", preerr);
++		if (*flags & IPT_RPC_RPCS)
++                        xtables_error(PARAMETER_PROBLEM,
++                                   "%s repeated use of --rpcs\n", preerr);
++		parse_rpcs_string(optarg, match);
++
++		*flags |= IPT_RPC_RPCS;
++		break;
++
++	case '2':
++		if (invert)
++			xtables_error(PARAMETER_PROBLEM,
++                                   "%s unexpected '!' with --strict\n", preerr);
++		if (*flags & IPT_RPC_STRC)
++                        xtables_error(PARAMETER_PROBLEM,
++                                   "%s repeated use of --strict\n", preerr);
++		rpcinfo->strict = 1;
++		*flags |= IPT_RPC_STRC;
++		break;
++
++	default:
++		return 0;
++	}
++
++	return 1;
++
++}
++
++
++static void final_check(unsigned int flags)
++{
++	if (flags != (flags | IPT_RPC_RPCS)) {
++		printf("%s option \"--rpcs\" was not used ... reverting ", preerr);
++		printf("to old \"record-rpc\" functionality ..\n");
++	}
++}
++
++
++static void print(const void *ip,
++		const struct xt_entry_match *match,
++		int numeric)
++{
++	struct ipt_rpc_info *rpcinfo = ((struct ipt_rpc_info *)match->data);
++
++
++	printf("RPCs");
++	if(rpcinfo->strict == 1)
++		printf("[strict]");
++
++	printf(": ");
++
++	if(rpcinfo->i_procs == -1) {
++		printf("any(*)");
++
++	} else {
++		print_rpcs((char *)&rpcinfo->c_procs, rpcinfo->i_procs, IPT_RPC_INT_BTH);
++	}
++	printf(" ");
++
++}
++
++
++static void save(const void *ip, const struct xt_entry_match *match)
++{
++	struct ipt_rpc_info *rpcinfo = ((struct ipt_rpc_info *)match->data);
++
++
++	if(rpcinfo->i_procs > -1) {
++		printf("--rpcs ");
++		print_rpcs((char *)&rpcinfo->c_procs, rpcinfo->i_procs, IPT_RPC_INT_NUM);
++		printf(" ");
++	}
++
++	if(rpcinfo->strict == 1)
++		printf("--strict ");
++
++}
++
++
++static struct xtables_match rpcstruct = { 
++	.next		= NULL,
++	.name		= "rpc",
++	.version	= XTABLES_VERSION,
++	.size		= IPT_ALIGN(sizeof(struct ipt_rpc_info)),
++	.userspacesize	= IPT_ALIGN(sizeof(struct ipt_rpc_info)),
++	.help		= &help,
++	.init		= &init,
++	.parse		= &parse,
++	.final_check	= &final_check,
++	.print		= &print,
++	.save		= &save,
++	.extra_opts	= opts
++};
++
++
++void _init(void)
++{
++	xtables_register_match(&rpcstruct);
++}
++
+--- /dev/null	2005-12-16 15:49:47.000000000 +0100
++++ iptables-1.3.8/extensions/libipt_ROUTE.c	2006-12-04 12:15:20.000000000 +0100
+@@ -0,0 +1,264 @@
++/* Shared library add-on to iptables to add ROUTE target support.
++ * Author : Cedric de Launois, <delaunois@info.ucl.ac.be>
++ * v 1.11 2004/11/23
++ */
++
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <iptables.h>
++#include <net/if.h>
++#include <sys/socket.h>
++#include <netinet/in.h>
++#include <arpa/inet.h>
++#include <linux/netfilter_ipv4/ip_tables.h>
++#include <linux/netfilter_ipv4/ipt_ROUTE.h>
++
++/* compile IPT_ROUTE_TEE support even if kernel headers are unpatched */
++#ifndef IPT_ROUTE_TEE
++#define IPT_ROUTE_TEE		0x02
++#endif
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"ROUTE target v%s options:\n"
++"    --oif   \tifname \t\tRoute packet through `ifname' network interface\n"
++"    --iif   \tifname \t\tChange packet's incoming interface to `ifname'\n"
++"    --gw    \tip     \t\tRoute packet via this gateway `ip'\n"
++"    --continue\t     \t\tRoute packet and continue traversing the\n"
++"            \t       \t\trules. Not valid with --iif or --tee.\n"
++"    --tee\t  \t\tDuplicate packet, route the duplicate,\n"
++"            \t       \t\tcontinue traversing with original packet.\n"
++"            \t       \t\tNot valid with --iif or --continue.\n"
++"\n",
++"1.11");
++}
++
++static struct option opts[] = {
++	{ "oif", 1, 0, '1' },
++	{ "iif", 1, 0, '2' },
++	{ "gw", 1, 0, '3' },
++	{ "continue", 0, 0, '4' },
++	{ "tee", 0, 0, '5' },
++	{ 0 }
++};
++
++/* Initialize the target. */
++static void
++init(struct xt_entry_target *t)
++{
++	struct ipt_route_target_info *route_info = 
++		(struct ipt_route_target_info*)t->data;
++
++	route_info->oif[0] = '\0';
++	route_info->iif[0] = '\0';
++	route_info->gw = 0;
++	route_info->flags = 0;
++}
++
++
++#define IPT_ROUTE_OPT_OIF      0x01
++#define IPT_ROUTE_OPT_IIF      0x02
++#define IPT_ROUTE_OPT_GW       0x04
++#define IPT_ROUTE_OPT_CONTINUE 0x08
++#define IPT_ROUTE_OPT_TEE      0x10
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const void *entry,
++      struct xt_entry_target **target)
++{
++	struct ipt_route_target_info *route_info = 
++		(struct ipt_route_target_info*)(*target)->data;
++
++	switch (c) {
++	case '1':
++		if (*flags & IPT_ROUTE_OPT_OIF)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --oif twice");
++
++		if (*flags & IPT_ROUTE_OPT_IIF)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't use --oif and --iif together");
++
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
++				   "Unexpected `!' after --oif");
++
++		if (strlen(optarg) > sizeof(route_info->oif) - 1)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Maximum interface name length %lu",
++				   sizeof(route_info->oif) - 1);
++
++		strcpy(route_info->oif, optarg);
++		*flags |= IPT_ROUTE_OPT_OIF;
++		break;
++
++	case '2':
++		if (*flags & IPT_ROUTE_OPT_IIF)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --iif twice");
++
++		if (*flags & IPT_ROUTE_OPT_OIF)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't use --iif and --oif together");
++
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
++				   "Unexpected `!' after --iif");
++
++		if (strlen(optarg) > sizeof(route_info->iif) - 1)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Maximum interface name length %lu",
++				   sizeof(route_info->iif) - 1);
++
++		strcpy(route_info->iif, optarg);
++		*flags |= IPT_ROUTE_OPT_IIF;
++		break;
++
++	case '3':
++		if (*flags & IPT_ROUTE_OPT_GW)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --gw twice");
++
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
++				   "Unexpected `!' after --gw");
++
++		if (!inet_aton(optarg, (struct in_addr*)&route_info->gw)) {
++			xtables_error(PARAMETER_PROBLEM,
++				   "Invalid IP address %s",
++				   optarg);
++		}
++
++		*flags |= IPT_ROUTE_OPT_GW;
++		break;
++
++	case '4':
++		if (*flags & IPT_ROUTE_OPT_CONTINUE)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --continue twice");
++		if (*flags & IPT_ROUTE_OPT_TEE)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --continue AND --tee");
++
++		route_info->flags |= IPT_ROUTE_CONTINUE;
++		*flags |= IPT_ROUTE_OPT_CONTINUE;
++
++		break;
++
++	case '5':
++		if (*flags & IPT_ROUTE_OPT_TEE)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --tee twice");
++		if (*flags & IPT_ROUTE_OPT_CONTINUE)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --tee AND --continue");
++
++		route_info->flags |= IPT_ROUTE_TEE;
++		*flags |= IPT_ROUTE_OPT_TEE;
++
++		break;
++
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++
++static void
++final_check(unsigned int flags)
++{
++	if (!flags)
++		xtables_error(PARAMETER_PROBLEM,
++		           "ROUTE target: oif, iif or gw option required");
++
++	if ((flags & (IPT_ROUTE_OPT_CONTINUE|IPT_ROUTE_OPT_TEE)) && (flags & IPT_ROUTE_OPT_IIF))
++		xtables_error(PARAMETER_PROBLEM,
++			   "ROUTE target: can't continue traversing the rules with iif option");
++}
++
++
++/* Prints out the targinfo. */
++static void
++print(const void *ip,
++      const struct xt_entry_target *target,
++      int numeric)
++{
++	const struct ipt_route_target_info *route_info
++		= (const struct ipt_route_target_info *)target->data;
++
++	printf("ROUTE ");
++
++	if (route_info->oif[0])
++		printf("oif:%s ", route_info->oif);
++
++	if (route_info->iif[0])
++		printf("iif:%s ", route_info->iif);
++
++	if (route_info->gw) {
++		struct in_addr ip = { route_info->gw };
++		printf("gw:%s ", inet_ntoa(ip));
++	}
++
++	if (route_info->flags & IPT_ROUTE_CONTINUE)
++		printf("continue");
++
++	if (route_info->flags & IPT_ROUTE_TEE)
++		printf("tee");
++
++}
++
++
++static void save(const void *ip, 
++		 const struct xt_entry_target *target)
++{
++	const struct ipt_route_target_info *route_info
++		= (const struct ipt_route_target_info *)target->data;
++
++	if (route_info->oif[0])
++		printf("--oif %s ", route_info->oif);
++
++	if (route_info->iif[0])
++		printf("--iif %s ", route_info->iif);
++
++	if (route_info->gw) {
++		struct in_addr ip = { route_info->gw };
++		printf("--gw %s ", inet_ntoa(ip));
++	}
++
++	if (route_info->flags & IPT_ROUTE_CONTINUE)
++		printf("--continue ");
++
++	if (route_info->flags & IPT_ROUTE_TEE)
++		printf("--tee ");
++}
++
++
++static struct xtables_target route = { 
++	.next		= NULL,
++	.name		= "ROUTE",
++	.version	= XTABLES_VERSION,
++	.size		= IPT_ALIGN(sizeof(struct ipt_route_target_info)),
++	.userspacesize	= IPT_ALIGN(sizeof(struct ipt_route_target_info)),
++	.help		= &help,
++	.init		= &init,
++	.parse		= &parse,
++	.final_check	= &final_check,
++	.print		= &print,
++	.save		= &save,
++	.extra_opts	= opts
++};
++
++void _init(void)
++{
++	xtables_register_target(&route);
++}
+--- /dev/null	2005-12-16 15:49:47.000000000 +0100
++++ iptables-1.3.8/extensions/libipt_ROUTE.man	2006-12-04 12:15:20.000000000 +0100
+@@ -0,0 +1,18 @@
++This is used to explicitly override the core network stack's routing decision.
++.B mangle
++table.
++.TP
++.BI "--oif " "ifname"
++Route the packet through `ifname' network interface
++.TP
++.BI "--iif " "ifname"
++Change the packet's incoming interface to `ifname'
++.TP
++.BI "--gw " "IP_address"
++Route the packet via this gateway
++.TP
++.BI "--continue "
++Behave like a non-terminating target and continue traversing the rules.  Not valid in combination with `--iif' or `--tee'
++.TP
++.BI "--tee "
++Make a copy of the packet, and route that copy to the given destination. For the original, uncopied packet, behave like a non-terminating target and continue traversing the rules.  Not valid in combination with `--iif' or `--continue'
+--- /dev/null	2005-12-16 15:49:47.000000000 +0100
++++ iptables-1.3.8/extensions/.ROUTE-test	2006-12-04 12:15:19.000000000 +0100
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_ROUTE.c ] && echo ROUTE
+--- /dev/null	2005-12-16 15:49:47.000000000 +0100
++++ iptables-1.3.8/extensions/.ROUTE-test6	2006-12-04 12:15:19.000000000 +0100
+@@ -0,0 +1,2 @@
++#! /bin/sh
++[ -f $KERNEL_DIR/include/linux/netfilter_ipv6/ip6t_ROUTE.h ] && echo ROUTE
+--- /dev/null	2005-12-16 15:49:47.000000000 +0100
++++ iptables-1.3.8/extensions/libip6t_ROUTE.c	2006-12-04 12:15:20.000000000 +0100
+@@ -0,0 +1,240 @@
++/* Shared library add-on to iptables to add ROUTE v6 target support.
++ * Author : Cedric de Launois, <delaunois@info.ucl.ac.be>
++ * v 1.1 2004/11/23
++ */
++
++#include <stdio.h>
++#include <string.h>
++#include <stdlib.h>
++#include <getopt.h>
++#include <sys/types.h>
++#include <sys/socket.h>
++#include <arpa/inet.h>
++
++#include <ip6tables.h>
++#include <linux/netfilter_ipv6/ip6_tables.h>
++#include <linux/netfilter_ipv6/ip6t_ROUTE.h>
++
++/* compile IP6T_ROUTE_TEE support even if kernel headers are unpatched */
++#ifndef IP6T_ROUTE_TEE
++#define IP6T_ROUTE_TEE		0x02
++#endif
++
++/* Function which prints out usage message. */
++static void
++help(void)
++{
++	printf(
++"ROUTE target v%s options:\n"
++"    --oif   \tifname \t\tRoute the packet through `ifname' network interface\n"
++"    --gw    \tip     \t\tRoute the packet via this gateway\n"
++"    --continue\t     \t\tRoute packet and continue traversing the\n"
++"            \t       \t\trules. Not valid with --iif or --tee.\n"
++"    --tee\t  \t\tDuplicate packet, route the duplicate,\n"
++"            \t       \t\tcontinue traversing with original packet.\n"
++"            \t       \t\tNot valid with --iif or --continue.\n"
++"\n",
++"1.1");
++}
++
++static struct option opts[] = {
++	{ "oif", 1, 0, '1' },
++	{ "iif", 1, 0, '2' },
++	{ "gw", 1, 0, '3' },
++	{ "continue", 0, 0, '4' },
++	{ "tee", 0, 0, '5' },
++	{ 0 }
++};
++
++/* Initialize the target. */
++static void
++init(struct xt_entry_target *t)
++{
++	struct ip6t_route_target_info *route_info = 
++		(struct ip6t_route_target_info*)t->data;
++
++	route_info->oif[0] = '\0';
++	route_info->iif[0] = '\0';
++	route_info->gw[0] = 0;
++	route_info->gw[1] = 0;
++	route_info->gw[2] = 0;
++	route_info->gw[3] = 0;
++	route_info->flags = 0;
++}
++
++
++#define IP6T_ROUTE_OPT_OIF      0x01
++#define IP6T_ROUTE_OPT_IIF      0x02
++#define IP6T_ROUTE_OPT_GW       0x04
++#define IP6T_ROUTE_OPT_CONTINUE 0x08
++#define IP6T_ROUTE_OPT_TEE      0x10
++
++/* Function which parses command options; returns true if it
++   ate an option */
++static int
++parse(int c, char **argv, int invert, unsigned int *flags,
++      const void *entry,
++      struct xt_entry_target **target)
++{
++	struct ip6t_route_target_info *route_info = 
++		(struct ip6t_route_target_info*)(*target)->data;
++
++	switch (c) {
++	case '1':
++		if (*flags & IP6T_ROUTE_OPT_OIF)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --oif twice");
++
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
++				   "Unexpected `!' after --oif");
++
++		if (strlen(optarg) > sizeof(route_info->oif) - 1)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Maximum interface name length %lu",
++				   sizeof(route_info->oif) - 1);
++
++		strcpy(route_info->oif, optarg);
++		*flags |= IP6T_ROUTE_OPT_OIF;
++		break;
++
++	case '2':
++		xtables_error(PARAMETER_PROBLEM,
++			   "--iif option not implemented");
++		break;
++
++	case '3':
++		if (*flags & IP6T_ROUTE_OPT_GW)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --gw twice");
++
++		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++			xtables_error(PARAMETER_PROBLEM,
++				   "Unexpected `!' after --gw");
++
++		if (!inet_pton(AF_INET6, optarg, (struct in6_addr*)&route_info->gw)) {
++			xtables_error(PARAMETER_PROBLEM,
++				   "Invalid IPv6 address %s",
++				   optarg);
++		}
++
++		*flags |= IP6T_ROUTE_OPT_GW;
++		break;
++
++	case '4':
++		if (*flags & IP6T_ROUTE_OPT_CONTINUE)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --continue twice");
++		if (*flags & IP6T_ROUTE_OPT_TEE)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --continue AND --tee");
++
++		route_info->flags |= IP6T_ROUTE_CONTINUE;
++		*flags |= IP6T_ROUTE_OPT_CONTINUE;
++
++		break;
++
++	case '5':
++		if (*flags & IP6T_ROUTE_OPT_TEE)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --tee twice");
++		if (*flags & IP6T_ROUTE_OPT_CONTINUE)
++			xtables_error(PARAMETER_PROBLEM,
++				   "Can't specify --tee AND --continue");
++
++		route_info->flags |= IP6T_ROUTE_TEE;
++		*flags |= IP6T_ROUTE_OPT_TEE;
++
++		break;
++
++	default:
++		return 0;
++	}
++
++	return 1;
++}
++
++
++static void
++final_check(unsigned int flags)
++{
++	if (!flags)
++		xtables_error(PARAMETER_PROBLEM,
++		           "ROUTE target: oif or gw option required");
++}
++
++
++/* Prints out the targinfo. */
++static void
++print(const void *ip,
++      const struct xt_entry_target *target,
++      int numeric)
++{
++	const struct ip6t_route_target_info *route_info
++		= (const struct ip6t_route_target_info *)target->data;
++
++	printf("ROUTE ");
++
++	if (route_info->oif[0])
++		printf("oif:%s ", route_info->oif);
++
++	if (route_info->gw[0] 
++	    || route_info->gw[1] 
++	    || route_info->gw[2] 
++	    || route_info->gw[3]) {
++		char address[INET6_ADDRSTRLEN];
++		printf("gw:%s ", inet_ntop(AF_INET6, route_info->gw, address, INET6_ADDRSTRLEN));
++	}
++
++	if (route_info->flags & IP6T_ROUTE_CONTINUE)
++		printf("continue");
++
++	if (route_info->flags & IP6T_ROUTE_TEE)
++		printf("tee");
++
++}
++
++
++static void save(const void *ip, 
++		 const struct xt_entry_target *target)
++{
++	const struct ip6t_route_target_info *route_info
++		= (const struct ip6t_route_target_info *)target->data;
++
++	if (route_info->oif[0])
++		printf("--oif %s ", route_info->oif);
++
++	if (route_info->gw[0] 
++	    || route_info->gw[1] 
++	    || route_info->gw[2] 
++	    || route_info->gw[3]) {
++		char address[INET6_ADDRSTRLEN];
++		printf("--gw %s ", inet_ntop(AF_INET6, route_info->gw, address, INET6_ADDRSTRLEN));
++	}
++
++	if (route_info->flags & IP6T_ROUTE_CONTINUE)
++		printf("--continue ");
++
++	if (route_info->flags & IP6T_ROUTE_TEE)
++		printf("--tee ");
++}
++
++
++static struct xtables_target route = { 
++	.name 		= "ROUTE",
++	.version	= XTABLES_VERSION,
++	.size		= IP6T_ALIGN(sizeof(struct ip6t_route_target_info)),
++	.userspacesize	= IP6T_ALIGN(sizeof(struct ip6t_route_target_info)),
++	.help		= &help,
++	.init		= &init,
++	.parse		= &parse,
++	.final_check	= &final_check,
++	.print		= &print,
++	.save		= &save,
++	.extra_opts	= opts,
++};
++
++void _init(void)
++{
++	xtables_register_target(&route);
++}
+--- /dev/null	2005-12-16 15:49:47.000000000 +0100
++++ iptables-1.3.8/extensions/libip6t_ROUTE.man	2006-12-04 12:15:20.000000000 +0100
+@@ -0,0 +1,15 @@
++This is used to explicitly override the core network stack's routing decision.
++.B mangle
++table.
++.TP
++.BI "--oif " "ifname"
++Route the packet through `ifname' network interface
++.TP
++.BI "--gw " "IPv6_address"
++Route the packet via this gateway
++.TP
++.BI "--continue "
++Behave like a non-terminating target and continue traversing the rules. Not valid in combination with `--tee'
++.TP
++.BI "--tee "
++Make a copy of the packet, and route that copy to the given destination. For the original, uncopied packet, behave like a non-terminating target and continue traversing the rules.  Not valid in combination with `--continue'
+--- /dev/null	2005-12-16 15:49:47.000000000 +0100
++++ iptables-1.3.8/extensions/.rpc-test	2007-09-09 01:58:51.395793750 +0200
+@@ -0,0 +1,2 @@
++#!/bin/sh
++[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_rpc.c ] && echo rpc

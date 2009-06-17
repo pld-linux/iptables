@@ -1,13 +1,13 @@
-diff -Nurp iptables-1.2.11-stock/extensions/.layer7-test iptables-1.2.11-layer7/extensions/.layer7-test
---- iptables-1.2.11-stock/extensions/.layer7-test	1969-12-31 18:00:00.000000000 -0600
-+++ iptables-1.2.11-layer7/extensions/.layer7-test	2004-06-23 19:32:45.620103208 -0500
+diff -Nurp iptables-1.3.8/extensions/.layer7-test iptables-1.3.8-layer7/extensions/.layer7-test
+--- iptables-1.3.8/extensions/.layer7-test	1969-12-31 18:00:00.000000000 -0600
++++ iptables-1.3.8-layer7/extensions/.layer7-test	2007-07-04 19:08:07.000000000 -0500
 @@ -0,0 +1,2 @@
 +#! /bin/sh
-+[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_layer7.h ] && echo layer7
-diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-layer7/extensions/libipt_layer7.c
---- iptables-1.2.11-stock/extensions/libipt_layer7.c	1969-12-31 18:00:00.000000000 -0600
-+++ iptables-1.2.11-layer7/extensions/libipt_layer7.c	2004-06-23 19:32:45.623102752 -0500
-@@ -0,0 +1,360 @@
++[ -f $KERNEL_DIR/include/linux/netfilter/xt_layer7.h ] && echo layer7
+diff -Nurp iptables-1.3.8/extensions/libipt_layer7.c iptables-1.3.8-layer7/extensions/libipt_layer7.c
+--- iptables-1.3.8/extensions/libipt_layer7.c	1969-12-31 18:00:00.000000000 -0600
++++ iptables-1.3.8-layer7/extensions/libipt_layer7.c	2007-07-04 19:23:04.000000000 -0500
+@@ -0,0 +1,397 @@
 +/* 
 +   Shared library add-on to iptables to add layer 7 matching support. 
 +  
@@ -34,11 +34,14 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +#include <dirent.h>
 +
 +#include <iptables.h>
-+#include <linux/netfilter_ipv4/ipt_layer7.h>
++#include <linux/netfilter/xt_layer7.h>
 +
 +#define MAX_FN_LEN 256
 +
 +static char l7dir[MAX_FN_LEN] = "\0";
++
++int parse_protocol_file(char * filename, const char * protoname, struct xt_layer7_info *info);
++char ** readl7dir(char * dirname);
 +
 +/* Function which prints out usage message. */
 +static void help(void)
@@ -48,7 +51,7 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +	"--l7dir <directory>  : Look for patterns here instead of /etc/l7-protocols/\n"
 +	"                       (--l7dir must be specified before --l7proto if used!)\n"
 +	"--l7proto [!] <name> : Match the protocol defined in /etc/l7-protocols/name.pat\n",
-+	IPTABLES_VERSION);
++	XTABLES_VERSION);
 +	fputc('\n', stdout);
 +}
 +
@@ -58,28 +61,19 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +	{ .name = 0 }
 +};
 +
-+/* Initialize the match. */
-+static void init(struct ipt_entry_match *m, unsigned int *nfcache)
-+{
-+	*nfcache |= NFC_UNKNOWN;
-+}
-+
 +/* reads filename, puts protocol info into layer7_protocol_info, number of protocols to numprotos */
-+int parse_protocol_file(char * filename, const unsigned char * protoname, struct ipt_layer7_info *info)
++int parse_protocol_file(char * filename, const char * protoname, struct xt_layer7_info *info)
 +{
 +	FILE * f;
 +	char * line = NULL;
-+	int len = 0;
++	size_t len = 0;
 +
 +	enum { protocol, pattern, done } datatype = protocol;
 +
 +	f = fopen(filename, "r");
 +
 +	if(!f)
-+	{
-+		//fprintf(stderr, "Can't open %s\n", filename);
 +		return 0;
-+	}
 +
 +	while(getline(&line, &len, f) != -1)
 +	{
@@ -92,13 +86,28 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +
 +		if(datatype == protocol)
 +		{
++			/* Ignore everything on the line beginning with the 
++			first space or tab . For instance, this allows the 
++			protocol line in http.pat to be "http " (or 
++			"http I am so cool") instead of just "http". */
++			if(strchr(line, ' ')){
++				char * space = strchr(line, ' ');
++				space[0] = '\0';
++			}
++			if(strchr(line, '\t')){
++				char * space = strchr(line, '\t');
++				space[0] = '\0';
++			}
++
++			/* sanity check.  First non-comment non-blank 
++			line must be the same as the file name. */
 +			if(strcmp(line, protoname))
-+				exit_error(OTHER_PROBLEM, 
++				xtables_error(OTHER_PROBLEM, 
 +					"Protocol name (%s) doesn't match file name (%s).  Bailing out\n",
-+					protoname, filename);
++					line, filename);
 +
 +			if(strlen(line) >= MAX_PROTOCOL_LEN)
-+				 exit_error(PARAMETER_PROBLEM, 
++				 xtables_error(PARAMETER_PROBLEM, 
 +					"Protocol name in %s too long!", filename);
 +			strncpy(info->protocol, line, MAX_PROTOCOL_LEN);
 +
@@ -107,18 +116,18 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +		else if(datatype == pattern)
 +		{
 +			if(strlen(line) >= MAX_PATTERN_LEN)
-+				 exit_error(PARAMETER_PROBLEM, "Pattern in %s too long!", filename);
++				 xtables_error(PARAMETER_PROBLEM, "Pattern in %s too long!", filename);
 +			strncpy(info->pattern, line, MAX_PATTERN_LEN);
 +			
 +			datatype = done;			
 +			break;
 +		}
 +		else
-+			exit_error(OTHER_PROBLEM, "Internal error");
++			xtables_error(OTHER_PROBLEM, "Internal error");
 +	}
 +
 +	if(datatype != done)
-+		exit_error(OTHER_PROBLEM, "Failed to get all needed data from %s", filename);
++		xtables_error(OTHER_PROBLEM, "Failed to get all needed data from %s", filename);
 +
 +	if(line) free(line);
 +	fclose(f);
@@ -143,7 +152,7 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +                case 'A' ... 'F':
 +                        return c - 'A' + 10;
 +                default:
-+                        exit_error(OTHER_PROBLEM, "hex2dec: bad value!\n");
++                        xtables_error(OTHER_PROBLEM, "hex2dec: bad value!\n");
 +                        return 0;
 +        }
 +}
@@ -163,6 +172,35 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +                        /* carefully remember to call tolower here... */
 +                        result[rindex] = tolower( hex2dec(s[sindex + 2])*16 +
 +                                                  hex2dec(s[sindex + 3] ) );
++
++			switch ( result[rindex] )
++			{
++			case 0x24:
++			case 0x28:
++			case 0x29:
++			case 0x2a:
++			case 0x2b:
++			case 0x2e:
++			case 0x3f:
++			case 0x5b:
++			case 0x5c:
++			case 0x5d:
++			case 0x5e:
++			case 0x7c:
++				fprintf(stderr, 
++					"Warning: layer7 regexp contains a control character, %c, in hex (\\x%c%c).\n"
++					"I recommend that you write this as %c or \\%c, depending on what you meant.\n",
++					result[rindex], s[sindex + 2], s[sindex + 3], result[rindex], result[rindex]);
++				break;
++			case 0x00:
++				fprintf(stderr, 
++					"Warning: null (\\x00) in layer7 regexp.  A null terminates the regexp string!\n");
++				break;
++			default:
++				break;
++			}
++
++
 +                        sindex += 3; /* 4 total */
 +                }
 +                else
@@ -191,7 +229,7 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +	if (n < 0)
 +	{
 +            perror("scandir");
-+	    exit_error(OTHER_PROBLEM, "Couldn't open %s\n", dirname);
++	    xtables_error(OTHER_PROBLEM, "Couldn't open %s\n", dirname);
 +	}
 +        else 
 +	{
@@ -232,7 +270,7 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +}
 +
 +static void
-+parse_layer7_protocol(const unsigned char *s, struct ipt_layer7_info *info)
++parse_layer7_protocol(const char *s, struct xt_layer7_info *info)
 +{
 +	char filename[MAX_FN_LEN];
 +	char * dir = NULL;
@@ -254,7 +292,7 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +
 +		if(c > MAX_FN_LEN)
 +		{
-+			exit_error(OTHER_PROBLEM, 
++			xtables_error(OTHER_PROBLEM, 
 +				"Filename beginning with %s is too long!\n", filename);
 +		}
 +
@@ -272,7 +310,7 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +	}
 +
 +	if(!done)
-+		exit_error(OTHER_PROBLEM, 
++		xtables_error(OTHER_PROBLEM, 
 +			"Couldn't find a pattern definition file for %s.\n", s);
 +
 +	/* process \xHH escapes and tolower everything. (our regex lib has no
@@ -282,15 +320,15 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +
 +/* Function which parses command options; returns true if it ate an option */
 +static int parse(int c, char **argv, int invert, unsigned int *flags,
-+      const struct ipt_entry *entry, unsigned int *nfcache,
-+      struct ipt_entry_match **match)
++      const void *entry,
++      struct xt_entry_match **match)
 +{
-+	struct ipt_layer7_info *layer7info = 
-+		(struct ipt_layer7_info *)(*match)->data;
++	struct xt_layer7_info *layer7info = 
++		(struct xt_layer7_info *)(*match)->data;
 +
 +	switch (c) {
 +	case '1':
-+		check_inverse(optarg, &invert, &optind, 0);
++		xtables_check_inverse(optarg, &invert, &optind, 0);
 +		parse_layer7_protocol(argv[optind-1], layer7info);
 +		if (invert)
 +			layer7info->invert = 1;
@@ -299,10 +337,10 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +
 +	case '2':
 +		/* not going to use this, but maybe we need to strip a ! anyway (?) */
-+		check_inverse(optarg, &invert, &optind, 0);
++		xtables_check_inverse(optarg, &invert, &optind, 0);
 +
 +		if(strlen(argv[optind-1]) >= MAX_FN_LEN)
-+			exit_error(PARAMETER_PROBLEM, "directory name too long\n");
++			xtables_error(PARAMETER_PROBLEM, "directory name too long\n");
 +
 +		strncpy(l7dir, argv[optind-1], MAX_FN_LEN);
 +
@@ -316,12 +354,12 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +	return 1;
 +}
 +
-+/* Final check; must have specified --pattern. */
++/* Final check; must have specified --l7proto */
 +static void final_check(unsigned int flags)
 +{
 +	if (!flags)
-+		exit_error(PARAMETER_PROBLEM,
-+			   "LAYER7 match: You must specify `--pattern'");
++		xtables_error(PARAMETER_PROBLEM,
++			   "LAYER7 match: You must specify `--l7proto'");
 +}
 +
 +static void print_protocol(char s[], int invert, int numeric)
@@ -332,31 +370,30 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +}
 +
 +/* Prints out the matchinfo. */
-+static void print(const struct ipt_ip *ip,
-+      const struct ipt_entry_match *match,
++static void print(const void *ip,
++      const struct xt_entry_match *match,
 +      int numeric)
 +{
 +	printf("LAYER7 ");
 +
-+	print_protocol(((struct ipt_layer7_info *)match->data)->protocol,
-+		  ((struct ipt_layer7_info *)match->data)->invert, numeric);
++	print_protocol(((struct xt_layer7_info *)match->data)->protocol,
++		  ((struct xt_layer7_info *)match->data)->invert, numeric);
 +}
 +/* Saves the union ipt_matchinfo in parsable form to stdout. */
-+static void save(const struct ipt_ip *ip, const struct ipt_entry_match *match)
++static void save(const void *ip, const struct xt_entry_match *match)
 +{
-+        const struct ipt_layer7_info *info =
-+            (const struct ipt_layer7_info*) match->data;
++        const struct xt_layer7_info *info =
++            (const struct xt_layer7_info*) match->data;
 +
 +        printf("--l7proto %s%s ", (info->invert)   ? "! ": "", info->protocol);
 +}
 +
-+static struct iptables_match layer7 = { 
++static struct xtables_match layer7 = { 
 +    .name          = "layer7",
-+    .version       = IPTABLES_VERSION,
-+    .size          = IPT_ALIGN(sizeof(struct ipt_layer7_info)),
-+    .userspacesize = IPT_ALIGN(sizeof(struct ipt_layer7_info)),
++    .version       = XTABLES_VERSION,
++    .size          = IPT_ALIGN(sizeof(struct xt_layer7_info)),
++    .userspacesize = IPT_ALIGN(sizeof(struct xt_layer7_info)),
 +    .help          = &help,
-+    .init          = &init,
 +    .parse         = &parse,
 +    .final_check   = &final_check,
 +    .print         = &print,
@@ -366,12 +403,12 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.c iptables-1.2.11-laye
 +
 +void _init(void)
 +{
-+	register_match(&layer7);
++	xtables_register_match(&layer7);
 +}
-diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.man iptables-1.2.11-layer7/extensions/libipt_layer7.man
---- iptables-1.2.11-stock/extensions/libipt_layer7.man	1969-12-31 18:00:00.000000000 -0600
-+++ iptables-1.2.11-layer7/extensions/libipt_layer7.man	2004-06-23 19:36:39.687519552 -0500
-@@ -0,0 +1,13 @@
+diff -Nurp iptables-1.3.8/extensions/libipt_layer7.man iptables-1.3.8-layer7/extensions/libipt_layer7.man
+--- iptables-1.3.8/extensions/libipt_layer7.man	1969-12-31 18:00:00.000000000 -0600
++++ iptables-1.3.8-layer7/extensions/libipt_layer7.man	2007-07-04 19:06:03.000000000 -0500
+@@ -0,0 +1,14 @@
 +This module matches packets based on the application layer data of 
 +their connections.  It uses regular expression matching to compare 
 +the application layer data to regular expressions found it the layer7 
@@ -380,8 +417,9 @@ diff -Nurp iptables-1.2.11-stock/extensions/libipt_layer7.man iptables-1.2.11-la
 +.TP
 +.BI "--l7proto " "\fIprotocol\fP"
 +Match the specified protocol.  The protocol name must match a file 
-+name in /etc/l7-protocols/
++name in /etc/l7-protocols/ or one of its first-level child directories.
 +.TP
 +.BI "--l7dir " "\fIdirectory\fP"
-+Use \fIdirectory\fP instead of /etc/l7-protocols/
++Use \fIdirectory\fP instead of /etc/l7-protocols/.  This option must be 
++specified before --l7proto.
 +

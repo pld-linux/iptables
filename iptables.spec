@@ -1,128 +1,151 @@
 #
 # TODO:
-#		- fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
+# - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
+# - owner needs rewrite to xt
+# - add manual sections from xtable-addons
+# - ACCOUNT has been removed from iptables-20070806.patch, now should be taken
+#   from http://www.intra2net.com/de/produkte/opensource/ipt_account/libipt_ACCOUNT-1.3.tar.gz
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
+%bcond_without  vserver         # kernel build without vserver
+%bcond_without	batch		# build iptables-batch
 #
-%define		_pomng_snap		20051115
-#
-%define		iptables_version	1.3.3
-%define		llh_version		7:2.6.13.0-1
+%define		netfilter_snap		20070806
+%define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
-#
 Summary:	Extensible packet filtering system && extensible NAT system
-Summary(pl):	System filtrowania pakietÛw oraz system translacji adresÛw (NAT)
-Summary(pt_BR):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
-Summary(ru):	ı‘…Ã…‘Ÿ ƒÃ— ’–“¡◊Ã≈Œ…— –¡À≈‘ŒŸÕ… ∆…Ãÿ‘“¡Õ… —ƒ“¡ Linux
-Summary(uk):	ı‘…Ã¶‘… ƒÃ— À≈“’◊¡ŒŒ— –¡À≈‘Œ…Õ… ∆¶Ãÿ‘“¡Õ… —ƒ“¡ Linux
-Summary(zh_CN):	Linuxƒ⁄∫À∞¸π˝¬Àπ‹¿Ìπ§æﬂ
+Summary(pl.UTF-8):	System filtrowania pakiet√≥w oraz system translacji adres√≥w (NAT)
+Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
+Summary(ru.UTF-8):	–£—Ç–∏–ª–∏—Ç—ã –¥–ª—è —É–ø—Ä–∞–≤–ª–µ–Ω–∏—è –ø–∞–∫–µ—Ç–Ω—ã–º–∏ —Ñ–∏–ª—å—Ç—Ä–∞–º–∏ —è–¥—Ä–∞ Linux
+Summary(uk.UTF-8):	–£—Ç–∏–ª—ñ—Ç–∏ –¥–ª—è –∫–µ—Ä—É–≤–∞–Ω–Ω—è –ø–∞–∫–µ—Ç–Ω–∏–º–∏ —Ñ—ñ–ª—å—Ç—Ä–∞–º–∏ —è–¥—Ä–∞ Linux
+Summary(zh_CN.UTF-8):	LinuxÂÜÖÊ†∏ÂåÖËøáÊª§ÁÆ°ÁêÜÂ∑•ÂÖ∑
 Name:		iptables
-Version:	%{iptables_version}
-%define		_rel 5
-Release:	%{_rel}@%{_kernel_ver_str}
+Version:	1.4.4
+Release:	1
 License:	GPL
 Group:		Networking/Daemons
-Source0:	http://netfilter.org/files/%{name}-%{version}.tar.bz2
-# Source0-md5:	86d88455520cfdc56fd7ae27897a80a4
+Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
+# Source0-md5:	08cd9196881657ea0615d926334cb7e9
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-#Patch0:		%{name}-pom-ng-branch.diff
-Patch1:		%{name}-Makefile.patch
-Patch2:		%{name}-1.3.0-imq1.diff
-Patch3:		grsecurity-1.2.11-iptables.patch
-Patch4:		%{name}-man.patch
-
-# patch-o-matic-ng
-# [submitted]
-Patch10:	%{name}-nf-comment.patch
-# [base]
-Patch11:	%{name}-nf-expire.patch
-# [extra]
-Patch12:	%{name}-nf-ACCOUNT.patch
-Patch13:	%{name}-nf-ULOG.patch
-Patch14:	%{name}-nf-geoip.patch
-Patch15:	%{name}-nf-goto.patch
-Patch16:	%{name}-nf-ipp2p.patch
-Patch17:	%{name}-nf-ip_queue_vwmark.patch
-Patch18:	%{name}-nf-policy.patch
-
-Patch20:	%{name}-hot_dirty_fix.patch
-
+Patch0:		%{name}-%{netfilter_snap}.patch
+Patch1:		%{name}-man.patch
+# based on http://www.linuximq.net/patchs/iptables-1.4.0-imq.diff
+Patch2:		%{name}-imq.patch
+# http://www.balabit.com/downloads/files/tproxy/tproxy-iptables-20080204-1915.patch
+Patch3:		%{name}-tproxy.patch
+Patch4:		%{name}-stealth.patch
+# almost based on iptables-1.4-for-kernel-2.6.20forward-layer7-2.18.patch
+# http://switch.dl.sourceforge.net/sourceforge/l7-filter/netfilter-layer7-v2.18.tar.gz
+Patch5:		%{name}-layer7.patch
+Patch6:		%{name}-old-1.3.7.patch
+# based on http://www.svn.barbara.eu.org/ipt_account/attachment/wiki/Software/ipt_account-0.1.21-20070804164729.tar.gz?format=raw
+Patch7:		%{name}-account.patch
+# http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch
+Patch8:		%{name}-1.3.5-owner-xid.patch
+Patch9:		%{name}-batch.patch
+Patch10:	%{name}-headers.patch
+Patch11:	%{name}-owner-struct-size-vs.patch
+Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
-Vendor:		Netfilter mailing list <netfilter@lists.samba.org>
+BuildRequires:	autoconf
+BuildRequires:	automake
+BuildRequires:	libtool
 %if %{with doc}
+BuildRequires:	sed >= 4.0
 BuildRequires:	sgml-tools
 BuildRequires:	sgmls
 BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
-BuildRequires:	sed >= 4.0
 %endif
-%if %{with dist_kernel} && %{_pomng_snap} != 0
-BuildRequires:	kernel-headers(netfilter) >= %{_pomng_snap}
-BuildRequires:	kernel-source
-Requires:	kernel(netfilter) >= %{_pomng_snap}
+%if %{with dist_kernel} && %{netfilter_snap} != 0
+BuildRequires:	kernel%{_alt_kernel}-headers(netfilter) >= %{netfilter_snap}
+BuildRequires:	kernel%{_alt_kernel}-source
 %endif
 #BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
 Provides:	firewall-userspace-tool
-Obsoletes:	netfilter
 Obsoletes:	ipchains
 Obsoletes:	iptables-ipp2p
 Obsoletes:	iptables24-compat
+Obsoletes:	netfilter
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
 Replacement of ipchains in 2.4 and higher kernels.
 
-%description -l pl
-Wydajny system translacji adresÛw (NAT) oraz system filtrowania
-pakietÛw. Zamiennik ipchains w j±drach 2.4 i nowszych.
+%description -l pl.UTF-8
+Wydajny system translacji adres√≥w (NAT) oraz system filtrowania
+pakiet√≥w. Zamiennik ipchains w jƒÖdrach 2.4 i nowszych.
 
-%description -l pt_BR
-Esta È a ferramenta que controla o cÛdigo de filtragem de pacotes do
-kernel 2.4, obsoletando ipchains. Com esta ferramenta vocÍ pode
+%description -l pt_BR.UTF-8
+Esta √© a ferramenta que controla o c√≥digo de filtragem de pacotes do
+kernel 2.4, obsoletando ipchains. Com esta ferramenta voc√™ pode
 configurar filtros de pacotes, NAT, mascaramento (masquerading),
-regras din‚micas (stateful inspection), etc.
+regras din√¢micas (stateful inspection), etc.
 
-%description -l ru
-iptables ’–“¡◊Ã—¿‘ ÀœƒœÕ ∆…Ãÿ‘“¡√…… ”≈‘≈◊Ÿ» –¡À≈‘œ◊ ◊ —ƒ“≈ Linux. ÔŒ…
-–œ⁄◊œÃ—¿‘ ◊¡Õ ’”‘¡Œ¡◊Ã…◊¡‘ÿ Õ≈÷”≈‘≈◊Ÿ≈ ‹À“¡ŒŸ (firewalls) … IP
-Õ¡”À¡“¡ƒ…Œ«, … ‘.–.
+%description -l ru.UTF-8
+iptables —É–ø—Ä–∞–≤–ª—è—é—Ç –∫–æ–¥–æ–º —Ñ–∏–ª—å—Ç—Ä–∞—Ü–∏–∏ —Å–µ—Ç–µ–≤—ã—Ö –ø–∞–∫–µ—Ç–æ–≤ –≤ —è–¥—Ä–µ Linux. –û–Ω–∏
+–ø–æ–∑–≤–æ–ª—è—é—Ç –≤–∞–º —É—Å—Ç–∞–Ω–∞–≤–ª–∏–≤–∞—Ç—å –º–µ–∂—Å–µ—Ç–µ–≤—ã–µ —ç–∫—Ä–∞–Ω—ã (firewalls) –∏ IP
+–º–∞—Å–∫–∞—Ä–∞–¥–∏–Ω–≥, –∏ —Ç.–ø.
 
-%description -l uk
-iptables ’–“¡◊Ã—¿‘ÿ ÀœƒœÕ ∆¶Ãÿ‘“¡√¶ß –¡À≈‘¶◊ Õ≈“≈÷¶ ◊ —ƒ“¶ Linux. ˜œŒ…
-ƒœ⁄◊œÃ—¿‘ÿ ◊¡Õ ◊”‘¡Œœ◊Ã¿◊¡‘… Õ¶÷Õ≈“≈÷≈◊¶ ≈À“¡Œ… (firewalls) ‘¡ IP
-Õ¡”À¡“¡ƒ…Œ«, ‘œ›œ.
+%description -l uk.UTF-8
+iptables —É–ø—Ä–∞–≤–ª—è—é—Ç—å –∫–æ–¥–æ–º —Ñ—ñ–ª—å—Ç—Ä–∞—Ü—ñ—ó –ø–∞–∫–µ—Ç—ñ–≤ –º–µ—Ä–µ–∂—ñ –≤ —è–¥—Ä—ñ Linux. –í–æ–Ω–∏
+–¥–æ–∑–≤–æ–ª—è—é—Ç—å –≤–∞–º –≤—Å—Ç–∞–Ω–æ–≤–ª—é–≤–∞—Ç–∏ –º—ñ–∂–º–µ—Ä–µ–∂–µ–≤—ñ –µ–∫—Ä–∞–Ω–∏ (firewalls) —Ç–∞ IP
+–º–∞—Å–∫–∞—Ä–∞–¥–∏–Ω–≥, —Ç–æ—â–æ.
+
+%package libs
+Summary:	iptables libraries
+Summary(pl.UTF-8):	Biblioteki iptables
+Group:		Development/Libraries
+Conflicts:	iptables < 1.4.3-1
+
+%description libs
+iptables libraries.
+
+%description libs -l pl.UTF-8
+Biblioteki iptables.
 
 %package devel
 Summary:	Libraries and headers for developing iptables extensions
-Summary(pl):	Biblioteki i nag≥Ûwki do tworzenia rozszerzeÒ iptables
+Summary(pl.UTF-8):	Biblioteki i nag≈Ç√≥wki do tworzenia rozszerze≈Ñ iptables
 Group:		Development/Libraries
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
 Obsoletes:	iptables24-devel
 
 %description devel
 Libraries and headers for developing iptables extensions.
 
-%description devel -l pl
-Biblioteki i pliki nag≥Ûwkowe niezbÍdne do tworzenia rozszerzeÒ dla
+%description devel -l pl.UTF-8
+Biblioteki i pliki nag≈Ç√≥wkowe niezbƒôdne do tworzenia rozszerze≈Ñ dla
 iptables.
+
+%package static
+Summary:	Static iptables libraries
+Summary(pl.UTF-8):	Biblioteki statyczne iptables
+Group:		Development/Libraries
+Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
+
+%description static
+Static iptables libraries.
+
+%description devel -l pl.UTF-8
+Biblioteki statyczne iptables.
 
 %package init
 Summary:	Iptables init (RedHat style)
-Summary(pl):	Iptables init (w stylu RedHata)
+Summary(pl.UTF-8):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
-Release:	%{_rel}
-PreReq:		rc-scripts
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}
+Requires:	rc-scripts
 Obsoletes:	firewall-init
 Obsoletes:	firewall-init-ipchains
 Obsoletes:	iptables24-init
@@ -131,77 +154,84 @@ Obsoletes:	iptables24-init
 Iptables-init is meant to provide an alternate way than firewall-init
 to start and stop packet filtering through iptables(8).
 
-%description init -l pl
-Iptables-init ma na celu udostÍpnienie alternatywnego w stosunku do
-firewall-init sposobu w≥±czania i wy≥±czania filtrÛw IP j±dra poprzez
+%description init -l pl.UTF-8
+Iptables-init ma na celu udostƒôpnienie alternatywnego w stosunku do
+firewall-init sposobu w≈ÇƒÖczania i wy≈ÇƒÖczania filtr√≥w IP jƒÖdra poprzez
 iptables(8).
 
 %prep
 %setup -q -a1
-#patch0 -p0
-%{!?without_dist_kernel:%patch1 -p1}
+%patch0 -p1
+%patch1 -p1
 %patch2 -p1
-%patch3 -p1
+#%patch3 -p0
 %patch4 -p1
-
-%patch10 -p1
+%patch5 -p1
+%patch6 -p1
+%patch7 -p1
+%if %{with vserver}
+#patch8 -p1
 %patch11 -p1
-%patch12 -p1
-%patch13 -p1
-%patch14 -p1
-%patch15 -p1
-%patch16 -p1
-#%patch17 -p1
-%patch18 -p1
+%endif
+%if %{with batch}
+%patch9 -p1
+%endif
+#%patch10 -p1
 
-%patch20 -p1
+#patch999 -p1
 
 chmod 755 extensions/.*-test*
 
-# needs update (still valid?)
-chmod 644 extensions/.{connbytes,geoip}-test
-chmod 644 extensions/.expire-test6
-
 %build
-%{__make} all experimental \
+%{__libtoolize}
+%{__aclocal}
+%{__autoconf}
+%{__automake}
+%configure \
+	--with-kbuild=%{_kernelsrcdir} \
+	--with-ksource=%{_kernelsrcdir} \
+	--enable-devel \
+	--enable-libipq \
+	--enable-shared
+
+%{__make} -j1 all \
 	CC="%{__cc}" \
-	COPT_FLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
+	CFLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
 	KERNEL_DIR="%{_kernelsrcdir}" \
 	LIBDIR="%{_libdir}" \
+	DO_SELINUX=1 \
 	LDLIBS="-ldl"
 
 %if %{with doc}
-%{__make} -C iptables-howtos
+%{__make} -j1 -C iptables-howtos
 sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 %endif
+
+# Make a library, needed for OpenVCP
+ar rcs libiptables.a iptables.o
+ar rcs libip6tables.a ip6tables.o
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}/man3}
 
-echo ".so iptables-save.8" > %{name6}-save.8
-echo ".so iptables-restore.8" > %{name6}-restore.8
-
-%{__make} install install-experimental \
+%{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
 	BINDIR=%{_sbindir} \
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
-echo ".so iptables.8" > $RPM_BUILD_ROOT%{_mandir}/man8/%{name6}.8
-
-install -d $RPM_BUILD_ROOT%{_sysconfdir}/l7-protocols
-
-# Devel stuff
-cp -a include/{lib*,ip*} $RPM_BUILD_ROOT%{_includedir}
-install lib*/lib*.a $RPM_BUILD_ROOT%{_libdir}
-install libipq/*.3 $RPM_BUILD_ROOT%{_mandir}/man3
+# install library needed for collectd:
+#install libiptc/libiptc.a $RPM_BUILD_ROOT%{_libdir}
 
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%post libs -p /sbin/ldconfig
+%postun libs -p /sbin/ldconfig
 
 %post init
 /sbin/chkconfig --add %{name}
@@ -216,20 +246,146 @@ fi
 %files
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
-%attr(755,root,root) %{_sbindir}/*
-%dir %{_libdir}/iptables
-%attr(755,root,root) %{_libdir}/iptables/*.so
+%attr(755,root,root) %{_bindir}/iptables-xml
+%attr(755,root,root) %{_sbindir}/iptables
+%attr(755,root,root) %{_sbindir}/iptables-multi
+%attr(755,root,root) %{_sbindir}/iptables-restore
+%attr(755,root,root) %{_sbindir}/iptables-save
+%attr(755,root,root) %{_sbindir}/ip6tables
+%attr(755,root,root) %{_sbindir}/ip6tables-multi
+%attr(755,root,root) %{_sbindir}/ip6tables-restore
+%attr(755,root,root) %{_sbindir}/ip6tables-save
+%if %{with batch}
+%attr(755,root,root) %{_sbindir}/iptables-batch
+%attr(755,root,root) %{_sbindir}/ip6tables-batch
+%endif
+%dir %{_libdir}/xtables
+%if %{with dist_kernel}
+%attr(755,root,root) %{_libdir}/xtables/libip6t_ah.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_dst.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_eui64.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_frag.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_hbh.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_hl.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_HL.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_icmp6.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_ipv6header.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_LOG.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_mh.so
+#%attr(755,root,root) %{_libdir}/xtables/libip6t_policy.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_REJECT.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_ROUTE.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_rt.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_account.so
+#attr(755,root,root) %{_libdir}/xtables/libipt_ACCOUNT.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_addrtype.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ah.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_CLUSTERIP.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_DNAT.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ecn.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ECN.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_layer7.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_LOG.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_MASQUERADE.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_MIRROR.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_NETMAP.so
+#%attr(755,root,root) %{_libdir}/xtables/libipt_policy.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_realm.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_REDIRECT.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_REJECT.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ROUTE.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_SAME.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_set.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_SET.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_SNAT.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_TTL.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ULOG.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_unclean.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_CLASSIFY.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_cluster.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_comment.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_connbytes.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_connlimit.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_connmark.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_CONNMARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_CONNSECMARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_conntrack.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_dccp.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_dscp.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_DSCP.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_esp.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_hashlimit.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_helper.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_IMQ.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_iprange.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_length.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_limit.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_mac.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_mark.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_MARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_multiport.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_NFLOG.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_NFQUEUE.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_NOTRACK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_owner.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_physdev.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_pkttype.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_policy.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_recent.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_quota.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_RATEEST.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_rateest.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_sctp.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_SECMARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_socket.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_standard.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_state.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_statistic.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_string.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_tcpmss.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TCPMSS.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TCPOPTSTRIP.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_tcp.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_time.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_tos.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TOS.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TPROXY.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TRACE.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_u32.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_udp.so
+%else
+%attr(755,root,root) %{_libdir}/xtables/*.so
+%endif
 %{_mandir}/man8/*
+
+%files libs
+%defattr(644,root,root,755)
+%attr(755,root,root) %ghost %{_libdir}/libiptc.so.0
+%attr(755,root,root) %{_libdir}/libiptc.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxtables.so.2
+%attr(755,root,root) %{_libdir}/libxtables.so.*.*
 
 %files devel
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/netfilter-hacking-HOWTO*}
-%{_libdir}/lib*.a
+%attr(755,root,root) %{_libdir}/lib*.so
+%{_libdir}/lib*.la
 %{_includedir}/*.h
-%dir %{_includedir}/libip*
-%{_includedir}/libip*/*.h
+%{_includedir}/libiptc
+%{_pkgconfigdir}/*.pc
 %{_mandir}/man3/*
+
+%files static
+%defattr(644,root,root,755)
+%{_libdir}/lib*.a
 
 %files init
 %defattr(644,root,root,755)
-%attr(754,root,root) /etc/rc.d/init.d/*
+%attr(754,root,root) /etc/rc.d/init.d/iptables
+%attr(754,root,root) /etc/rc.d/init.d/ip6tables

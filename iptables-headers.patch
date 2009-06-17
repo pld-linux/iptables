@@ -1,0 +1,12 @@
+--- iptables/Makefile.am.org	2008-06-24 20:16:53.987275593 +0200
++++ iptables/Makefile.am	2008-06-24 20:17:29.950179485 +0200
+@@ -75,7 +75,8 @@
+ include_HEADERS  := include/xtables.h include/iptables.h include/ip6tables.h
+ iptcdir           = ${includedir}/libiptc
+ iptc_HEADERS     := include/libiptc/libxtc.h \
+-                    include/libiptc/ipt_kernel_headers.h
++                    include/libiptc/ipt_kernel_headers.h \
++		    include/libiptc/libiptc.h
+ endif
+ 
+ if ENABLE_STATIC
