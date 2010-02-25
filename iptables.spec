@@ -54,6 +54,7 @@ Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
+BuildRequires:	groff
 BuildRequires:	libtool
 %if %{with doc}
 BuildRequires:	sed >= 4.0
