@@ -25,7 +25,7 @@ Name:		iptables
 Version:	1.4.4
 Release:	2
 License:	GPL
-Group:		Networking/Daemons
+Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
 # Source0-md5:	08cd9196881657ea0615d926334cb7e9
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
