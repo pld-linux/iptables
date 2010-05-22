@@ -105,7 +105,7 @@ iptables управляють кодом фільтрації пакетів м�
 %package libs
 Summary:	iptables libraries
 Summary(pl.UTF-8):	Biblioteki iptables
-Group:		Development/Libraries
+Group:		Libraries
 Conflicts:	iptables < 1.4.3-1
 
 %description libs
