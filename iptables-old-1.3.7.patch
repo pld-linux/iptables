@@ -465,7 +465,7 @@
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't use --oif and --iif together");
 +
-+		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++		if (xtables_check_inverse(optarg, &invert, NULL, 0, argv))
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --oif");
 +
@@ -487,7 +487,7 @@
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't use --iif and --oif together");
 +
-+		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++		if (xtables_check_inverse(optarg, &invert, NULL, 0, argv))
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --iif");
 +
@@ -505,7 +505,7 @@
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --gw twice");
 +
-+		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++		if (xtables_check_inverse(optarg, &invert, NULL, 0, argv))
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --gw");
 +
@@ -761,7 +761,7 @@
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --oif twice");
 +
-+		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++		if (xtables_check_inverse(optarg, &invert, NULL, 0, argv))
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --oif");
 +
@@ -784,7 +784,7 @@
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Can't specify --gw twice");
 +
-+		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++		if (xtables_check_inverse(optarg, &invert, NULL, 0, argv))
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --gw");
 +

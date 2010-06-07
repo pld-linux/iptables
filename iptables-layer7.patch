@@ -328,7 +328,7 @@ diff -Nurp iptables-1.3.8/extensions/libipt_layer7.c iptables-1.3.8-layer7/exten
 +
 +	switch (c) {
 +	case '1':
-+		xtables_check_inverse(optarg, &invert, &optind, 0);
++		xtables_check_inverse(optarg, &invert, &optind, 0, argv);
 +		parse_layer7_protocol(argv[optind-1], layer7info);
 +		if (invert)
 +			layer7info->invert = 1;
@@ -337,7 +337,7 @@ diff -Nurp iptables-1.3.8/extensions/libipt_layer7.c iptables-1.3.8-layer7/exten
 +
 +	case '2':
 +		/* not going to use this, but maybe we need to strip a ! anyway (?) */
-+		xtables_check_inverse(optarg, &invert, &optind, 0);
++		xtables_check_inverse(optarg, &invert, &optind, 0, argv);
 +
 +		if(strlen(argv[optind-1]) >= MAX_FN_LEN)
 +			xtables_error(PARAMETER_PROBLEM, "directory name too long\n");

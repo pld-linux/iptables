@@ -10,7 +10,8 @@
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
 %bcond_without  vserver         # kernel build without vserver
-%bcond_without	batch		# build iptables-batch
+%bcond_with	batch		# build iptables-batch
+%bcond_with	static
 #
 %define		netfilter_snap		20070806
 %define		llh_version		7:2.6.22.1
@@ -22,19 +23,19 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.4
-Release:	2
+Version:	1.4.8
+Release:	1
 License:	GPL
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	08cd9196881657ea0615d926334cb7e9
+# Source0-md5:	697ed89f37af4473a5f6349ba2700f2d
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
 Patch0:		%{name}-%{netfilter_snap}.patch
 Patch1:		%{name}-man.patch
-# based on http://www.linuximq.net/patchs/iptables-1.4.0-imq.diff
+# based on http://www.linuximq.net/patchs/iptables-1.4.6-imq.diff
 Patch2:		%{name}-imq.patch
 # http://www.balabit.com/downloads/files/tproxy/tproxy-iptables-20080204-1915.patch
 Patch3:		%{name}-tproxy.patch
@@ -164,7 +165,7 @@ iptables(8).
 %setup -q -a1
 %patch0 -p1
 %patch1 -p1
-%patch2 -p1
+%patch2 -p0
 #%patch3 -p0
 %patch4 -p1
 %patch5 -p1
@@ -193,11 +194,12 @@ chmod 755 extensions/.*-test*
 	--with-ksource=%{_kernelsrcdir} \
 	--enable-devel \
 	--enable-libipq \
+	%{?with_static:--enable-static} \
 	--enable-shared
 
 %{__make} -j1 all \
 	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags} -D%{!?debug:N}DEBUG" \
+	CFLAGS="%{rpmcflags} %{rpmcppflags} -D%{!?debug:N}DEBUG" \
 	KERNEL_DIR="%{_kernelsrcdir}" \
 	LIBDIR="%{_libdir}" \
 	DO_SELINUX=1 \
@@ -209,8 +211,8 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 %endif
 
 # Make a library, needed for OpenVCP
-ar rcs libiptables.a iptables.o
-ar rcs libip6tables.a ip6tables.o
+ar rcs libiptables.a iptables*.o
+ar rcs libip6tables.a ip6tables*.o
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -260,7 +262,9 @@ fi
 %attr(755,root,root) %{_sbindir}/iptables-batch
 %attr(755,root,root) %{_sbindir}/ip6tables-batch
 %endif
+%attr(755,root,root) %{_sbindir}/nfnl_osf
 %dir %{_libdir}/xtables
+%{_datadir}/xtables
 %if %{with dist_kernel}
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ah.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_dst.so
@@ -317,6 +321,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_CONNMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CONNSECMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_conntrack.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_CT.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_dccp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_dscp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_DSCP.so
@@ -335,6 +340,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_NFQUEUE.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_NOTRACK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_owner.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_osf.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_physdev.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_pkttype.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_policy.so
@@ -367,9 +373,15 @@ fi
 
 %files libs
 %defattr(644,root,root,755)
+%attr(755,root,root) %ghost %{_libdir}/libipq.so.0                                                                                                          
+%attr(755,root,root) %{_libdir}/libipq.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libiptc.so.0
 %attr(755,root,root) %{_libdir}/libiptc.so.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxtables.so.2
+%attr(755,root,root) %ghost %{_libdir}/libip4tc.so.0
+%attr(755,root,root) %{_libdir}/libip4tc.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libip6tc.so.0
+%attr(755,root,root) %{_libdir}/libip6tc.so.*.*
+%attr(755,root,root) %ghost %{_libdir}/libxtables.so.4
 %attr(755,root,root) %{_libdir}/libxtables.so.*.*
 
 %files devel
@@ -382,9 +394,11 @@ fi
 %{_pkgconfigdir}/*.pc
 %{_mandir}/man3/*
 
+%if %{with static}
 %files static
 %defattr(644,root,root,755)
 %{_libdir}/lib*.a
+%endif
 
 %files init
 %defattr(644,root,root,755)

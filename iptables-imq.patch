@@ -1,13 +1,6 @@
-diff -Naurw iptables-1.4.1/extensions/.IMQ-testx iptables-1.4.1.imq/extensions/.IMQ-testx
---- iptables-1.4.3/extensions/.IMQ-testx	1969-12-31 21:00:00.000000000 -0300
-+++ iptables-1.4.3.imq/extensions/.IMQ-testx	2008-06-24 22:20:06.000000000 -0300
-@@ -0,0 +1,3 @@
-+#!/bin/sh
-+# True if IMQ target patch is applied.
-+[ -f $KERNEL_DIR/include/linux/netfilter/xt_IMQ.h ] && echo IMQ
-diff -Naurw iptables-1.4.1/extensions/libxt_IMQ.c iptables-1.4.1.imq/extensions/libxt_IMQ.c
---- iptables-1.4.3/extensions/libxt_IMQ.c	1969-12-31 21:00:00.000000000 -0300
-+++ iptables-1.4.3.imq/extensions/libxt_IMQ.c	2008-06-24 22:31:02.000000000 -0300
+diff -Naurw /dev/null extensions/libxt_IMQ.c
+--- /dev/null			1969-12-31 21:00:00.000000000 -0300
++++ extensions/libxt_IMQ.c	2008-06-24 22:31:02.000000000 -0300
 @@ -0,0 +1,103 @@
 +/* Shared library add-on to iptables to add IMQ target support. */
 +#include <stdio.h>
@@ -23,9 +16,9 @@ diff -Naurw iptables-1.4.1/extensions/libxt_IMQ.c iptables-1.4.1.imq/extensions/
 +static void IMQ_help(void)
 +{
 +	printf(
-+"IMQ target v%s options:\n"
-+"  --todev <N>		enqueue to imq<N>, defaults to 0\n", 
-+XTABLES_VERSION);
++"IMQ target options:\n"
++"  --todev <N>		enqueue to imq<N>, defaults to 0\n");
++
 +}
 +
 +static struct option IMQ_opts[] = {
@@ -50,7 +43,7 @@ diff -Naurw iptables-1.4.1/extensions/libxt_IMQ.c iptables-1.4.1.imq/extensions/
 +	
 +	switch(c) {
 +	case '1':
-+		if (xtables_check_inverse(optarg, &invert, NULL, 0))
++		if (xtables_check_inverse(optarg, &invert, NULL, 0, argv))
 +			xtables_error(PARAMETER_PROBLEM,
 +				   "Unexpected `!' after --todev");
 +		mr->todev=atoi(optarg);
@@ -82,7 +75,7 @@ diff -Naurw iptables-1.4.1/extensions/libxt_IMQ.c iptables-1.4.1.imq/extensions/
 +static struct xtables_target imq_target = {
 +	.name		= "IMQ",
 +	.version	= XTABLES_VERSION,
-+	.family		= AF_INET,
++	.family		= NFPROTO_IPV4,
 +	.size		= XT_ALIGN(sizeof(struct xt_imq_info)),
 +	.userspacesize	= XT_ALIGN(sizeof(struct xt_imq_info)),
 +	.help		= IMQ_help,
@@ -96,7 +89,7 @@ diff -Naurw iptables-1.4.1/extensions/libxt_IMQ.c iptables-1.4.1.imq/extensions/
 +static struct xtables_target imq_target6 = {
 +	.name		= "IMQ",
 +	.version	= XTABLES_VERSION,
-+	.family		= AF_INET6,
++	.family		= NFPROTO_IPV6,
 +	.size		= XT_ALIGN(sizeof(struct xt_imq_info)),
 +	.userspacesize	= XT_ALIGN(sizeof(struct xt_imq_info)),
 +	.help		= IMQ_help,
@@ -107,13 +100,14 @@ diff -Naurw iptables-1.4.1/extensions/libxt_IMQ.c iptables-1.4.1.imq/extensions/
 +	.extra_opts	= IMQ_opts,
 +};
 +
-+void __attribute((constructor)) nf_ext_init(void)
-+{
++// void __attribute((constructor)) nf_ext_init(void){
++void _init(void){
 +	xtables_register_target(&imq_target);
 +	xtables_register_target(&imq_target6);
 +}
---- iptables-1.4.3/include/linux/netfilter/xt_IMQ.h	1970-01-01 02:00:00.000000000 +0200
-+++ iptables-1.4.3.imq/include/linux/netfilter/xt_IMQ.h	2008-08-05 00:41:28.000000000 +0300
+diff -Naurw /dev/null extensions/libxt_IMQ.c
+--- /dev/null				1970-01-01 02:00:00.000000000 +0200
++++ include/linux/netfilter/xt_IMQ.h	2008-08-05 00:41:28.000000000 +0300
 @@ -0,0 +1,9 @@
 +#ifndef _XT_IMQ_H
 +#define _XT_IMQ_H
