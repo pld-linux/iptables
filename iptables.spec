@@ -23,12 +23,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.8
+Version:	1.4.9.1
 Release:	1
 License:	GPL
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	697ed89f37af4473a5f6349ba2700f2d
+# Source0-md5:	fbadfb0b5f2dbda49e0ad06a798898e3
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -304,8 +304,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_ROUTE.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SAME.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_set.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_SET.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SNAT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
@@ -330,6 +328,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_helper.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_iprange.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_LED.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_length.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_limit.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_mac.so
@@ -350,6 +349,8 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_rateest.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_sctp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_SECMARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_set.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_SET.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_socket.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_standard.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_state.so
@@ -359,6 +360,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_TCPMSS.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_TCPOPTSTRIP.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_tcp.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TEE.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_time.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_tos.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_TOS.so
@@ -381,7 +383,7 @@ fi
 %attr(755,root,root) %{_libdir}/libip4tc.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libip6tc.so.0
 %attr(755,root,root) %{_libdir}/libip6tc.so.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxtables.so.4
+%attr(755,root,root) %ghost %{_libdir}/libxtables.so.5
 %attr(755,root,root) %{_libdir}/libxtables.so.*.*
 
 %files devel
