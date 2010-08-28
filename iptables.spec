@@ -3,13 +3,11 @@
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 # - owner needs rewrite to xt
 # - add manual sections from xtable-addons
-# - ACCOUNT has been removed from iptables-20070806.patch, now should be taken
-#   from http://www.intra2net.com/de/produkte/opensource/ipt_account/libipt_ACCOUNT-1.3.tar.gz
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
-%bcond_without  vserver         # kernel build without vserver
+%bcond_without	vserver		# kernel build without vserver
 %bcond_with	batch		# build iptables-batch
 %bcond_with	static
 #
@@ -56,7 +54,9 @@ URL:		http://www.netfilter.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	groff
+BuildRequires:	libnfnetlink-devel
 BuildRequires:	libtool
+BuildRequires:	pkgconfig >= 0.9.0
 %if %{with doc}
 BuildRequires:	sed >= 4.0
 BuildRequires:	sgml-tools
@@ -375,7 +375,7 @@ fi
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %ghost %{_libdir}/libipq.so.0                                                                                                          
+%attr(755,root,root) %ghost %{_libdir}/libipq.so.0
 %attr(755,root,root) %{_libdir}/libipq.so.*.*
 %attr(755,root,root) %ghost %{_libdir}/libiptc.so.0
 %attr(755,root,root) %{_libdir}/libiptc.so.*.*
