@@ -77,6 +77,7 @@ Obsoletes:	ipchains
 Obsoletes:	iptables-ipp2p
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
+Conflicts:	xtables-addons < 1.25
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
