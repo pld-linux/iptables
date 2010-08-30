@@ -2,7 +2,6 @@
 # TODO:
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 # - owner needs rewrite to xt
-# - add manual sections from xtable-addons
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
@@ -164,13 +163,17 @@ iptables(8).
 
 %prep
 %setup -q -a1
+%if %{with dist_kernel}
 %patch0 -p1
+%endif
 %patch1 -p1
 %patch2 -p0
 #%patch3 -p0
 %patch4 -p1
+%if %{with dist_kernel}
 %patch5 -p1
 %patch6 -p1
+%endif
 %patch7 -p1
 %if %{with vserver}
 #patch8 -p1
@@ -182,8 +185,6 @@ iptables(8).
 #%patch10 -p1
 
 #patch999 -p1
-
-chmod 755 extensions/.*-test*
 
 %build
 %{__libtoolize}
@@ -280,7 +281,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libip6t_mh.so
 #%attr(755,root,root) %{_libdir}/xtables/libip6t_policy.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_REJECT.so
-%attr(755,root,root) %{_libdir}/xtables/libip6t_ROUTE.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_rt.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_account.so
 #attr(755,root,root) %{_libdir}/xtables/libipt_ACCOUNT.so
@@ -302,7 +302,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_realm.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_REDIRECT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_REJECT.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_ROUTE.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SAME.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SNAT.so

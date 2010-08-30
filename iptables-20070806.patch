@@ -1,17 +1,3 @@
-diff -urN iptables-1.3.8/extensions/.IPV4OPTSSTRIP-test iptables/extensions/.IPV4OPTSSTRIP-test
---- iptables-1.3.8/extensions/.IPV4OPTSSTRIP-test	1970-01-01 01:00:00.000000000 +0100
-+++ iptables/extensions/.IPV4OPTSSTRIP-test	2006-12-12 11:34:45.000000000 +0100
-@@ -0,0 +1,3 @@
-+#!/bin/sh
-+# True if IPV4OPTSSTRIP patch is applied.
-+[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_IPV4OPTSSTRIP.c ] && echo IPV4OPTSSTRIP
-diff -urN iptables-1.3.8/extensions/.ipv4options-test iptables/extensions/.ipv4options-test
---- iptables-1.3.8/extensions/.ipv4options-test	1970-01-01 01:00:00.000000000 +0100
-+++ iptables/extensions/.ipv4options-test	2006-12-12 11:34:45.000000000 +0100
-@@ -0,0 +1,3 @@
-+#!/bin/sh
-+# True if ipv4options is applied.
-+[ -f $KERNEL_DIR/include/linux/netfilter_ipv4/ipt_ipv4options.h ] && echo ipv4options
 diff -urN iptables-1.3.8/extensions/libipt_IPV4OPTSSTRIP.c iptables/extensions/libipt_IPV4OPTSSTRIP.c
 --- iptables-1.3.8/extensions/libipt_IPV4OPTSSTRIP.c	1970-01-01 01:00:00.000000000 +0100
 +++ iptables/extensions/libipt_IPV4OPTSSTRIP.c	2006-12-12 11:34:45.000000000 +0100

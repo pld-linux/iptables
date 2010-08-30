@@ -280,8 +280,3 @@
 +{
 +  xtables_register_match(&account);
 +}
---- /dev/null	2005-12-16 15:49:47.000000000 +0100
-+++ iptables-1.3.8/extensions/.account-test	2007-09-09 02:11:13.530174250 +0200
-@@ -0,0 +1,2 @@
-+#!/bin/sh
-+[ -f $KERNEL_DIR/net/ipv4/netfilter/ipt_account.c ] && echo account

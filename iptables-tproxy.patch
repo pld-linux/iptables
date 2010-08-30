@@ -1,13 +1,3 @@
---- extensions/.TPROXY-testx
-+++ extensions/.TPROXY-testx
-@@ -0,0 +1,2 @@
-+#! /bin/sh
-+[ -f $KERNEL_DIR/include/linux/netfilter/xt_TPROXY.h ] && echo TPROXY
---- extensions/.socket-testx
-+++ extensions/.socket-testx
-@@ -0,0 +1,2 @@
-+#! /bin/sh
-+[ -f $KERNEL_DIR/net/netfilter/xt_socket.c ] && echo socket
 Index: extensions/libxt_socket.c
 ===================================================================
 --- extensions/libxt_socket.c	(revision 0)

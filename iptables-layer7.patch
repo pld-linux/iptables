@@ -1,9 +1,3 @@
-diff -Nurp iptables-1.3.8/extensions/.layer7-test iptables-1.3.8-layer7/extensions/.layer7-test
---- iptables-1.3.8/extensions/.layer7-test	1969-12-31 18:00:00.000000000 -0600
-+++ iptables-1.3.8-layer7/extensions/.layer7-test	2007-07-04 19:08:07.000000000 -0500
-@@ -0,0 +1,2 @@
-+#! /bin/sh
-+[ -f $KERNEL_DIR/include/linux/netfilter/xt_layer7.h ] && echo layer7
 diff -Nurp iptables-1.3.8/extensions/libipt_layer7.c iptables-1.3.8-layer7/extensions/libipt_layer7.c
 --- iptables-1.3.8/extensions/libipt_layer7.c	1969-12-31 18:00:00.000000000 -0600
 +++ iptables-1.3.8-layer7/extensions/libipt_layer7.c	2007-07-04 19:23:04.000000000 -0500
