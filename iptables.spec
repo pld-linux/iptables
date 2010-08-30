@@ -3,6 +3,10 @@
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 # - owner needs rewrite to xt
 #
+# NOTE: be prepared for removing following modules as soon as they won't compile:
+# - ipt_account was removed from kernel and replaced with xt_ACCOUNT (xtables-addons),
+# - ipt_ipv4options was not yet removed from kernel, but it is obsoleted by xt_ipv4options
+#
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
