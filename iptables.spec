@@ -45,8 +45,6 @@ Patch4:		%{name}-stealth.patch
 # http://switch.dl.sourceforge.net/sourceforge/l7-filter/netfilter-layer7-v2.18.tar.gz
 Patch5:		%{name}-layer7.patch
 Patch6:		%{name}-old-1.3.7.patch
-# based on http://www.svn.barbara.eu.org/ipt_account/attachment/wiki/Software/ipt_account-0.1.21-20070804164729.tar.gz?format=raw
-Patch7:		%{name}-account.patch
 # http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch
 Patch8:		%{name}-1.3.5-owner-xid.patch
 Patch9:		%{name}-batch.patch
@@ -178,7 +176,6 @@ iptables(8).
 %patch5 -p1
 %patch6 -p1
 %endif
-%patch7 -p1
 %if %{with vserver}
 #patch8 -p1
 %patch11 -p1
@@ -286,7 +283,6 @@ fi
 #%attr(755,root,root) %{_libdir}/xtables/libip6t_policy.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_REJECT.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_rt.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_account.so
 #attr(755,root,root) %{_libdir}/xtables/libipt_ACCOUNT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_addrtype.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ah.so
