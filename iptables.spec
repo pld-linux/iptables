@@ -171,7 +171,8 @@ iptables(8).
 %patch1 -p1
 %patch2 -p0
 #%patch3 -p0
-%patch4 -p1
+# builds but init() api is broken, see warnings
+#%patch4 -p1
 %if %{with dist_kernel}
 %patch5 -p1
 %patch6 -p1
