@@ -78,7 +78,7 @@ Obsoletes:	ipchains
 Obsoletes:	iptables-ipp2p
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
-Conflicts:	xtables-addons < 1.25
+Conflicts:	xtables-addons < 1.14
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -193,6 +193,7 @@ iptables(8).
 %{__autoconf}
 %{__automake}
 %configure \
+	CFLAGS="%{rpmcflags} %{rpmcppflags} -D%{!?debug:N}DEBUG" \
 	--with-kbuild=%{_kernelsrcdir} \
 	--with-ksource=%{_kernelsrcdir} \
 	--enable-devel \
@@ -200,13 +201,7 @@ iptables(8).
 	%{?with_static:--enable-static} \
 	--enable-shared
 
-%{__make} -j1 all \
-	CC="%{__cc}" \
-	CFLAGS="%{rpmcflags} %{rpmcppflags} -D%{!?debug:N}DEBUG" \
-	KERNEL_DIR="%{_kernelsrcdir}" \
-	LIBDIR="%{_libdir}" \
-	DO_SELINUX=1 \
-	LDLIBS="-ldl"
+%{__make} V=1 all
 
 %if %{with doc}
 %{__make} -j1 -C iptables-howtos
@@ -291,7 +286,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_ecn.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ECN.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
+#%attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_layer7.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_LOG.so
