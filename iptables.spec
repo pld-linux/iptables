@@ -289,7 +289,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
 #%attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_layer7.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_LOG.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_MASQUERADE.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_MIRROR.so
@@ -301,7 +300,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SAME.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SNAT.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
+#%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_TTL.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ULOG.so
@@ -325,6 +324,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_iprange.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_LED.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_length.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_limit.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_mac.so
