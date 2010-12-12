@@ -24,12 +24,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.9.1
+Version:	1.4.10
 Release:	1
 License:	GPL
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	fbadfb0b5f2dbda49e0ad06a798898e3
+# Source0-md5:	f382fe693f0b59d87bd47bea65eca198
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -190,7 +190,7 @@ iptables(8).
 
 %build
 %{__libtoolize}
-%{__aclocal}
+%{__aclocal} -I m4
 %{__autoconf}
 %{__automake}
 %configure \
@@ -305,6 +305,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_TTL.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ULOG.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_unclean.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_CHECKSUM.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CLASSIFY.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_cluster.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_comment.so
@@ -314,6 +315,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_CONNMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CONNSECMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_conntrack.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_cpu.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CT.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_dccp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_dscp.so
@@ -321,8 +323,10 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_esp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_hashlimit.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_helper.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_IDLETIMER.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_iprange.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_ipvs.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_LED.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_length.so
