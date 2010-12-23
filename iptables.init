@@ -107,7 +107,7 @@ stop() {
 }
 
 case "$1" in
-  start)
+  start|load)
 	start
 	;;
 
@@ -169,7 +169,7 @@ case "$1" in
 	;;
 
   *)
-	msg_usage "$0 {start|stop|restart|force-reload|status|panic|save}"
+	msg_usage "$0 {start|stop|restart|force-reload|panic|load|save|status}"
 	exit 3
 esac
 
