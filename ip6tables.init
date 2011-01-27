@@ -111,7 +111,7 @@ case "$1" in
 	start
 	;;
 
-  stop)
+  stop|clear)
 	stop
 	;;
 
@@ -120,14 +120,6 @@ case "$1" in
 	#  and "start" clears any pre-defined rules anyway.
 	#  This is really only here to make those who expect it happy
 	start
-	;;
-
-  status)
-	tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
-	for table in $tables; do
-		echo "Table: $table"
-		ip6tables -t $table -n --list
-	done
 	;;
 
   panic)
@@ -168,8 +160,16 @@ case "$1" in
 	/usr/sbin/ip6tables-save -c > $IPTABLES_CONFIG  2>/dev/null && ok || fail
 	;;
 
+  status)
+	tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
+	for table in $tables; do
+		echo "Table: $table"
+		ip6tables -t $table -n --list
+	done
+	;;
+
   *)
-	msg_usage "$0 {start|stop|restart|force-reload|panic|load|save|status}"
+	msg_usage "$0 {start|stop|restart|force-reload|panic|load|save|clear|status}"
 	exit 3
 esac
 

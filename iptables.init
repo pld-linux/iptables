@@ -122,14 +122,6 @@ case "$1" in
 	start
 	;;
 
-  status)
-	tables=`cat /proc/net/ip_tables_names 2>/dev/null`
-	for table in $tables; do
-		echo "Table: $table"
-		iptables -t $table -n --list
-	done
-	;;
-
   panic)
 	show "Changing target policies to DROP"
 	iftable filter -P INPUT DROP && \
@@ -166,6 +158,14 @@ case "$1" in
 	touch $IPTABLES_CONFIG
 	chmod 600 $IPTABLES_CONFIG
 	/usr/sbin/iptables-save -c > $IPTABLES_CONFIG  2>/dev/null && ok || fail
+	;;
+
+  status)
+	tables=`cat /proc/net/ip_tables_names 2>/dev/null`
+	for table in $tables; do
+		echo "Table: $table"
+		iptables -t $table -n --list
+	done
 	;;
 
   *)
