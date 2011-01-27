@@ -1,0 +1,21 @@
+description "Load /etc/sysconfig/iptables pre-defined rules"
+
+start on pld.network-started
+stop on pld.network-stopped
+
+env IPTABLES_CONFIG=/etc/sysconfig/iptables
+
+pre-start script
+	# fail early if config missing
+	test -f $IPTABLES_CONFIG || /sbin/initctl stop
+end script
+
+script
+	export USE_UPSTART=no
+	exec /etc/rc.d/init.d/iptables start
+end script
+
+pre-stop script
+	export USE_UPSTART=no
+	exec /etc/rc.d/init.d/iptables stop
+end script
