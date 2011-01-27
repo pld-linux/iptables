@@ -106,6 +106,8 @@ stop() {
 	rm -f /var/lock/subsys/iptables
 }
 
+upstart_controlled --except status panic load save clear
+
 case "$1" in
   start|load)
 	start

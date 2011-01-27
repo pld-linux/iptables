@@ -13,7 +13,7 @@
 %bcond_without	vserver		# kernel build without vserver
 %bcond_with	batch		# build iptables-batch
 %bcond_with	static
-#
+
 %define		netfilter_snap		20070806
 %define		llh_version		7:2.6.22.1
 %define		name6			ip6tables
@@ -25,7 +25,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.10
-Release:	3
+Release:	4
 License:	GPL
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
@@ -149,7 +149,7 @@ Summary(pl.UTF-8):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
 Requires:	%{name}
-Requires:	rc-scripts
+Requires:	rc-scripts >= 0.4.3.0
 Obsoletes:	firewall-init
 Obsoletes:	firewall-init-ipchains
 Obsoletes:	iptables24-init
