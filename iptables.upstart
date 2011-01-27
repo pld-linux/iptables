@@ -11,11 +11,9 @@ pre-start script
 end script
 
 script
-	export USE_UPSTART=no
-	exec /etc/rc.d/init.d/iptables start
+	exec /etc/rc.d/init.d/iptables load
 end script
 
 pre-stop script
-	export USE_UPSTART=no
-	exec /etc/rc.d/init.d/iptables stop
+	exec /etc/rc.d/init.d/iptables clear
 end script
