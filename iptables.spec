@@ -140,7 +140,7 @@ Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 %description static
 Static iptables libraries.
 
-%description devel -l pl.UTF-8
+%description static -l pl.UTF-8
 Biblioteki statyczne iptables.
 
 %package init
