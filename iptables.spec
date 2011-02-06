@@ -10,9 +10,9 @@
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
-%bcond_without	vserver		# kernel build without vserver
+%bcond_without	vserver		# build xt_owner module for kernel without vserver support
 %bcond_with	batch		# build iptables-batch
-%bcond_with	static
+%bcond_with	static		# build static libraries, no dynamic modules (all linked into binaries)
 
 %define		netfilter_snap		20070806
 %define		llh_version		7:2.6.22.1
@@ -26,7 +26,7 @@ Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.10
 Release:	4
-License:	GPL
+License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
 # Source0-md5:	f382fe693f0b59d87bd47bea65eca198
@@ -34,28 +34,35 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
+# just ipt_IPV4OPTSSTRIP module
 Patch0:		%{name}-%{netfilter_snap}.patch
 Patch1:		%{name}-man.patch
-# based on http://www.linuximq.net/patchs/iptables-1.4.6-imq.diff
+# xt_IMQ module; based on http://www.linuximq.net/patchs/iptables-1.4.6-imq.diff
 Patch2:		%{name}-imq.patch
-# http://www.balabit.com/downloads/files/tproxy/tproxy-iptables-20080204-1915.patch
-Patch3:		%{name}-tproxy.patch
+# xt_socket, xt_TPROXY; http://www.balabit.com/downloads/files/tproxy/tproxy-iptables-20080204-1915.patch
+#Patch3:		%{name}-tproxy.patch
+# ipt_stealth; currently disabled (broken, see below)
 Patch4:		%{name}-stealth.patch
-# almost based on iptables-1.4-for-kernel-2.6.20forward-layer7-2.18.patch
+# xt_layer7; almost based on iptables-1.4-for-kernel-2.6.20forward-layer7-2.18.patch
 # http://switch.dl.sourceforge.net/sourceforge/l7-filter/netfilter-layer7-v2.18.tar.gz
 Patch5:		%{name}-layer7.patch
+# ipt_rpc
 Patch6:		%{name}-old-1.3.7.patch
-# http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch
+# enhances ipt_owner/ip6t_owner; http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch (currently disabled)
 Patch8:		%{name}-1.3.5-owner-xid.patch
+# additional utils; off by default
 Patch9:		%{name}-batch.patch
-Patch10:	%{name}-headers.patch
+# outdated
+#Patch10:	%{name}-headers.patch
+# changes xt_owner
 Patch11:	%{name}-owner-struct-size-vs.patch
-Patch999:	%{name}-llh-dirty-hack.patch
+# outdated
+#Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	groff
-BuildRequires:	libnfnetlink-devel
+BuildRequires:	libnfnetlink-devel >= 1.0
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 0.9.0
 %if %{with doc}
@@ -170,7 +177,6 @@ iptables(8).
 %endif
 %patch1 -p1
 %patch2 -p0
-#%patch3 -p0
 # builds but init() api is broken, see warnings
 #%patch4 -p1
 %if %{with dist_kernel}
@@ -184,9 +190,6 @@ iptables(8).
 %if %{with batch}
 %patch9 -p1
 %endif
-#%patch10 -p1
-
-#patch999 -p1
 
 %build
 %{__libtoolize}
@@ -197,12 +200,11 @@ iptables(8).
 	CFLAGS="%{rpmcflags} %{rpmcppflags} -D%{!?debug:N}DEBUG" \
 	--with-kbuild=%{_kernelsrcdir} \
 	--with-ksource=%{_kernelsrcdir} \
-	--enable-devel \
 	--enable-libipq \
-	%{?with_static:--enable-static} \
-	--enable-shared
+	%{?with_static:--enable-static}
 
-%{__make} V=1 all
+%{__make} all \
+	V=1
 
 %if %{with doc}
 %{__make} -j1 -C iptables-howtos
@@ -223,17 +225,14 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
-# install library needed for collectd:
-#install libiptc/libiptc.a $RPM_BUILD_ROOT%{_libdir}
-
 install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post libs -p /sbin/ldconfig
-%postun libs -p /sbin/ldconfig
+%post	libs -p /sbin/ldconfig
+%postun	libs -p /sbin/ldconfig
 
 %post init
 /sbin/chkconfig --add %{name}
@@ -262,144 +261,163 @@ fi
 %attr(755,root,root) %{_sbindir}/ip6tables-batch
 %endif
 %attr(755,root,root) %{_sbindir}/nfnl_osf
-%dir %{_libdir}/xtables
 %{_datadir}/xtables
-%if %{with dist_kernel}
+%dir %{_libdir}/xtables
+%attr(755,root,root) %{_libdir}/xtables/libip6t_HL.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_LOG.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_REJECT.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ah.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_dst.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_eui64.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_frag.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_hbh.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_hl.so
-%attr(755,root,root) %{_libdir}/xtables/libip6t_HL.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_icmp6.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ipv6header.so
-%attr(755,root,root) %{_libdir}/xtables/libip6t_LOG.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_mh.so
 #%attr(755,root,root) %{_libdir}/xtables/libip6t_policy.so
-%attr(755,root,root) %{_libdir}/xtables/libip6t_REJECT.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_rt.so
 #attr(755,root,root) %{_libdir}/xtables/libipt_ACCOUNT.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_addrtype.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_ah.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_CLUSTERIP.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_DNAT.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_ecn.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ECN.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
-#%attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_LOG.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_MASQUERADE.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_MIRROR.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_NETMAP.so
-#%attr(755,root,root) %{_libdir}/xtables/libipt_policy.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_realm.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_REDIRECT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_REJECT.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SAME.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_SNAT.so
-#%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_TTL.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ULOG.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_addrtype.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ah.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ecn.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
+#%attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
+#%attr(755,root,root) %{_libdir}/xtables/libipt_policy.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_realm.so
+#%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_unclean.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CHECKSUM.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CLASSIFY.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_CONNMARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_CONNSECMARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_CT.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_DSCP.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_IDLETIMER.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_IMQ.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_LED.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_MARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_NFLOG.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_NFQUEUE.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_NOTRACK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_RATEEST.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_SECMARK.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_SET.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TCPMSS.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TCPOPTSTRIP.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TEE.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TOS.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TPROXY.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_TRACE.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_cluster.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_comment.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_connbytes.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_connlimit.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_connmark.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_CONNMARK.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_CONNSECMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_conntrack.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_cpu.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_CT.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_dccp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_dscp.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_DSCP.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_esp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_hashlimit.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_helper.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_IDLETIMER.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_iprange.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_ipvs.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_LED.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_length.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_limit.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_mac.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_mark.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_MARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_multiport.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_NFLOG.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_NFQUEUE.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_NOTRACK.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_owner.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_osf.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_owner.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_physdev.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_pkttype.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_policy.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_recent.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_quota.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_RATEEST.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_rateest.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_recent.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_sctp.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_SECMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_set.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_SET.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_socket.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_standard.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_state.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_statistic.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_string.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_tcpmss.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_TCPMSS.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_TCPOPTSTRIP.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_tcp.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_TEE.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_tcpmss.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_time.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_tos.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_TOS.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_TPROXY.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_TRACE.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_u32.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_udp.so
-%else
-%attr(755,root,root) %{_libdir}/xtables/*.so
+%if %{with dist_kernel}
+%attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so
+%attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so
 %endif
-%{_mandir}/man8/*
+%{_mandir}/man8/ip6tables.8*
+%{_mandir}/man8/ip6tables-restore.8*
+%{_mandir}/man8/ip6tables-save.8*
+%{_mandir}/man8/iptables.8*
+%{_mandir}/man8/iptables-restore.8*
+%{_mandir}/man8/iptables-save.8*
+%{_mandir}/man8/iptables-xml.8*
 
 %files libs
 %defattr(644,root,root,755)
-%attr(755,root,root) %ghost %{_libdir}/libipq.so.0
-%attr(755,root,root) %{_libdir}/libipq.so.*.*
-%attr(755,root,root) %ghost %{_libdir}/libiptc.so.0
-%attr(755,root,root) %{_libdir}/libiptc.so.*.*
+%attr(755,root,root) %{_libdir}/libip4tc.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libip4tc.so.0
-%attr(755,root,root) %{_libdir}/libip4tc.so.*.*
+%attr(755,root,root) %{_libdir}/libip6tc.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libip6tc.so.0
-%attr(755,root,root) %{_libdir}/libip6tc.so.*.*
+%attr(755,root,root) %{_libdir}/libipq.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libipq.so.0
+%attr(755,root,root) %{_libdir}/libiptc.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libiptc.so.0
+%attr(755,root,root) %{_libdir}/libxtables.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libxtables.so.5
-%attr(755,root,root) %{_libdir}/libxtables.so.*.*
 
 %files devel
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/netfilter-hacking-HOWTO*}
-%attr(755,root,root) %{_libdir}/lib*.so
-%{_libdir}/lib*.la
-%{_includedir}/*.h
+%attr(755,root,root) %{_libdir}/libip4tc.so
+%attr(755,root,root) %{_libdir}/libip6tc.so
+%attr(755,root,root) %{_libdir}/libipq.so
+%attr(755,root,root) %{_libdir}/libiptc.so
+%attr(755,root,root) %{_libdir}/libxtables.so
+%{_libdir}/libip4tc.la
+%{_libdir}/libip6tc.la
+%{_libdir}/libipq.la
+%{_libdir}/libiptc.la
+%{_libdir}/libxtables.la
+%{_includedir}/libipq.h
+%{_includedir}/xtables.h
 %{_includedir}/libiptc
-%{_pkgconfigdir}/*.pc
-%{_mandir}/man3/*
+%{_pkgconfigdir}/libiptc.pc
+%{_pkgconfigdir}/xtables.pc
+%{_mandir}/man3/ipq_*.3*
+%{_mandir}/man3/libipq.3*
 
 %if %{with static}
 %files static
 %defattr(644,root,root,755)
-%{_libdir}/lib*.a
+%{_libdir}/libip4tc.a
+%{_libdir}/libip6tc.a
+%{_libdir}/libipq.a
+%{_libdir}/libiptc.a
+%{_libdir}/libxtables.a
 %endif
 
 %files init
