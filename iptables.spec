@@ -3,10 +3,6 @@
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 # - owner needs rewrite to xt
 #
-# NOTE: be prepared for removing following modules as soon as they won't compile:
-# - ipt_account was removed from kernel and replaced with xt_ACCOUNT (xtables-addons),
-# - ipt_ipv4options was not yet removed from kernel, but it is obsoleted by xt_ipv4options
-#
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
@@ -39,25 +35,19 @@ Patch0:		%{name}-%{netfilter_snap}.patch
 Patch1:		%{name}-man.patch
 # xt_IMQ module; based on http://www.linuximq.net/patchs/iptables-1.4.6-imq.diff
 Patch2:		%{name}-imq.patch
-# xt_socket, xt_TPROXY; http://www.balabit.com/downloads/files/tproxy/tproxy-iptables-20080204-1915.patch
-#Patch3:		%{name}-tproxy.patch
 # ipt_stealth; currently disabled (broken, see below)
 Patch4:		%{name}-stealth.patch
 # xt_layer7; almost based on iptables-1.4-for-kernel-2.6.20forward-layer7-2.18.patch
-# http://switch.dl.sourceforge.net/sourceforge/l7-filter/netfilter-layer7-v2.18.tar.gz
+# http://downloads.sourceforge.net/l7-filter/netfilter-layer7-v2.18.tar.gz
 Patch5:		%{name}-layer7.patch
 # ipt_rpc
 Patch6:		%{name}-old-1.3.7.patch
-# enhances ipt_owner/ip6t_owner; http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch (currently disabled)
+# enhances ipt_owner/ip6t_owner; http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch (currently disabled, needs update for xt_owner)
 Patch8:		%{name}-1.3.5-owner-xid.patch
 # additional utils; off by default
 Patch9:		%{name}-batch.patch
-# outdated
-#Patch10:	%{name}-headers.patch
 # changes xt_owner
 Patch11:	%{name}-owner-struct-size-vs.patch
-# outdated
-#Patch999:	%{name}-llh-dirty-hack.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf
 BuildRequires:	automake
