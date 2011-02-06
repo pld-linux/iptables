@@ -1,6 +1,7 @@
 #
 # TODO:
 # - update BR to real required llh version
+# - check if kernel-headers are still required to properly build iptabels for dist kernel
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 # - owner needs rewrite to xt
 #
@@ -11,8 +12,8 @@
 %bcond_with	batch		# build iptables-batch
 %bcond_with	static		# build static libraries, no dynamic modules (all linked into binaries)
 %bcond_with	ipt_IPV4OPTSSTRIP # enable ipt_IPV4OPTSSTRIP for non-dist kernel
-%bcond_with	ipt_rpc		# enable ipt_rpc for non-dist kernel (needs ipt_rpc.h header)
-%bcond_with	xt_layer7	# enable xt_layer7 for non-dist kernel (needs xt_layer7.h header)
+%bcond_with	ipt_rpc		# enable ipt_rpc for non-dist kernel
+%bcond_with	xt_layer7	# enable xt_layer7 for non-dist kernel
 %bcond_with	usekernelsrc	# include kernel headers from %{_kernelsrcdir}
 
 %if %{with dist_kernel}
@@ -78,7 +79,6 @@ BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 %endif
 %if %{with dist_kernel}
-# needed for xt_layer7, ipt_rpc
 BuildRequires:	kernel%{_alt_kernel}-headers(netfilter)
 %endif
 BuildRequires:	linux-libc-headers >= 7:2.6.22.1

@@ -388,3 +388,19 @@ diff -urN iptables-1.4.9.1.org/extensions/libxt_layer7.man iptables-1.4.9.1/exte
 +Use \fIdirectory\fP instead of /etc/l7-protocols/.  This option must be 
 +specified before --l7proto.
 +
+--- iptables.orig/include/linux/netfilter/xt_layer7.h	1969-12-31 18:00:00.000000000 -0600
++++ iptables/include/linux/netfilter/xt_layer7.h	2009-01-07 16:07:31.000000000 -0600
+@@ -0,0 +1,13 @@
++#ifndef _XT_LAYER7_H
++#define _XT_LAYER7_H
++
++#define MAX_PATTERN_LEN 8192
++#define MAX_PROTOCOL_LEN 256
++
++struct xt_layer7_info {
++    char protocol[MAX_PROTOCOL_LEN];
++    char pattern[MAX_PATTERN_LEN];
++    u_int8_t invert;
++};
++
++#endif /* _XT_LAYER7_H */
