@@ -1,17 +1,28 @@
 #
 # TODO:
+# - update BR to real required llh version
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 # - owner needs rewrite to xt
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
-%bcond_without	vserver		# build xt_owner module for kernel without vserver support
+%bcond_with	vserver		# build xt_owner module for non-dist kernel with vserver support
 %bcond_with	batch		# build iptables-batch
 %bcond_with	static		# build static libraries, no dynamic modules (all linked into binaries)
+%bcond_with	ipt_IPV4OPTSSTRIP # enable ipt_IPV4OPTSSTRIP for non-dist kernel
+%bcond_with	ipt_rpc		# enable ipt_rpc for non-dist kernel (needs ipt_rpc.h header)
+%bcond_with	xt_layer7	# enable xt_layer7 for non-dist kernel (needs xt_layer7.h header)
+%bcond_with	usekernelsrc	# include kernel headers from %{_kernelsrcdir}
 
-%define		netfilter_snap		20070806
-%define		llh_version		7:2.6.22.1
+%if %{with dist_kernel}
+%define	with_ipt_IPV4OPTSSTRIP	1
+%define	with_ipt_rpc		1
+%define	with_xt_layer7		1
+%define	with_vserver		1
+%define	with_usekernelsrc	1
+%endif
+
 %define		name6			ip6tables
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -30,13 +41,13 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-# GENERAL CHANGES (patches<10):
+# --- GENERAL CHANGES (patches<10):
 Patch0:		%{name}-man.patch
 # additional utils; off by default
 Patch1:		%{name}-batch.patch
-# ADDITIONAL/CHANGED EXTENSIONS:
+# --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
-Patch10:	%{name}-%{netfilter_snap}.patch
+Patch10:	%{name}-20070806.patch
 # xt_layer7; almost based on iptables-1.4-for-kernel-2.6.20forward-layer7-2.18.patch
 # http://downloads.sourceforge.net/l7-filter/netfilter-layer7-v2.18.tar.gz
 Patch11:	%{name}-layer7.patch
@@ -66,13 +77,11 @@ BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 %endif
-%if %{with dist_kernel} && %{netfilter_snap} != 0
+%if %{with dist_kernel}
 # needed for xt_layer7, ipt_rpc
-BuildRequires:	kernel%{_alt_kernel}-headers(netfilter) >= %{netfilter_snap}
-BuildRequires:	kernel%{_alt_kernel}-source
+BuildRequires:	kernel%{_alt_kernel}-headers(netfilter)
 %endif
-#BuildRequires:	linux-libc-headers >= %{llh_version}
-BuildConflicts:	kernel-headers < 2.3.0
+BuildRequires:	linux-libc-headers >= 7:2.6.22.1
 Requires:	%{name}-libs = %{version}-%{release}
 Requires:	libnfnetlink >= 1.0
 Provides:	firewall-userspace-tool
@@ -171,11 +180,9 @@ iptables(8).
 %if %{with batch}
 %patch1 -p1
 %endif
-%if %{with dist_kernel}
-%patch10 -p1
-%patch11 -p1
-%patch12 -p1
-%endif
+%{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
+%{?with_xt_layer7:%patch11 -p1}
+%{?with_ipt_rpc:%patch12 -p1}
 %patch13 -p0
 %if %{with vserver}
 #patch14 -p1
@@ -188,11 +195,11 @@ iptables(8).
 %{__libtoolize}
 %{__aclocal} -I m4
 %{__autoconf}
+%{__autoheader}
 %{__automake}
 %configure \
 	CFLAGS="%{rpmcflags} %{rpmcppflags} -D%{!?debug:N}DEBUG" \
-	--with-kbuild=%{_kernelsrcdir} \
-	--with-ksource=%{_kernelsrcdir} \
+	%{?with_usekernelsrc:--with-kernel=%{_kernelsrcdir}} \
 	--enable-libipq \
 	%{?with_static:--enable-static}
 
@@ -354,11 +361,9 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_tos.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_u32.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_udp.so
-%if %{with dist_kernel}
-%attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so
-%attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so
-%attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so
-%endif
+%{?with_ipt_IPV4OPTSSTRIP:%attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so}
+%{?with_ipt_rpc:%attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so}
+%{?with_xt_layer7:%attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so}
 %{_mandir}/man8/ip6tables.8*
 %{_mandir}/man8/ip6tables-restore.8*
 %{_mandir}/man8/ip6tables-save.8*
