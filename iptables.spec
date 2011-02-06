@@ -30,31 +30,33 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-# just ipt_IPV4OPTSSTRIP module
-Patch0:		%{name}-%{netfilter_snap}.patch
-Patch1:		%{name}-man.patch
-# xt_IMQ module; based on http://www.linuximq.net/patchs/iptables-1.4.6-imq.diff
-Patch2:		%{name}-imq.patch
-# ipt_stealth; currently disabled (broken, see below)
-Patch4:		%{name}-stealth.patch
+# GENERAL CHANGES (patches<10):
+Patch0:		%{name}-man.patch
+# additional utils; off by default
+Patch1:		%{name}-batch.patch
+# ADDITIONAL/CHANGED EXTENSIONS:
+# just ipt_IPV4OPTSSTRIP now
+Patch10:	%{name}-%{netfilter_snap}.patch
 # xt_layer7; almost based on iptables-1.4-for-kernel-2.6.20forward-layer7-2.18.patch
 # http://downloads.sourceforge.net/l7-filter/netfilter-layer7-v2.18.tar.gz
-Patch5:		%{name}-layer7.patch
+Patch11:	%{name}-layer7.patch
 # ipt_rpc
-Patch6:		%{name}-old-1.3.7.patch
+Patch12:	%{name}-old-1.3.7.patch
+# xt_IMQ; based on http://www.linuximq.net/patchs/iptables-1.4.6-imq.diff
+Patch13:	%{name}-imq.patch
 # enhances ipt_owner/ip6t_owner; http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch (currently disabled, needs update for xt_owner)
-Patch8:		%{name}-1.3.5-owner-xid.patch
-# additional utils; off by default
-Patch9:		%{name}-batch.patch
-# changes xt_owner
-Patch11:	%{name}-owner-struct-size-vs.patch
+Patch14:	%{name}-1.3.5-owner-xid.patch
+# adjusts xt_owner for vserver-enabled kernel
+Patch15:	%{name}-owner-struct-size-vs.patch
+# ipt_stealth; currently disabled (broken, see below)
+Patch16:	%{name}-stealth.patch
 URL:		http://www.netfilter.org/
-BuildRequires:	autoconf
+BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
 BuildRequires:	groff
 BuildRequires:	libnfnetlink-devel >= 1.0
 BuildRequires:	libtool
-BuildRequires:	pkgconfig >= 0.9.0
+BuildRequires:	pkgconfig >= 1:0.9.0
 %if %{with doc}
 BuildRequires:	sed >= 4.0
 BuildRequires:	sgml-tools
@@ -65,11 +67,14 @@ BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 %endif
 %if %{with dist_kernel} && %{netfilter_snap} != 0
+# needed for xt_layer7, ipt_rpc
 BuildRequires:	kernel%{_alt_kernel}-headers(netfilter) >= %{netfilter_snap}
 BuildRequires:	kernel%{_alt_kernel}-source
 %endif
 #BuildRequires:	linux-libc-headers >= %{llh_version}
 BuildConflicts:	kernel-headers < 2.3.0
+Requires:	%{name}-libs = %{version}-%{release}
+Requires:	libnfnetlink >= 1.0
 Provides:	firewall-userspace-tool
 Obsoletes:	ipchains
 Obsoletes:	iptables-ipp2p
@@ -162,24 +167,22 @@ iptables(8).
 
 %prep
 %setup -q -a1
-%if %{with dist_kernel}
 %patch0 -p1
-%endif
-%patch1 -p1
-%patch2 -p0
-# builds but init() api is broken, see warnings
-#%patch4 -p1
-%if %{with dist_kernel}
-%patch5 -p1
-%patch6 -p1
-%endif
-%if %{with vserver}
-#patch8 -p1
-%patch11 -p1
-%endif
 %if %{with batch}
-%patch9 -p1
+%patch1 -p1
 %endif
+%if %{with dist_kernel}
+%patch10 -p1
+%patch11 -p1
+%patch12 -p1
+%endif
+%patch13 -p0
+%if %{with vserver}
+#patch14 -p1
+%patch15 -p1
+%endif
+# builds but init() api is broken, see warnings
+#patch16 -p1
 
 %build
 %{__libtoolize}
@@ -202,6 +205,7 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 %endif
 
 # Make a library, needed for OpenVCP
+# unpackaged; is it still valid? --q
 ar rcs libiptables.a iptables*.o
 ar rcs libip6tables.a ip6tables*.o
 
@@ -265,9 +269,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libip6t_icmp6.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_ipv6header.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_mh.so
-#%attr(755,root,root) %{_libdir}/xtables/libip6t_policy.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_rt.so
-#attr(755,root,root) %{_libdir}/xtables/libipt_ACCOUNT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_CLUSTERIP.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_DNAT.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ECN.so
@@ -285,9 +287,8 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_ah.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ecn.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
-#%attr(755,root,root) %{_libdir}/xtables/libipt_ipv4options.so
-#%attr(755,root,root) %{_libdir}/xtables/libipt_policy.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_realm.so
+# disabled, see above
 #%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_unclean.so
