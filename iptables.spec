@@ -33,7 +33,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.10
-Release:	4
+Release:	5
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
@@ -62,6 +62,7 @@ Patch14:	%{name}-1.3.5-owner-xid.patch
 Patch15:	%{name}-owner-struct-size-vs.patch
 # ipt_stealth; currently disabled (broken, see below)
 Patch16:	%{name}-stealth.patch
+Patch17:	%{name}-TPROXY-IPv6.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -190,6 +191,7 @@ iptables(8).
 %endif
 # builds but init() api is broken, see warnings
 #patch16 -p1
+%patch17 -p1
 
 %build
 %{__libtoolize}
