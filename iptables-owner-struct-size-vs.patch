@@ -19,18 +19,18 @@
 @@ -38,6 +42,8 @@
  	pid_t sid;
  	char comm[16];
- 	u_int8_t match, invert;	/* flags */
-+	u_int32_t nid;
-+	u_int32_t xid;
+ 	uint8_t match, invert;	/* flags */
++	uint32_t nid;
++	uint32_t xid;
  };
  
  struct ip6t_owner_info {
 @@ -47,6 +53,8 @@
  	pid_t sid;
  	char comm[16];
- 	u_int8_t match, invert;	/* flags */
-+	u_int32_t nid;
-+	u_int32_t xid;
+ 	uint8_t match, invert;	/* flags */
++	uint32_t nid;
++	uint32_t xid;
  };
  
  /*

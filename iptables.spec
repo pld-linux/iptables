@@ -32,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.10
-Release:	5
+Version:	1.4.11
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	f382fe693f0b59d87bd47bea65eca198
+# Source0-md5:	4d77c912d17364e2515fda27d398e15e
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -62,7 +62,6 @@ Patch14:	%{name}-1.3.5-owner-xid.patch
 Patch15:	%{name}-owner-struct-size-vs.patch
 # ipt_stealth; currently disabled (broken, see below)
 Patch16:	%{name}-stealth.patch
-Patch17:	%{name}-TPROXY-IPv6.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -191,7 +190,6 @@ iptables(8).
 %endif
 # builds but init() api is broken, see warnings
 #patch16 -p1
-%patch17 -p1
 
 %build
 %{__libtoolize}
@@ -215,8 +213,8 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 
 # Make a library, needed for OpenVCP
 # unpackaged; is it still valid? --q
-ar rcs libiptables.a iptables*.o
-ar rcs libip6tables.a ip6tables*.o
+ar rcs libiptables.a *iptables*.o
+ar rcs libip6tables.a *ip6tables*.o
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -252,11 +250,9 @@ fi
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_bindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/iptables
-%attr(755,root,root) %{_sbindir}/iptables-multi
 %attr(755,root,root) %{_sbindir}/iptables-restore
 %attr(755,root,root) %{_sbindir}/iptables-save
 %attr(755,root,root) %{_sbindir}/ip6tables
-%attr(755,root,root) %{_sbindir}/ip6tables-multi
 %attr(755,root,root) %{_sbindir}/ip6tables-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-save
 %if %{with batch}
@@ -264,6 +260,7 @@ fi
 %attr(755,root,root) %{_sbindir}/ip6tables-batch
 %endif
 %attr(755,root,root) %{_sbindir}/nfnl_osf
+%attr(755,root,root) %{_sbindir}/xtables-multi
 %{_datadir}/xtables
 %dir %{_libdir}/xtables
 %attr(755,root,root) %{_libdir}/xtables/libip6t_HL.so
@@ -301,6 +298,7 @@ fi
 #%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_unclean.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_AUDIT.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CHECKSUM.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CLASSIFY.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CONNMARK.so
@@ -331,6 +329,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_conntrack.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_cpu.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_dccp.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_devgroup.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_dscp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_esp.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_hashlimit.so
@@ -385,7 +384,7 @@ fi
 %attr(755,root,root) %{_libdir}/libiptc.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libiptc.so.0
 %attr(755,root,root) %{_libdir}/libxtables.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxtables.so.5
+%attr(755,root,root) %ghost %{_libdir}/libxtables.so.6
 
 %files devel
 %defattr(644,root,root,755)
