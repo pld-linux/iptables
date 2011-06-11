@@ -32,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.11
-Release:	2
+Version:	1.4.11.1
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	4d77c912d17364e2515fda27d398e15e
+# Source0-md5:	7de6e1ae7ed8a2025f184763a6a24b9a
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -62,7 +62,6 @@ Patch14:	%{name}-1.3.5-owner-xid.patch
 Patch15:	%{name}-owner-struct-size-vs.patch
 # ipt_stealth; currently disabled (broken, see below)
 Patch16:	%{name}-stealth.patch
-Patch17:	%{name}-build.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -192,7 +191,6 @@ iptables(8).
 %endif
 # builds but init() api is broken, see warnings
 #patch16 -p1
-%patch17 -p1
 
 %build
 %{__libtoolize}
@@ -213,11 +211,6 @@ iptables(8).
 %{__make} -j1 -C iptables-howtos
 sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 %endif
-
-# Make a library, needed for OpenVCP
-# unpackaged; is it still valid? --q
-ar rcs libiptables.a *iptables*.o
-ar rcs libip6tables.a *ip6tables*.o
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -368,13 +361,13 @@ fi
 %{?with_ipt_IPV4OPTSSTRIP:%attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so}
 %{?with_ipt_rpc:%attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so}
 %{?with_xt_layer7:%attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so}
+%{_mandir}/man1/iptables-xml.1*
 %{_mandir}/man8/ip6tables.8*
 %{_mandir}/man8/ip6tables-restore.8*
 %{_mandir}/man8/ip6tables-save.8*
 %{_mandir}/man8/iptables.8*
 %{_mandir}/man8/iptables-restore.8*
 %{_mandir}/man8/iptables-save.8*
-%{_mandir}/man8/iptables-xml.8*
 
 %files libs
 %defattr(644,root,root,755)
