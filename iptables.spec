@@ -33,7 +33,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.11.1
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
@@ -77,7 +77,7 @@ BuildRequires:	tetex-dvips
 BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
-# if texlive: BuildRequires: texlive-fonts-cmsuper
+BuildRequires:	texlive-fonts-cmsuper
 %endif
 %if %{with dist_kernel}
 BuildRequires:	kernel%{_alt_kernel}-headers(netfilter)
