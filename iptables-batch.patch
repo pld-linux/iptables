@@ -1,46 +1,33 @@
 ---
- Makefile.am      |   12 +
- iptables-batch.c |  468 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 478 insertions(+), 2 deletions(-)
+ iptables/Makefile.am      |   10 
+ iptables/iptables-batch.c |  468 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 477 insertions(+), 1 deletion(-)
 
-Index: iptables-1.4.7/Makefile.am
+Index: iptables/iptables/Makefile.am
 ===================================================================
---- iptables-1.4.7.orig/Makefile.am
-+++ iptables-1.4.7/Makefile.am
-@@ -54,6 +54,14 @@ endif
- ip6tables_multi_LDFLAGS   = -rdynamic
- ip6tables_multi_LDADD     = libiptc/libip6tc.la extensions/libext6.a libxtables.la -lm
+--- iptables.orig/iptables/Makefile.am
++++ iptables/iptables/Makefile.am
+@@ -36,7 +36,15 @@ endif
+ xtables_multi_SOURCES += xshared.c
+ xtables_multi_LDADD   += libxtables.la -lm
  
+-sbin_PROGRAMS    = xtables-multi
 +iptables_batch_SOURCES    = iptables-batch.c iptables.c xshared.c
-+iptables_batch_LDFLAGS    = ${iptables_multi_LDFLAGS}
-+iptables_batch_LDADD      = ${iptables_multi_LDADD}
++iptables_batch_LDFLAGS    = ${xtables_multi_LDFLAGS}
++iptables_batch_LDADD      = ${xtables_multi_LDADD}
 +ip6tables_batch_SOURCES   = iptables-batch.c ip6tables.c xshared.c
 +ip6tables_batch_CFLAGS    = ${AM_CFLAGS} -DIP6T
-+ip6tables_batch_LDFLAGS   = ${ip6tables_multi_LDFLAGS}
-+ip6tables_batch_LDADD     = ${ip6tables_multi_LDADD}
++ip6tables_batch_LDFLAGS   = ${xtables_multi_LDFLAGS}
++ip6tables_batch_LDADD     = ${xtables_multi_LDADD}
 +
- sbin_PROGRAMS    =
++sbin_PROGRAMS    = xtables-multi iptables-batch ip6tables-batch
  man_MANS         = iptables.8 iptables-restore.8 iptables-save.8 \
-                    iptables-xml.8 ip6tables.8 ip6tables-restore.8 \
-@@ -61,12 +69,12 @@ man_MANS         = iptables.8 iptables-r
- CLEANFILES       = iptables.8 ip6tables.8
- 
- if ENABLE_IPV4
--sbin_PROGRAMS += iptables-multi
-+sbin_PROGRAMS += iptables-multi iptables-batch
- v4_bin_links   = iptables-xml
- v4_sbin_links  = iptables iptables-restore iptables-save
- endif
- if ENABLE_IPV6
--sbin_PROGRAMS += ip6tables-multi
-+sbin_PROGRAMS += ip6tables-multi ip6tables-batch
- v6_sbin_links  = ip6tables ip6tables-restore ip6tables-save
- endif
- 
-Index: iptables-1.4.7/iptables-batch.c
+                    iptables-xml.1 ip6tables.8 ip6tables-restore.8 \
+                    ip6tables-save.8
+Index: iptables/iptables/iptables-batch.c
 ===================================================================
 --- /dev/null
-+++ iptables-1.4.7/iptables-batch.c
++++ iptables/iptables/iptables-batch.c
 @@ -0,0 +1,468 @@
 +/*
 + * Author: Ludwig Nussel <ludwig.nussel@suse.de>
@@ -325,7 +312,7 @@ Index: iptables-1.4.7/iptables-batch.c
 +		}
 +	}
 +#else
-+	ret = do_command(argc, argv, &table, &current_table->handle);
++	ret = do_command4(argc, argv, &table, &current_table->handle);
 +
 +	if (!ret)
 +	{
