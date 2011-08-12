@@ -33,7 +33,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.11.1
-Release:	2
+Release:	3
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
@@ -42,6 +42,8 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
+Source4:	%{name}.upstart
+Source5:	%{name6}.upstart
 # --- GENERAL CHANGES (patches<10):
 Patch0:		%{name}-man.patch
 # additional utils; off by default
@@ -222,8 +224,11 @@ install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
-install %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
-install %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
+install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
+install -d $RPM_BUILD_ROOT/etc/init
+cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/init/%{name}.conf
+cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/init/%{name6}.conf
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -417,3 +422,5 @@ fi
 %defattr(644,root,root,755)
 %attr(754,root,root) /etc/rc.d/init.d/iptables
 %attr(754,root,root) /etc/rc.d/init.d/ip6tables
+%config(noreplace) %verify(not md5 mtime size) /etc/init/%{name}.conf
+%config(noreplace) %verify(not md5 mtime size) /etc/init/%{name6}.conf
