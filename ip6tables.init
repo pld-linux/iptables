@@ -15,12 +15,11 @@
 # config: /etc/sysconfig/ip6tables
 
 IPTABLES_CONFIG=/etc/sysconfig/ip6tables
-
 if [ ! -f $IPTABLES_CONFIG ]; then
-   	case "$1" in
+	case "$1" in
 	start|restart|force-reload)
 		exit 0
-		;;
+	;;
 	esac
 fi
 
@@ -105,6 +104,8 @@ stop() {
 	ok || fail
 	rm -f /var/lock/subsys/ip6tables
 }
+
+upstart_controlled --except status panic load save clear
 
 case "$1" in
   start|load)
