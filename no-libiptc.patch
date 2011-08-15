@@ -1,0 +1,24 @@
+--- iptables-1.4.12/libiptc/Makefile.am.wiget	2011-08-15 20:42:49.617576861 +0200
++++ iptables-1.4.12/libiptc/Makefile.am	2011-08-15 20:44:08.393921572 +0200
+@@ -5,10 +5,7 @@ AM_CPPFLAGS      = ${regular_CPPFLAGS} -
+ 
+ pkgconfig_DATA      = libiptc.pc
+ 
+-lib_LTLIBRARIES     = libip4tc.la libip6tc.la libiptc.la
+-libiptc_la_SOURCES  =
+-libiptc_la_LIBADD   = libip4tc.la libip6tc.la
+-libiptc_la_LDFLAGS  = -version-info 0:0:0 ${libiptc_LDFLAGS2}
++lib_LTLIBRARIES     = libip4tc.la libip6tc.la
+ libip4tc_la_SOURCES = libip4tc.c
+ libip4tc_la_LDFLAGS = -version-info 0:0:0
+ libip6tc_la_SOURCES = libip6tc.c
+--- iptables-1.4.12/libiptc/libiptc.pc.in.wiget	2011-08-15 20:43:05.416843686 +0200
++++ iptables-1.4.12/libiptc/libiptc.pc.in	2011-08-15 20:44:35.062684328 +0200
+@@ -7,6 +7,5 @@ includedir=@includedir@
+ Name:		libiptc
+ Description:	iptables ruleset ADT and kernel interface
+ Version:	@PACKAGE_VERSION@
+-Libs:		-L${libdir} -liptc
+-Libs.private:	-lip4tc -lip6tc
++Libs:		-L${libdir} -lip4tc -lip6tc
+ Cflags:		-I${includedir}

@@ -32,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.11.1
-Release:	3
+Version:	1.4.12
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	7de6e1ae7ed8a2025f184763a6a24b9a
+# Source0-md5:	d3f145c2c91daecbb4251bc79390b46c
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -48,6 +48,7 @@ Source5:	%{name6}.upstart
 Patch0:		%{name}-man.patch
 # additional utils; off by default
 Patch1:		%{name}-batch.patch
+Patch2:		no-libiptc.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
 Patch10:	%{name}-20070806.patch
@@ -183,6 +184,7 @@ iptables(8).
 %if %{with batch}
 %patch1 -p1
 %endif
+%patch2 -p1
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}
 %{?with_ipt_rpc:%patch12 -p1}
@@ -382,10 +384,8 @@ fi
 %attr(755,root,root) %ghost %{_libdir}/libip6tc.so.0
 %attr(755,root,root) %{_libdir}/libipq.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libipq.so.0
-%attr(755,root,root) %{_libdir}/libiptc.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libiptc.so.0
 %attr(755,root,root) %{_libdir}/libxtables.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxtables.so.6
+%attr(755,root,root) %ghost %{_libdir}/libxtables.so.7
 
 %files devel
 %defattr(644,root,root,755)
@@ -393,12 +393,10 @@ fi
 %attr(755,root,root) %{_libdir}/libip4tc.so
 %attr(755,root,root) %{_libdir}/libip6tc.so
 %attr(755,root,root) %{_libdir}/libipq.so
-%attr(755,root,root) %{_libdir}/libiptc.so
 %attr(755,root,root) %{_libdir}/libxtables.so
 %{_libdir}/libip4tc.la
 %{_libdir}/libip6tc.la
 %{_libdir}/libipq.la
-%{_libdir}/libiptc.la
 %{_libdir}/libxtables.la
 %{_includedir}/libipq.h
 %{_includedir}/xtables.h
@@ -414,7 +412,6 @@ fi
 %{_libdir}/libip4tc.a
 %{_libdir}/libip6tc.a
 %{_libdir}/libipq.a
-%{_libdir}/libiptc.a
 %{_libdir}/libxtables.a
 %endif
 
