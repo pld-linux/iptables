@@ -32,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.12
+Version:	1.4.12.1
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	d3f145c2c91daecbb4251bc79390b46c
+# Source0-md5:	b08a1195ec2c1ebeaf072db3c55fdf43
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -401,6 +401,7 @@ fi
 %{_includedir}/libipq.h
 %{_includedir}/xtables.h
 %{_includedir}/libiptc
+%{_pkgconfigdir}/libipq.pc
 %{_pkgconfigdir}/libiptc.pc
 %{_pkgconfigdir}/xtables.pc
 %{_mandir}/man3/ipq_*.3*
