@@ -90,7 +90,6 @@ Requires:	%{name}-libs = %{version}-%{release}
 Requires:	libnfnetlink >= 1.0
 Provides:	firewall-userspace-tool
 Obsoletes:	ipchains
-Obsoletes:	iptables-ipp2p
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
 Conflicts:	xtables-addons < 1.14
