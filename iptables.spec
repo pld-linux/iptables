@@ -81,6 +81,7 @@ BuildRequires:	tetex-format-latex
 BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 BuildRequires:	texlive-fonts-cmsuper
+BuildRequires:	texlive-fonts-jknappen
 %endif
 %if %{with dist_kernel}
 BuildRequires:	kernel%{_alt_kernel}-headers(netfilter)
