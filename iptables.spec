@@ -33,7 +33,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.12.1
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
@@ -49,6 +49,7 @@ Patch0:		%{name}-man.patch
 # additional utils; off by default
 Patch1:		%{name}-batch.patch
 Patch2:		no-libiptc.patch
+Patch3:		%{name}-%{version}-lm.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
 Patch10:	%{name}-20070806.patch
@@ -93,7 +94,7 @@ Provides:	firewall-userspace-tool
 Obsoletes:	ipchains
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
-Conflicts:	xtables-addons < 1.14
+Conflicts:	xtables-addons < 1.25
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -185,6 +186,7 @@ iptables(8).
 %patch1 -p1
 %endif
 %patch2 -p1
+%patch3 -p1
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}
 %{?with_ipt_rpc:%patch12 -p1}
