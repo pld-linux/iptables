@@ -32,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.12.1
-Release:	2
+Version:	1.4.12.2
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	b08a1195ec2c1ebeaf072db3c55fdf43
+# Source0-md5:	212112389c7f10c72efb31a4ed193a4c
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -49,7 +49,6 @@ Patch0:		%{name}-man.patch
 # additional utils; off by default
 Patch1:		%{name}-batch.patch
 Patch2:		no-libiptc.patch
-Patch3:		%{name}-%{version}-lm.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
 Patch10:	%{name}-20070806.patch
@@ -186,7 +185,7 @@ iptables(8).
 %patch1 -p1
 %endif
 %patch2 -p1
-%patch3 -p1
+
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}
 %{?with_ipt_rpc:%patch12 -p1}
@@ -403,6 +402,8 @@ fi
 %{_includedir}/libipq.h
 %{_includedir}/xtables.h
 %{_includedir}/libiptc
+%{_pkgconfigdir}/libip4tc.pc
+%{_pkgconfigdir}/libip6tc.pc
 %{_pkgconfigdir}/libipq.pc
 %{_pkgconfigdir}/libiptc.pc
 %{_pkgconfigdir}/xtables.pc
