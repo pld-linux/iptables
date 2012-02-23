@@ -33,7 +33,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.12.2
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
@@ -57,7 +57,7 @@ Patch10:	%{name}-20070806.patch
 Patch11:	%{name}-layer7.patch
 # ipt_rpc
 Patch12:	%{name}-old-1.3.7.patch
-# xt_IMQ; based on http://www.linuximq.net/patchs/iptables-1.4.6-imq.diff
+# xt_IMQ; http://linuximq.net/patchs/iptables-1.4.12-IMQ-test4.diff
 Patch13:	%{name}-imq.patch
 # enhances ipt_owner/ip6t_owner; http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch (currently disabled, needs update for xt_owner)
 Patch14:	%{name}-1.3.5-owner-xid.patch
@@ -189,7 +189,7 @@ iptables(8).
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}
 %{?with_ipt_rpc:%patch12 -p1}
-%patch13 -p0
+%patch13 -p1
 %if %{with vserver}
 #patch14 -p1
 %patch15 -p1
