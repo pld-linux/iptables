@@ -49,6 +49,7 @@ Patch0:		%{name}-man.patch
 # additional utils; off by default
 Patch1:		%{name}-batch.patch
 Patch2:		no-libiptc.patch
+Patch3:		%{name}-aligned_u64.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
 Patch10:	%{name}-20070806.patch
@@ -185,6 +186,7 @@ iptables(8).
 %patch1 -p1
 %endif
 %patch2 -p1
+%patch3 -p1
 
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}
