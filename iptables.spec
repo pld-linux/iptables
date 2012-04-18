@@ -44,6 +44,8 @@ Source2:	%{name}.init
 Source3:	%{name6}.init
 Source4:	%{name}.upstart
 Source5:	%{name6}.upstart
+Source6:	%{name}-config
+Source7:	%{name6}-config
 # --- GENERAL CHANGES (patches<10):
 Patch0:		%{name}-man.patch
 # additional utils; off by default
@@ -221,7 +223,8 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{/etc/rc.d/init.d,%{_includedir},%{_libdir},%{_mandir}/man3}
+install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
+	$RPM_BUILD_ROOT{%{_includedir},%{_libdir},%{_mandir}/man3}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -234,6 +237,9 @@ install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 install -d $RPM_BUILD_ROOT/etc/init
 cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/init/%{name}.conf
 cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/init/%{name6}.conf
+
+install -p %{SOURCE6} $RPM_BUILD_ROOT/etc/sysconfig/%{name}-config
+install -p %{SOURCE7} $RPM_BUILD_ROOT/etc/sysconfig/%{name6}-config
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -425,6 +431,8 @@ fi
 
 %files init
 %defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}-config
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name6}-config
 %attr(754,root,root) /etc/rc.d/init.d/iptables
 %attr(754,root,root) /etc/rc.d/init.d/ip6tables
 %config(noreplace) %verify(not md5 mtime size) /etc/init/%{name}.conf

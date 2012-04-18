@@ -35,6 +35,15 @@ if /sbin/lsmod 2>/dev/null | grep -q ipchains; then
 	exit 0
 fi
 
+IPTABLES_SAVE_ON_STOP="no"
+IPTABLES_SAVE_COUNTER="no"
+IPTABLES_STATUS_NUMERIC="yes"
+IPTABLES_STATUS_VERBOSE="no"
+IPTABLES_STATUS_LINENUMBERS="yes"
+[ -f /etc/sysconfig/iptables-config ] && . /etc/sysconfig/iptables-config
+_SAVEOPT=
+is_yes $IPTABLES_SAVE_COUNTER && _SAVEOPT="-c"
+
 iftable() {
 	if fgrep -qsx $1 /proc/net/ip_tables_names; then
 		iptables -t "$@"
@@ -67,7 +76,7 @@ start() {
 		for i in $tables; do iptables -t $i -Z; done
 
 		show "Applying iptables firewall rules"
-		grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /usr/sbin/iptables-restore -c && \
+		grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /usr/sbin/iptables-restore $_SAVEOPT && \
 			ok || \
 			fail
 		touch /var/lock/subsys/iptables
@@ -106,24 +115,32 @@ stop() {
 	rm -f /var/lock/subsys/iptables
 }
 
+save() {
+	show "Saving current rules to %s" $IPTABLES_CONFIG
+	touch $IPTABLES_CONFIG
+	chmod 600 $IPTABLES_CONFIG
+	/usr/sbin/iptables-save $_SAVEOPT > $IPTABLES_CONFIG  2>/dev/null && ok || fail
+}
+
 upstart_controlled --except status panic load save clear
 
 case "$1" in
   start|load)
 	start
 	;;
-
-  stop|clear)
+  stop)
+	is_yes $IPTABLES_SAVE_ON_STOP && save
 	stop
 	;;
-
+  clear)
+	stop
+	;;
   restart|force-reload)
 	# "restart" is really just "start" as this isn't a daemon,
 	#  and "start" clears any pre-defined rules anyway.
 	#  This is really only here to make those who expect it happy
 	start
 	;;
-
   panic)
 	show "Changing target policies to DROP"
 	iftable filter -P INPUT DROP && \
@@ -154,22 +171,19 @@ case "$1" in
 	iftable mangle -X OUTPUT && \
 	ok || fail
 	;;
-
   save)
-	show "Saving current rules to %s" $IPTABLES_CONFIG
-	touch $IPTABLES_CONFIG
-	chmod 600 $IPTABLES_CONFIG
-	/usr/sbin/iptables-save -c > $IPTABLES_CONFIG  2>/dev/null && ok || fail
+	save
 	;;
-
   status)
+	is_yes $IPTABLES_STATUS_NUMERIC && _NUMERIC="-n"
+	is_yes $IPTABLES_STATUS_VERBOSE && _VERBOSE="--verbose"
+	is_yes $IPTABLES_STATUS_LINENUMBERS && _LINES="--line-numbers"
 	tables=`cat /proc/net/ip_tables_names 2>/dev/null`
 	for table in $tables; do
 		echo "Table: $table"
-		iptables -t $table -n --list
+		iptables -t $table -n --list $_NUMERIC $_VERBOSE $_LINES
 	done
 	;;
-
   *)
 	msg_usage "$0 {start|stop|restart|force-reload|panic|load|save|clear|status}"
 	exit 3

@@ -1,0 +1,28 @@
+# Save current firewall rules on stop.
+#   Value: yes|no,  default: no
+# Saves all firewall rules to /etc/sysconfig/ip6tables if firewall gets stopped
+# (e.g. on system shutdown).
+IP6TABLES_SAVE_ON_STOP="no"
+
+# Save (and restore) rule and chain counter.
+#   Value: yes|no,  default: no
+# Save counters for rules and chains to /etc/sysconfig/ip6tables if
+# 'service ip6tables save' is called or on stop or restart if SAVE_ON_STOP
+# is enabled.
+IP6TABLES_SAVE_COUNTER="yes"
+
+# Numeric status output
+#   Value: yes|no,  default: yes
+# Print IPv6 addresses and port numbers in numeric format in the status output.
+IP6TABLES_STATUS_NUMERIC="no"
+
+# Verbose status output
+#   Value: yes|no,  default: yes
+# Print info about the number of packets and bytes plus the "input-" and
+# "outputdevice" in the status output.
+IP6TABLES_STATUS_VERBOSE="no"
+
+# Status output with numbered lines
+#   Value: yes|no,  default: yes
+# Print a counter/number for every rule in the status output.
+IP6TABLES_STATUS_LINENUMBERS="no"

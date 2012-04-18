@@ -35,6 +35,15 @@ if /sbin/lsmod 2>/dev/null | grep -q ipchains; then
 	exit 0
 fi
 
+IP6TABLES_SAVE_ON_STOP="no"
+IP6TABLES_SAVE_COUNTER="no"
+IP6TABLES_STATUS_NUMERIC="yes"
+IP6TABLES_STATUS_VERBOSE="no"
+IP6TABLES_STATUS_LINENUMBERS="yes"
+[ -f /etc/sysconfig/ip6tables-config ] && . /etc/sysconfig/ip6tables-config
+_SAVEOPT=
+is_yes $IP6TABLES_SAVE_COUNTER && _SAVEOPT="-c"
+
 iftable() {
 	if fgrep -qsx $1 /proc/net/ip6_tables_names; then
 		ip6tables -t "$@"
@@ -67,7 +76,7 @@ start() {
 		for i in $tables; do ip6tables -t $i -Z; done
 
 		show "Applying ip6tables firewall rules"
-		grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /usr/sbin/ip6tables-restore -c && \
+		grep -v "^[[:space:]]*#" $IPTABLES_CONFIG | grep -v '^[[:space:]]*$' | /usr/sbin/ip6tables-restore $_SAVEOPT && \
 			ok || fail
 		touch /var/lock/subsys/ip6tables
 	fi
@@ -105,24 +114,32 @@ stop() {
 	rm -f /var/lock/subsys/ip6tables
 }
 
+save() {
+	show "Saving current rules to %s" $IPTABLES_CONFIG
+	touch $IPTABLES_CONFIG
+	chmod 600 $IPTABLES_CONFIG
+	/usr/sbin/ip6tables-save $_SAVEOPT > $IPTABLES_CONFIG  2>/dev/null && ok || fail
+}
+
 upstart_controlled --except status panic load save clear
 
 case "$1" in
   start|load)
 	start
 	;;
-
-  stop|clear)
+  stop)
+	is_yes $IP6TABLES_SAVE_ON_STOP && save
 	stop
 	;;
-
+  clear)
+	stop
+	;;
   restart|force-reload)
 	# "restart" is really just "start" as this isn't a daemon,
 	#  and "start" clears any pre-defined rules anyway.
 	#  This is really only here to make those who expect it happy
 	start
 	;;
-
   panic)
 	show "Changing target policies to DROP"
 	iftable filter -P INPUT DROP && \
@@ -153,22 +170,19 @@ case "$1" in
 	iftable mangle -X OUTPUT && \
 	ok || fail
 	;;
-
   save)
-	show "Saving current rules to %s" $IPTABLES_CONFIG
-	touch $IPTABLES_CONFIG
-	chmod 600 $IPTABLES_CONFIG
-	/usr/sbin/ip6tables-save -c > $IPTABLES_CONFIG  2>/dev/null && ok || fail
+	save
 	;;
-
   status)
+	is_yes $IP6TABLES_STATUS_NUMERIC && _NUMERIC="-n"
+	is_yes $IP6TABLES_STATUS_VERBOSE && _VERBOSE="--verbose"
+	is_yes $IP6TABLES_STATUS_LINENUMBERS && _LINES="--line-numbers"
 	tables=`cat /proc/net/ip6_tables_names 2>/dev/null`
 	for table in $tables; do
 		echo "Table: $table"
-		ip6tables -t $table -n --list
+		ip6tables -t $table -n --list $_NUMERIC $_VERBOSE $_LINES
 	done
 	;;
-
   *)
 	msg_usage "$0 {start|stop|restart|force-reload|panic|load|save|clear|status}"
 	exit 3
