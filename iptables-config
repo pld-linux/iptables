@@ -12,12 +12,12 @@ IPTABLES_SAVE_ON_STOP="no"
 IPTABLES_SAVE_COUNTER="yes"
 
 # Numeric status output
-#   Value: yes|no,  default: no
+#   Value: yes|no,  default: yes
 # Print IP addresses and port numbers in numeric format in the status output.
-IPTABLES_STATUS_NUMERIC="no"
+IPTABLES_STATUS_NUMERIC="yes"
 
 # Verbose status output
-#   Value: yes|no,  default: yes
+#   Value: yes|no,  default: no
 # Print info about the number of packets and bytes plus the "input-" and
 # "outputdevice" in the status output.
 IPTABLES_STATUS_VERBOSE="no"

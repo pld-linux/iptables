@@ -181,7 +181,7 @@ case "$1" in
 	tables=`cat /proc/net/ip_tables_names 2>/dev/null`
 	for table in $tables; do
 		echo "Table: $table"
-		iptables -t $table -n --list $_NUMERIC $_VERBOSE $_LINES
+		iptables -t $table --list $_NUMERIC $_VERBOSE $_LINES
 	done
 	;;
   *)
