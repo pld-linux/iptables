@@ -46,6 +46,8 @@ Source4:	%{name}.upstart
 Source5:	%{name6}.upstart
 Source6:	%{name}-config
 Source7:	%{name6}-config
+Source8:	%{name}.service
+Source9:	%{name6}.service
 # --- GENERAL CHANGES (patches<10):
 Patch0:		%{name}-man.patch
 # additional utils; off by default
@@ -75,6 +77,7 @@ BuildRequires:	groff
 BuildRequires:	libnfnetlink-devel >= 1.0
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
+BuildRequires:	rpmbuild(macros) >= 1.647
 %if %{with doc}
 BuildRequires:	sed >= 4.0
 BuildRequires:	sgml-tools
@@ -166,8 +169,10 @@ Summary:	Iptables init (RedHat style)
 Summary(pl.UTF-8):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
+Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name}
 Requires:	rc-scripts >= 0.4.3.0
+Requires:	systemd-units >= 38
 Obsoletes:	firewall-init
 Obsoletes:	firewall-init-ipchains
 Obsoletes:	iptables24-init
@@ -224,7 +229,8 @@ sed -i 's:$(HTML_HOWTOS)::g; s:$(PSUS_HOWTOS)::g' iptables-howtos/Makefile
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
-	$RPM_BUILD_ROOT{%{_includedir},%{_libdir},%{_mandir}/man3}
+	$RPM_BUILD_ROOT{%{_includedir},%{_libdir},%{_mandir}/man3} \
+	$RPM_BUILD_ROOT%{systemdunitdir}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -241,6 +247,9 @@ cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/init/%{name6}.conf
 install -p %{SOURCE6} $RPM_BUILD_ROOT/etc/sysconfig/%{name}-config
 install -p %{SOURCE7} $RPM_BUILD_ROOT/etc/sysconfig/%{name6}-config
 
+install -p %{SOURCE8} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
+install -p %{SOURCE9} $RPM_BUILD_ROOT%{systemdunitdir}/%{name6}.service
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -250,12 +259,20 @@ rm -rf $RPM_BUILD_ROOT
 %post init
 /sbin/chkconfig --add %{name}
 /sbin/chkconfig --add %{name6}
+%systemd_post %{name}.service %{name6}.service
 
 %preun init
 if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del %{name}
 	/sbin/chkconfig --del %{name6}
 fi
+%systemd_preun %{name}.service %{name6}.service
+
+%postun init
+%systemd_reload
+
+%triggerpostun init -- %{name}-init < 1.4.13-2
+%systemd_trigger %{name}.service %{name6}.service
 
 %files
 %defattr(644,root,root,755)
@@ -437,3 +454,5 @@ fi
 %attr(754,root,root) /etc/rc.d/init.d/ip6tables
 %config(noreplace) %verify(not md5 mtime size) /etc/init/%{name}.conf
 %config(noreplace) %verify(not md5 mtime size) /etc/init/%{name6}.conf
+%{systemdunitdir}/%{name}.service
+%{systemdunitdir}/%{name6}.service

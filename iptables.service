@@ -1,0 +1,15 @@
+[Unit]
+Description=IPv4 firewall with iptables
+After=syslog.target
+ConditionPathExists=/etc/sysconfig/iptables
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/rc.d/init.d/iptables start
+ExecStop=/etc/rc.d/init.d/iptables stop
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=basic.target
