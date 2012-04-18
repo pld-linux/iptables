@@ -6,8 +6,8 @@ ConditionPathExists=/etc/sysconfig/ip6tables
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/etc/rc.d/init.d/ip6tables start
-ExecStop=/etc/rc.d/init.d/ip6tables stop
+ExecStart=/etc/rc.d/init.d/ip6tables --quiet start
+ExecStop=/etc/rc.d/init.d/ip6tables --quiet stop
 StandardOutput=syslog
 StandardError=syslog
 

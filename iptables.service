@@ -6,8 +6,8 @@ ConditionPathExists=/etc/sysconfig/iptables
 [Service]
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/etc/rc.d/init.d/iptables start
-ExecStop=/etc/rc.d/init.d/iptables stop
+ExecStart=/etc/rc.d/init.d/iptables --quiet start
+ExecStop=/etc/rc.d/init.d/iptables --quiet stop
 StandardOutput=syslog
 StandardError=syslog
 

@@ -44,6 +44,13 @@ IPTABLES_STATUS_LINENUMBERS="yes"
 _SAVEOPT=
 is_yes $IPTABLES_SAVE_COUNTER && _SAVEOPT="-c"
 
+if [ "$1" = "--quiet" ]; then
+	shift
+	show() { return 0; }
+	ok() { return 0; }
+	fail() { return 1; }
+fi
+
 iftable() {
 	if fgrep -qsx $1 /proc/net/ip_tables_names; then
 		iptables -t "$@"

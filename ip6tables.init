@@ -44,6 +44,13 @@ IP6TABLES_STATUS_LINENUMBERS="yes"
 _SAVEOPT=
 is_yes $IP6TABLES_SAVE_COUNTER && _SAVEOPT="-c"
 
+if [ "$1" = "--quiet" ]; then
+	shift
+	show() { return 0; }
+	ok() { return 0; }
+	fail() { return 1; }
+fi
+
 iftable() {
 	if fgrep -qsx $1 /proc/net/ip6_tables_names; then
 		ip6tables -t "$@"
