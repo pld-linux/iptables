@@ -32,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.14
+Version:	1.4.15
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	5ab24ad683f76689cfe7e0c73f44855d
+# Source0-md5:	8bf564ea8348522fc1db727868828def
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -48,6 +48,7 @@ Source6:	%{name}-config
 Source7:	%{name6}-config
 Source8:	%{name}.service
 Source9:	%{name6}.service
+Patch100:	%{name}-git.patch
 # --- GENERAL CHANGES (patches<10):
 Patch0:		%{name}-man.patch
 # additional utils; off by default
@@ -188,6 +189,7 @@ iptables(8).
 
 %prep
 %setup -q -a1
+%patch100 -p1
 %patch0 -p1
 %if %{with batch}
 %patch1 -p1
@@ -332,6 +334,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_CONNSECMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CT.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_DSCP.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_HMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_IDLETIMER.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_IMQ.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_LED.so
