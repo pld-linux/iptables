@@ -32,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.15
+Version:	1.4.16.2
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	8bf564ea8348522fc1db727868828def
+# Source0-md5:	57220bb26866a713073e5614f88071fc
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -48,7 +48,6 @@ Source6:	%{name}-config
 Source7:	%{name6}-config
 Source8:	%{name}.service
 Source9:	%{name6}.service
-Patch100:	%{name}-git.patch
 # --- GENERAL CHANGES (patches<10):
 Patch0:		%{name}-man.patch
 # additional utils; off by default
@@ -189,7 +188,6 @@ iptables(8).
 
 %prep
 %setup -q -a1
-%patch100 -p1
 %patch0 -p1
 %if %{with batch}
 %patch1 -p1
@@ -404,6 +402,7 @@ fi
 %{_mandir}/man8/ip6tables-restore.8*
 %{_mandir}/man8/ip6tables-save.8*
 %{_mandir}/man8/iptables.8*
+%{_mandir}/man8/iptables-extensions.8*
 %{_mandir}/man8/iptables-restore.8*
 %{_mandir}/man8/iptables-save.8*
 
@@ -416,7 +415,7 @@ fi
 %attr(755,root,root) %{_libdir}/libipq.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libipq.so.0
 %attr(755,root,root) %{_libdir}/libxtables.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxtables.so.7
+%attr(755,root,root) %ghost %{_libdir}/libxtables.so.9
 
 %files devel
 %defattr(644,root,root,755)
@@ -431,6 +430,7 @@ fi
 %{_libdir}/libxtables.la
 %{_includedir}/libipq.h
 %{_includedir}/xtables.h
+%{_includedir}/xtables-version.h
 %{_includedir}/libiptc
 %{_pkgconfigdir}/libip4tc.pc
 %{_pkgconfigdir}/libip6tc.pc
