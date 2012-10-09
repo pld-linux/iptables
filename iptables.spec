@@ -238,6 +238,11 @@ install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
+# upstream solution with empty library with two DT_NEEDED entries doesn't work
+# with PLD's default LDFLAGS (--as-needed --no-copy-dt-needed-entries);
+# use ld script instead (see no-libiptc.patch for source)
+cp -p libiptc/libiptc.ld $RPM_BUILD_ROOT%{_libdir}/libiptc.so
+
 install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 install -d $RPM_BUILD_ROOT/etc/init
@@ -423,6 +428,7 @@ fi
 %attr(755,root,root) %{_libdir}/libip4tc.so
 %attr(755,root,root) %{_libdir}/libip6tc.so
 %attr(755,root,root) %{_libdir}/libipq.so
+%attr(755,root,root) %{_libdir}/libiptc.so
 %attr(755,root,root) %{_libdir}/libxtables.so
 %{_libdir}/libip4tc.la
 %{_libdir}/libip6tc.la
