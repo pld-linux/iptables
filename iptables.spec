@@ -32,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.16.3
+Version:	1.4.17
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	6dd40c12fb8f4c4312a0f8434369fbcd
+# Source0-md5:	c3fb2ffd5b39d0d54b06ccc4c8660116
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -330,6 +330,13 @@ fi
 #%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_unclean.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_DNAT.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_DNPT.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_MASQUERADE.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_NETMAP.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_REDIRECT.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_SNAT.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_SNPT.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_AUDIT.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CHECKSUM.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CLASSIFY.so
