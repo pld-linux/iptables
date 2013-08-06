@@ -31,12 +31,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.19.1
+Version:	1.4.20
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	be97ce9007fa42c867901b496c935a0a
+# Source0-md5:	387b92d3efcf4f07fe31c3bf0f1d18f5
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -73,6 +73,7 @@ URL:		http://www.netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
 BuildRequires:	groff
+BuildRequires:	libnetfilter_conntrack-devel >= 1.0.4
 BuildRequires:	libnfnetlink-devel >= 1.0
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
@@ -281,8 +282,6 @@ fi
 %files
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
-%dir /etc/xtables
-%config(noreplace) %verify(not md5 mtime size) /etc/xtables/connlabel.conf
 %attr(755,root,root) %{_bindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/iptables
 %attr(755,root,root) %{_sbindir}/iptables-restore
