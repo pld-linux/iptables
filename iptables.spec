@@ -94,6 +94,7 @@ BuildRequires:	kernel%{_alt_kernel}-headers(netfilter)
 %endif
 BuildRequires:	linux-libc-headers >= 7:2.6.22.1
 Requires:	%{name}-libs = %{version}-%{release}
+Requires:	libnetfilter_conntrack >= 1.0.4
 Requires:	libnfnetlink >= 1.0
 Provides:	firewall-userspace-tool
 Obsoletes:	ipchains
