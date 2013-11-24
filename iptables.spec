@@ -8,6 +8,7 @@
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
+%bcond_without	pcap		# pcap-dependend utils (nfbpf_compile, nfsynproxy)
 %bcond_with	vserver		# build xt_owner module for non-dist kernel with vserver support
 %bcond_with	batch		# build iptables-batch
 %bcond_with	static		# build static libraries, no dynamic modules (all linked into binaries)
@@ -31,12 +32,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
-Version:	1.4.20
+Version:	1.4.21
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
-# Source0-md5:	387b92d3efcf4f07fe31c3bf0f1d18f5
+# Source0-md5:	536d048c8e8eeebcd9757d0863ebb0c0
 Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
@@ -75,6 +76,7 @@ BuildRequires:	automake
 BuildRequires:	groff
 BuildRequires:	libnetfilter_conntrack-devel >= 1.0.4
 BuildRequires:	libnfnetlink-devel >= 1.0
+%{?with_pcap:BuildRequires:	libpcap-devel}
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
 BuildRequires:	rpmbuild(macros) >= 1.647
@@ -216,7 +218,9 @@ iptables(8).
 %configure \
 	CFLAGS="%{rpmcflags} %{rpmcppflags} -D%{!?debug:N}DEBUG" \
 	%{?with_usekernelsrc:--with-kernel=%{_kernelsrcdir}} \
+	%{?with_pcap:--enable-bpf-compiler} \
 	--enable-libipq \
+	%{?with_pcap:--enable-nfsynproxy} \
 	%{?with_static:--enable-static}
 
 %{__make} all \
@@ -295,6 +299,10 @@ fi
 %attr(755,root,root) %{_sbindir}/ip6tables-batch
 %endif
 %attr(755,root,root) %{_sbindir}/nfnl_osf
+%if %{with pcap}
+%attr(755,root,root) %{_sbindir}/nfbpf_compile
+%attr(755,root,root) %{_sbindir}/nfsynproxy
+%endif
 %attr(755,root,root) %{_sbindir}/xtables-multi
 %{_datadir}/xtables
 %dir %{_libdir}/xtables
@@ -356,6 +364,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_RATEEST.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_SECMARK.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_SET.so
+%attr(755,root,root) %{_libdir}/xtables/libxt_SYNPROXY.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_TCPMSS.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_TCPOPTSTRIP.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_TEE.so
