@@ -33,7 +33,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables
 Version:	1.4.21
-Release:	3
+Release:	4
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
@@ -42,8 +42,6 @@ Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{name}.init
 Source3:	%{name6}.init
-Source4:	%{name}.upstart
-Source5:	%{name6}.upstart
 Source6:	%{name}-config
 Source7:	%{name6}-config
 Source8:	%{name}.service
@@ -250,9 +248,6 @@ cp -p libiptc/libiptc.ld $RPM_BUILD_ROOT%{_libdir}/libiptc.so
 
 install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
 install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
-install -d $RPM_BUILD_ROOT/etc/init
-cp -p %{SOURCE4} $RPM_BUILD_ROOT/etc/init/%{name}.conf
-cp -p %{SOURCE5} $RPM_BUILD_ROOT/etc/init/%{name6}.conf
 
 install -p %{SOURCE6} $RPM_BUILD_ROOT/etc/sysconfig/%{name}-config
 install -p %{SOURCE7} $RPM_BUILD_ROOT/etc/sysconfig/%{name6}-config
@@ -480,7 +475,5 @@ fi
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name6}-config
 %attr(754,root,root) /etc/rc.d/init.d/iptables
 %attr(754,root,root) /etc/rc.d/init.d/ip6tables
-%config(noreplace) %verify(not md5 mtime size) /etc/init/%{name}.conf
-%config(noreplace) %verify(not md5 mtime size) /etc/init/%{name6}.conf
 %{systemdunitdir}/%{name}.service
 %{systemdunitdir}/%{name6}.service
