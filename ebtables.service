@@ -1,0 +1,15 @@
+[Unit]
+Description=Ethernet Bridge filter tables
+After=syslog.target
+ConditionPathExists=/etc/sysconfig/ebtables-config
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/etc/rc.d/init.d/ebtables --quiet start
+ExecStop=/etc/rc.d/init.d/ebtables --quiet stop
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=basic.target

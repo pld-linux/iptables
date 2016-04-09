@@ -1,6 +1,5 @@
 #
 # TODO:
-# - include init.d+sysconfig files from ebtables.spec in -init?
 # - update BR to real required llh version
 # - check if kernel-headers are still required to properly build iptabels for dist kernel
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
@@ -47,6 +46,9 @@ Source6:	%{name}-config
 Source7:	%{name6}-config
 Source8:	%{name}.service
 Source9:	%{name6}.service
+Source10:	ebtables.init
+Source11:	ebtables-config
+Source12:	ebtables.service
 # --- GENERAL CHANGES (patches<10):
 Patch0:		%{name}-man.patch
 # additional utils; off by default
@@ -264,6 +266,10 @@ install -p %{SOURCE7} $RPM_BUILD_ROOT/etc/sysconfig/%{name6}-config
 install -p %{SOURCE8} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
 install -p %{SOURCE9} $RPM_BUILD_ROOT%{systemdunitdir}/%{name6}.service
 
+install -p %{SOURCE10} $RPM_BUILD_ROOT/etc/rc.d/init.d/ebtables
+install -p %{SOURCE11} $RPM_BUILD_ROOT/etc/sysconfig/ebtables-config
+install -p %{SOURCE12} $RPM_BUILD_ROOT%{systemdunitdir}/ebtables.service
+
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -271,22 +277,27 @@ rm -rf $RPM_BUILD_ROOT
 %postun	libs -p /sbin/ldconfig
 
 %post init
+/sbin/chkconfig --add ebtables
 /sbin/chkconfig --add %{name}
 /sbin/chkconfig --add %{name6}
-%systemd_post %{name}.service %{name6}.service
+%systemd_post %{name}.service %{name6}.service ebtables.service
 
 %preun init
 if [ "$1" = "0" ]; then
+	/sbin/chkconfig --del ebtables
 	/sbin/chkconfig --del %{name}
 	/sbin/chkconfig --del %{name6}
 fi
-%systemd_preun %{name}.service %{name6}.service
+%systemd_preun %{name}.service %{name6}.service ebtables.service
 
 %postun init
 %systemd_reload
 
 %triggerpostun init -- %{name}-init < 1.4.13-2
 %systemd_trigger %{name}.service %{name6}.service
+
+%triggerpostun init -- %{name}-init < 1.6.0-1
+%systemd_trigger ebtables.service
 
 %files
 %defattr(644,root,root,755)
@@ -500,9 +511,12 @@ fi
 
 %files init
 %defattr(644,root,root,755)
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/ebtables-config
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}-config
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name6}-config
+%attr(754,root,root) /etc/rc.d/init.d/ebtables
 %attr(754,root,root) /etc/rc.d/init.d/iptables
 %attr(754,root,root) /etc/rc.d/init.d/ip6tables
+%{systemdunitdir}/ebtables.service
 %{systemdunitdir}/%{name}.service
 %{systemdunitdir}/%{name6}.service

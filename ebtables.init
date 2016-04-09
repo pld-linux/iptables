@@ -1,0 +1,138 @@
+#!/bin/sh
+#
+# init script for the Ethernet Bridge filter tables
+#
+# chkconfig: - 15 85
+# description: Ethernet Bridge filtering tables
+#
+# config: /etc/sysconfig/ebtables         (text)
+#         /etc/sysconfig/ebtables.<table> (binary)
+
+EBTABLES_CONFIG=/etc/sysconfig/ebtables
+if [ ! -f $EBTABLES_CONFIG ]; then
+	case "$1" in
+	start|restart|force-reload)
+		exit 0
+	;;
+	esac
+fi
+
+# Source 'em up
+. /etc/rc.d/init.d/functions
+
+#default configuration
+EBTABLES_TEXT_FORMAT="yes"
+EBTABLES_BINARY_FORMAT="yes"
+EBTABLES_SAVE_ON_STOP="no"
+EBTABLES_SAVE_ON_RESTART="no"
+EBTABLES_SAVE_COUNTER="no"
+
+[ -f /etc/sysconfig/ebtables-config ] && . /etc/sysconfig/ebtables-config
+
+if [ "$1" = "--quiet" ]; then
+	shift
+	show() { return 0; }
+	ok() { return 0; }
+	fail() { return 1; }
+fi
+
+start() {
+	# don't do squat if we don't have the config file
+	if [ -f $EBTABLES_CONFIG ]; then
+		show "Starting Ethernet bridge filtering (ebtables)"
+		if is_yes "$EBTABLES_BINARY_FORMAT"; then
+			for table in $(ls /etc/sysconfig/ebtables.* 2>/dev/null | sed -e 's/.*ebtables\.//' -e '/save/d' ); do
+				/usr/sbin/ebtables -t $table --atomic-file /etc/sysconfig/ebtables.$table --atomic-commit || RETVAL=1
+			done
+		else
+			/usr/sbin/ebtables-restore < /etc/sysconfig/ebtables || RETVAL=1
+		fi
+
+		if [ $RETVAL -eq 0 ]; then
+			ok
+			touch /var/lock/subsys/ebtables
+		else
+			fail
+		fi
+	fi
+}
+
+stop() {
+	show "Stopping Ethernet bridge filtering (ebtables)"
+	for table in $(grep '^ebtable_' /proc/modules | sed -e 's/ebtable_\([^ ]*\).*/\1/'); do
+		/usr/sbin/ebtables -t $table --init-table || RETVAL=1
+	done
+
+	if [ $RETVAL -eq 0 ]; then
+		ok
+		rm -f /var/lock/subsys/ebtables
+	else
+		fail
+	fi
+}
+
+restart() {
+	stop
+	start
+}
+
+save() {
+	show "Saving Ethernet bridge filtering (ebtables)"
+	if is_yes "$EBTABLES_TEXT_FORMAT"; then
+		if [ -e /etc/sysconfig/ebtables ]; then
+			chmod 0600 /etc/sysconfig/ebtables
+			mv -f /etc/sysconfig/ebtables /etc/sysconfig/ebtables.save
+		fi
+		/usr/sbin/ebtables-save > /etc/sysconfig/ebtables || RETVAL=1
+	fi
+	if is_yes "$EBTABLES_BINARY_FORMAT"; then
+		rm -f /etc/sysconfig/ebtables.*.save
+		for oldtable in $(ls /etc/sysconfif/ebtables.* 2>/dev/null | grep -vF 'ebtables.save'); do
+			chmod 0600 $oldtable
+			mv -f $oldtable $oldtable.save
+		done
+		for table in $(grep '^ebtable_' /proc/modules | sed -e 's/ebtable_\([^ ]*\).*/\1/'); do
+			/usr/sbin/ebtables -t $table --atomic-file /etc/sysconfig/ebtables.$table --atomic-save || RETVAL=1
+			if [ "$EBTABLES_SAVE_COUNTER" = "no" ]; then
+				/usr/sbin/ebtables -t $table --atomic-file /etc/sysconfig/ebtables.$table -Z || RETVAL=1
+			fi
+		done
+	fi
+
+	if [ $RETVAL -eq 0 ]; then
+		ok
+	else
+		fail
+	fi
+}
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	is_yes "$EBTABLES_SAVE_ON_STOP" && save
+	stop
+	;;
+  restart|reload)
+	is_yes "$EBTABLES_SAVE_ON_RESTART" && save
+	restart
+	;;
+  condrestart)
+	[ -e /var/lock/subsys/ebtables ] && restart
+	RETVAL=$?
+	;;
+  save)
+	save
+	;;
+  status)
+	for table in $(grep '^ebtable_' /proc/modules | sed -e 's/ebtable_\([^ ]*\).*/\1/'); do
+		/usr/sbin/ebtables -t $table --list
+	done
+	;;
+  *)
+	echo $"Usage $0 {start|stop|restart|condrestart|save|status}"
+	RETVAL=1
+esac
+
+exit $RETVAL
