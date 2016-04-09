@@ -3,7 +3,6 @@
 # - update BR to real required llh version
 # - check if kernel-headers are still required to properly build iptabels for dist kernel
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
-# - owner needs rewrite to xt
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
@@ -70,8 +69,6 @@ Patch13:	%{name}-imq.patch
 Patch14:	%{name}-owner-xid.patch
 # adjusts xt_owner for vserver-enabled kernel
 Patch15:	%{name}-owner-struct-size-vs.patch
-# ipt_stealth; currently disabled (broken, see below)
-Patch16:	%{name}-stealth.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -212,8 +209,6 @@ iptables(8).
 %patch14 -p1
 %patch15 -p1
 %endif
-# builds but init() api is broken, see warnings
-#patch16 -p1
 
 %build
 %{__libtoolize}
@@ -368,8 +363,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libipt_ah.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_icmp.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_realm.so
-# disabled, see above
-#%attr(755,root,root) %{_libdir}/xtables/libipt_stealth.so
 %attr(755,root,root) %{_libdir}/xtables/libipt_ttl.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_DNAT.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_DNPT.so
