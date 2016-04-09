@@ -1,0 +1,220 @@
+--- iptables-1.6.0/extensions/libxt_owner.c.orig	2016-04-09 22:02:13.847585590 +0900
++++ iptables-1.6.0/extensions/libxt_owner.c	2016-04-09 22:24:01.855632355 +0900
+@@ -64,6 +64,8 @@
+ 	O_PROCESS,
+ 	O_SESSION,
+ 	O_COMM,
++	O_NID,
++	O_XID,
+ };
+ 
+ static void owner_mt_help_v0(void)
+@@ -75,6 +77,8 @@
+ "[!] --pid-owner processid    Match local PID\n"
+ "[!] --sid-owner sessionid    Match local SID\n"
+ "[!] --cmd-owner name         Match local command name\n"
++"[!] --nid-owner nid          Match local nid\n"
++"[!] --xid-owner xid          Match local xid\n"
+ "NOTE: PID, SID and command matching are broken on SMP\n");
+ }
+ 
+@@ -86,6 +90,8 @@
+ "[!] --gid-owner groupid      Match local GID\n"
+ "[!] --pid-owner processid    Match local PID\n"
+ "[!] --sid-owner sessionid    Match local SID\n"
++"[!] --nid-owner nid          Match local nid\n"
++"[!] --xid-owner xid          Match local xid\n"
+ "NOTE: PID and SID matching are broken on SMP\n");
+ }
+ 
+@@ -112,6 +118,12 @@
+ 	 .max = INT_MAX},
+ 	{.name = "cmd-owner", .id = O_COMM, .type = XTTYPE_STRING,
+ 	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, comm)},
++	{.name = "nid-owner", .id = O_NID, .type = XTTYPE_UINT32,
++	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, nid),
++	 .max = INT_MAX},
++	{.name = "xid-owner", .id = O_XID, .type = XTTYPE_UINT32,
++	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, xid),
++	 .max = INT_MAX},
+ 	XTOPT_TABLEEND,
+ };
+ #undef s
+@@ -128,10 +140,17 @@
+ 	{.name = "sid-owner", .id = O_SESSION, .type = XTTYPE_UINT32,
+ 	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, sid),
+ 	 .max = INT_MAX},
++	{.name = "nid-owner", .id = O_NID, .type = XTTYPE_UINT32,
++	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, nid),
++	 .max = INT_MAX},
++	{.name = "xid-owner", .id = O_XID, .type = XTTYPE_UINT32,
++	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, xid),
++	 .max = INT_MAX},
+ 	XTOPT_TABLEEND,
+ };
+ #undef s
+ 
++#define s struct xt_owner_match_info
+ static const struct xt_option_entry owner_mt_opts[] = {
+ 	{.name = "uid-owner", .id = O_USER, .type = XTTYPE_STRING,
+ 	 .flags = XTOPT_INVERT},
+@@ -139,8 +157,15 @@
+ 	 .flags = XTOPT_INVERT},
+ 	{.name = "socket-exists", .id = O_SOCK_EXISTS, .type = XTTYPE_NONE,
+ 	 .flags = XTOPT_INVERT},
++	{.name = "nid-owner", .id = O_NID, .type = XTTYPE_UINT32,
++	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, nid),
++	 .max = INT_MAX},
++	{.name = "xid-owner", .id = O_XID, .type = XTTYPE_UINT32,
++	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, xid),
++	 .max = INT_MAX},
+ 	XTOPT_TABLEEND,
+ };
++#undef s
+ 
+ static void owner_mt_parse_v0(struct xt_option_call *cb)
+ {
+@@ -186,6 +210,16 @@
+ 			info->invert |= IPT_OWNER_COMM;
+ 		info->match |= IPT_OWNER_COMM;
+ 		break;
++	case O_NID:
++		if (cb->invert)
++			info->invert |= IPT_OWNER_NID;
++		info->match |= IPT_OWNER_NID;
++		break;
++	case O_XID:
++		if (cb->invert)
++			info->invert |= IPT_OWNER_XID;
++		info->match |= IPT_OWNER_XID;
++		break;
+ 	}
+ }
+ 
+@@ -228,6 +262,16 @@
+ 			info->invert |= IP6T_OWNER_SID;
+ 		info->match |= IP6T_OWNER_SID;
+ 		break;
++	case O_NID:
++		if (cb->invert)
++			info->invert |= IPT_OWNER_NID;
++		info->match |= IPT_OWNER_NID;
++		break;
++	case O_XID:
++		if (cb->invert)
++			info->invert |= IPT_OWNER_XID;
++		info->match |= IPT_OWNER_XID;
++		break;
+ 	}
+ }
+ 
+@@ -283,6 +327,16 @@
+ 			info->invert |= XT_OWNER_SOCKET;
+ 		info->match |= XT_OWNER_SOCKET;
+ 		break;
++	case O_NID:
++		if (cb->invert)
++			info->invert |= IPT_OWNER_NID;
++		info->match |= IPT_OWNER_NID;
++		break;
++	case O_XID:
++		if (cb->invert)
++			info->invert |= IPT_OWNER_XID;
++		info->match |= IPT_OWNER_XID;
++		break;
+ 	}
+ }
+ 
+@@ -340,6 +394,12 @@
+ 	case IPT_OWNER_COMM:
+ 		printf(" %.*s", (int)sizeof(info->comm), info->comm);
+ 		break;
++	case IPT_OWNER_NID:
++		printf("%u ", info->nid);
++		break;
++	case IPT_OWNER_XID:
++		printf("%u ", info->xid);
++		break;
+ 	}
+ }
+ 
+@@ -385,6 +445,12 @@
+ 	case IP6T_OWNER_SID:
+ 		printf(" %u", (unsigned int)info->sid);
+ 		break;
++	case IP6T_OWNER_NID:
++		printf("%u ", info->nid);
++		break;
++	case IP6T_OWNER_XID:
++		printf("%u ", info->xid);
++		break;
+ 	}
+ }
+ 
+@@ -430,6 +496,12 @@
+ 		}
+ 		printf(" %u", (unsigned int)info->gid_min);
+ 		break;
++	case XT_OWNER_NID:
++		printf("%u ", info->nid);
++		break;
++	case XT_OWNER_XID:
++		printf("%u ", info->xid);
++		break;
+ 	}
+ }
+ 
+@@ -444,6 +516,8 @@
+ 	owner_mt_print_item_v0(info, "owner PID match", IPT_OWNER_PID, numeric);
+ 	owner_mt_print_item_v0(info, "owner SID match", IPT_OWNER_SID, numeric);
+ 	owner_mt_print_item_v0(info, "owner CMD match", IPT_OWNER_COMM, numeric);
++	owner_mt_print_item_v0(info, "owner NID match", IPT_OWNER_NID, numeric);
++	owner_mt_print_item_v0(info, "owner XID match", IPT_OWNER_XID, numeric);
+ }
+ 
+ static void
+@@ -456,6 +530,8 @@
+ 	owner_mt6_print_item_v0(info, "owner GID match", IPT_OWNER_GID, numeric);
+ 	owner_mt6_print_item_v0(info, "owner PID match", IPT_OWNER_PID, numeric);
+ 	owner_mt6_print_item_v0(info, "owner SID match", IPT_OWNER_SID, numeric);
++	owner_mt6_print_item_v0(info, "owner NID match", IPT_OWNER_NID, numeric);
++	owner_mt6_print_item_v0(info, "owner XID match", IPT_OWNER_XID, numeric);
+ }
+ 
+ static void owner_mt_print(const void *ip, const struct xt_entry_match *match,
+@@ -466,6 +542,8 @@
+ 	owner_mt_print_item(info, "owner socket exists", XT_OWNER_SOCKET, numeric);
+ 	owner_mt_print_item(info, "owner UID match",     XT_OWNER_UID,    numeric);
+ 	owner_mt_print_item(info, "owner GID match",     XT_OWNER_GID,    numeric);
++	owner_mt_print_item(info, "owner NID match",     XT_OWNER_NID,    numeric);
++	owner_mt_print_item(info, "owner XID match",     XT_OWNER_XID,    numeric);
+ }
+ 
+ static void
+@@ -478,6 +556,8 @@
+ 	owner_mt_print_item_v0(info, "--pid-owner", IPT_OWNER_PID, true);
+ 	owner_mt_print_item_v0(info, "--sid-owner", IPT_OWNER_SID, true);
+ 	owner_mt_print_item_v0(info, "--cmd-owner", IPT_OWNER_COMM, true);
++	owner_mt_print_item_v0(info, "--nid-owner", IPT_OWNER_NID, true);
++	owner_mt_print_item_v0(info, "--xid-owner", IPT_OWNER_XID, true);
+ }
+ 
+ static void
+@@ -489,6 +569,8 @@
+ 	owner_mt6_print_item_v0(info, "--gid-owner", IPT_OWNER_GID, true);
+ 	owner_mt6_print_item_v0(info, "--pid-owner", IPT_OWNER_PID, true);
+ 	owner_mt6_print_item_v0(info, "--sid-owner", IPT_OWNER_SID, true);
++	owner_mt6_print_item_v0(info, "--nid-owner", IPT_OWNER_NID, true);
++	owner_mt6_print_item_v0(info, "--xid-owner", IPT_OWNER_XID, true);
+ }
+ 
+ static void owner_mt_save(const void *ip, const struct xt_entry_match *match)
+@@ -498,6 +580,8 @@
+ 	owner_mt_print_item(info, "--socket-exists",  XT_OWNER_SOCKET, true);
+ 	owner_mt_print_item(info, "--uid-owner",      XT_OWNER_UID,    true);
+ 	owner_mt_print_item(info, "--gid-owner",      XT_OWNER_GID,    true);
++	owner_mt_print_item(info, "--nid-owner",      XT_OWNER_NID,    true);
++	owner_mt_print_item(info, "--xid-owner",      XT_OWNER_XID,    true);
+ }
+ 
+ static struct xtables_match owner_mt_reg[] = {

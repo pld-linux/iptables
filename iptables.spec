@@ -67,7 +67,7 @@ Patch12:	%{name}-old-1.3.7.patch
 # xt_IMQ; http://linuximq.net/patchs/iptables-1.4.12-IMQ-test4.diff
 Patch13:	%{name}-imq.patch
 # enhances ipt_owner/ip6t_owner; http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch (currently disabled, needs update for xt_owner)
-Patch14:	%{name}-1.3.5-owner-xid.patch
+Patch14:	%{name}-owner-xid.patch
 # adjusts xt_owner for vserver-enabled kernel
 Patch15:	%{name}-owner-struct-size-vs.patch
 # ipt_stealth; currently disabled (broken, see below)
@@ -78,6 +78,7 @@ BuildRequires:	automake
 BuildRequires:	groff
 BuildRequires:	libnetfilter_conntrack-devel >= 1.0.4
 BuildRequires:	libnfnetlink-devel >= 1.0
+BuildRequires:	libnftnl-devel
 %{?with_pcap:BuildRequires:	libpcap-devel}
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
@@ -208,7 +209,7 @@ iptables(8).
 %{?with_ipt_rpc:%patch12 -p1}
 %patch13 -p1
 %if %{with vserver}
-#patch14 -p1
+%patch14 -p1
 %patch15 -p1
 %endif
 # builds but init() api is broken, see warnings
