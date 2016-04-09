@@ -224,7 +224,7 @@ iptables(8).
 	%{?with_pcap:--enable-nfsynproxy} \
 	%{?with_static:--enable-static}
 
-%{__make} all \
+%{__make} -j1 all \
 	V=1
 
 %if %{with doc}
