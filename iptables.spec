@@ -20,8 +20,9 @@
 %define	with_ipt_IPV4OPTSSTRIP	1
 %define	with_ipt_rpc		1
 %define	with_xt_layer7		1
-%define	with_vserver		1
 %endif
+
+%define		orgname	iptables
 
 %define		name6			ip6tables
 Summary:	Extensible packet filtering system && extensible NAT system
@@ -30,45 +31,45 @@ Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel
 Summary(ru.UTF-8):	Утилиты для управления пакетными фильтрами ядра Linux
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
-Name:		iptables
+Name:		iptables%{?with_vserver:-vs}
 Version:	1.6.0
-Release:	2%{?with_vserver:.vserver}
+Release:	3
 License:	GPL v2
 Group:		Networking/Admin
-Source0:	ftp://ftp.netfilter.org/pub/iptables/%{name}-%{version}.tar.bz2
+Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
 # Source0-md5:	27ba3451cb622467fc9267a176f19a31
-Source1:	cvs://cvs.samba.org/netfilter/%{name}-howtos.tar.bz2
+Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
-Source2:	%{name}.init
+Source2:	%{orgname}.init
 Source3:	%{name6}.init
-Source6:	%{name}-config
+Source6:	%{orgname}-config
 Source7:	%{name6}-config
-Source8:	%{name}.service
+Source8:	%{orgname}.service
 Source9:	%{name6}.service
 Source10:	ebtables.init
 Source11:	ebtables-config
 Source12:	ebtables.service
 # --- GENERAL CHANGES (patches<10):
-Patch0:		%{name}-man.patch
+Patch0:		%{orgname}-man.patch
 # additional utils; off by default
-Patch1:		%{name}-batch.patch
+Patch1:		%{orgname}-batch.patch
 Patch2:		no-libiptc.patch
-Patch3:		%{name}-aligned_u64.patch
-Patch4:		%{name}-ebtables.patch
+Patch3:		%{orgname}-aligned_u64.patch
+Patch4:		%{orgname}-ebtables.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
-Patch10:	%{name}-20070806.patch
+Patch10:	%{orgname}-20070806.patch
 # xt_layer7; almost based on iptables-1.4-for-kernel-2.6.20forward-layer7-2.18.patch
 # http://downloads.sourceforge.net/l7-filter/netfilter-layer7-v2.18.tar.gz
-Patch11:	%{name}-layer7.patch
+Patch11:	%{orgname}-layer7.patch
 # ipt_rpc
-Patch12:	%{name}-old-1.3.7.patch
+Patch12:	%{orgname}-old-1.3.7.patch
 # xt_IMQ; http://linuximq.net/patchs/iptables-1.4.12-IMQ-test4.diff
-Patch13:	%{name}-imq.patch
+Patch13:	%{orgname}-imq.patch
 # enhances ipt_owner/ip6t_owner; http://people.linux-vserver.org/~dhozac/p/m/iptables-1.3.5-owner-xid.patch (currently disabled, needs update for xt_owner)
-Patch14:	%{name}-owner-xid.patch
+Patch14:	%{orgname}-owner-xid.patch
 # adjusts xt_owner for vserver-enabled kernel
-Patch15:	%{name}-owner-struct-size-vs.patch
+Patch15:	%{orgname}-owner-struct-size-vs.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -95,7 +96,7 @@ BuildRequires:	texlive-fonts-jknappen
 BuildRequires:	kernel%{_alt_kernel}-headers(netfilter)
 %endif
 BuildRequires:	linux-libc-headers >= 7:2.6.22.1
-Requires:	%{name}-libs = %{version}-%{release}
+Requires:	%{orgname}-libs = %{version}-%{release}
 Requires:	libnetfilter_conntrack >= 1.0.4
 Requires:	libnfnetlink >= 1.0
 Provides:	arptables
@@ -107,7 +108,7 @@ Obsoletes:	ipchains
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
 Conflicts:	xtables-addons < 1.25
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+BuildRoot:	%{tmpdir}/%{orgname}-%{version}-root-%(id -u -n)
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
@@ -149,7 +150,7 @@ Biblioteki iptables.
 Summary:	Libraries and headers for developing iptables extensions
 Summary(pl.UTF-8):	Biblioteki i nagłówki do tworzenia rozszerzeń iptables
 Group:		Development/Libraries
-Requires:	%{name}-libs = %{epoch}:%{version}-%{release}
+Requires:	%{orgname}-libs = %{epoch}:%{version}-%{release}
 Obsoletes:	iptables24-devel
 
 %description devel
@@ -194,7 +195,7 @@ firewall-init sposobu włączania i wyłączania filtrów IP jądra poprzez
 iptables(8).
 
 %prep
-%setup -q -a1
+%setup -q -n iptables-%{version} -a1
 %patch0 -p1
 %if %{with batch}
 %patch1 -p1
@@ -255,13 +256,13 @@ ln -sf xtables-compat-multi $RPM_BUILD_ROOT%{_sbindir}/ebtables
 # use ld script instead (see no-libiptc.patch for source)
 cp -p libiptc/libiptc.ld $RPM_BUILD_ROOT%{_libdir}/libiptc.so
 
-install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name}
+install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{orgname}
 install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
 
-install -p %{SOURCE6} $RPM_BUILD_ROOT/etc/sysconfig/%{name}-config
+install -p %{SOURCE6} $RPM_BUILD_ROOT/etc/sysconfig/%{orgname}-config
 install -p %{SOURCE7} $RPM_BUILD_ROOT/etc/sysconfig/%{name6}-config
 
-install -p %{SOURCE8} $RPM_BUILD_ROOT%{systemdunitdir}/%{name}.service
+install -p %{SOURCE8} $RPM_BUILD_ROOT%{systemdunitdir}/%{orgname}.service
 install -p %{SOURCE9} $RPM_BUILD_ROOT%{systemdunitdir}/%{name6}.service
 
 install -p %{SOURCE10} $RPM_BUILD_ROOT/etc/rc.d/init.d/ebtables
@@ -276,25 +277,25 @@ rm -rf $RPM_BUILD_ROOT
 
 %post init
 /sbin/chkconfig --add ebtables
-/sbin/chkconfig --add %{name}
+/sbin/chkconfig --add %{orgname}
 /sbin/chkconfig --add %{name6}
-%systemd_post %{name}.service %{name6}.service ebtables.service
+%systemd_post %{orgname}.service %{name6}.service ebtables.service
 
 %preun init
 if [ "$1" = "0" ]; then
 	/sbin/chkconfig --del ebtables
-	/sbin/chkconfig --del %{name}
+	/sbin/chkconfig --del %{orgname}
 	/sbin/chkconfig --del %{name6}
 fi
-%systemd_preun %{name}.service %{name6}.service ebtables.service
+%systemd_preun %{orgname}.service %{name6}.service ebtables.service
 
 %postun init
 %systemd_reload
 
-%triggerpostun init -- %{name}-init < 1.4.13-2
-%systemd_trigger %{name}.service %{name6}.service
+%triggerpostun init -- %{orgname}-init < 1.4.13-2
+%systemd_trigger %{orgname}.service %{name6}.service
 
-%triggerpostun init -- %{name}-init < 1.6.0-1
+%triggerpostun init -- %{orgname}-init < 1.6.0-1
 %systemd_trigger ebtables.service
 
 %files
@@ -508,11 +509,11 @@ fi
 %files init
 %defattr(644,root,root,755)
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/ebtables-config
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name}-config
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{orgname}-config
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name6}-config
 %attr(754,root,root) /etc/rc.d/init.d/ebtables
 %attr(754,root,root) /etc/rc.d/init.d/iptables
 %attr(754,root,root) /etc/rc.d/init.d/ip6tables
 %{systemdunitdir}/ebtables.service
-%{systemdunitdir}/%{name}.service
+%{systemdunitdir}/%{orgname}.service
 %{systemdunitdir}/%{name6}.service
