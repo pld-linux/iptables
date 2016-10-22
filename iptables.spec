@@ -23,15 +23,15 @@
 %endif
 
 %define		orgname	iptables
+%define		name6	ip6tables
 
-%define		name6			ip6tables
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
 Summary(pt_BR.UTF-8):	Ferramenta para controlar a filtragem de pacotes no kernel-2.6.x
 Summary(ru.UTF-8):	Утилиты для управления пакетными фильтрами ядра Linux
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
-Name:		iptables%{?with_vserver:-vs}
+Name:		iptables%{?with_vserver:-vserver}
 Version:	1.6.0
 Release:	3
 License:	GPL v2
