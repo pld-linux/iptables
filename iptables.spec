@@ -7,6 +7,7 @@
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
 %bcond_without	dist_kernel	# without distribution kernel
+%bcond_without	nftables	# nftables compatibility
 %bcond_without	pcap		# pcap-dependend utils (nfbpf_compile, nfsynproxy)
 %bcond_with	vserver		# build xt_owner module for non-dist kernel with vserver support
 %bcond_with	batch		# build iptables-batch
@@ -32,12 +33,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.6.0
-Release:	3
+Version:	1.6.1
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
-# Source0-md5:	27ba3451cb622467fc9267a176f19a31
+# Source0-md5:	ab38a33806b6182c6f53d6afb4619add
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{orgname}.init
@@ -73,10 +74,13 @@ Patch15:	%{orgname}-owner-struct-size-vs.patch
 URL:		http://www.netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
+%{?with_nftables:BuildRequires:	bison}
+%{?with_nftables:BuildRequires:	flex}
 BuildRequires:	groff
-BuildRequires:	libnetfilter_conntrack-devel >= 1.0.4
+%{?with_nftables:BuildRequires:	libmnl-devel >= 1.0}
+BuildRequires:	libnetfilter_conntrack-devel >= 1.0.6
 BuildRequires:	libnfnetlink-devel >= 1.0
-BuildRequires:	libnftnl-devel
+%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.0.5}
 %{?with_pcap:BuildRequires:	libpcap-devel}
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
@@ -97,8 +101,10 @@ BuildRequires:	kernel%{_alt_kernel}-headers(netfilter)
 %endif
 BuildRequires:	linux-libc-headers >= 7:2.6.22.1
 Requires:	%{orgname}-libs = %{version}-%{release}
-Requires:	libnetfilter_conntrack >= 1.0.4
+%{?with_nftables:Requires:	libmnl >= 1.0}
+Requires:	libnetfilter_conntrack >= 1.0.6
 Requires:	libnfnetlink >= 1.0
+%{?with_nftables:Requires:	libnftnl >= 1.0.5}
 Provides:	arptables
 Provides:	ebtables
 Provides:	firewall-userspace-tool
@@ -225,6 +231,7 @@ iptables(8).
 	%{?with_pcap:--enable-bpf-compiler} \
 	--enable-libipq \
 	%{?with_pcap:--enable-nfsynproxy} \
+	%{!?with_nftables:--disable-nftables} \
 	%{?with_static:--enable-static}
 
 %{__make} -j1 all \
@@ -303,21 +310,13 @@ fi
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_bindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/arptables
-%attr(755,root,root) %{_sbindir}/arptables-compat
 %attr(755,root,root) %{_sbindir}/ebtables
-%attr(755,root,root) %{_sbindir}/ebtables-compat
 %attr(755,root,root) %{_sbindir}/iptables
 %attr(755,root,root) %{_sbindir}/iptables-restore
 %attr(755,root,root) %{_sbindir}/iptables-save
-%attr(755,root,root) %{_sbindir}/iptables-compat
-%attr(755,root,root) %{_sbindir}/iptables-compat-restore
-%attr(755,root,root) %{_sbindir}/iptables-compat-save
 %attr(755,root,root) %{_sbindir}/ip6tables
 %attr(755,root,root) %{_sbindir}/ip6tables-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-save
-%attr(755,root,root) %{_sbindir}/ip6tables-compat
-%attr(755,root,root) %{_sbindir}/ip6tables-compat-restore
-%attr(755,root,root) %{_sbindir}/ip6tables-compat-save
 %if %{with batch}
 %attr(755,root,root) %{_sbindir}/iptables-batch
 %attr(755,root,root) %{_sbindir}/ip6tables-batch
@@ -327,8 +326,22 @@ fi
 %attr(755,root,root) %{_sbindir}/nfbpf_compile
 %attr(755,root,root) %{_sbindir}/nfsynproxy
 %endif
-%attr(755,root,root) %{_sbindir}/xtables-compat-multi
 %attr(755,root,root) %{_sbindir}/xtables-multi
+%if %{with nftables}
+%attr(755,root,root) %{_sbindir}/arptables-compat
+%attr(755,root,root) %{_sbindir}/ebtables-compat
+%attr(755,root,root) %{_sbindir}/iptables-compat
+%attr(755,root,root) %{_sbindir}/iptables-compat-restore
+%attr(755,root,root) %{_sbindir}/iptables-compat-save
+%attr(755,root,root) %{_sbindir}/iptables-restore-translate
+%attr(755,root,root) %{_sbindir}/iptables-translate
+%attr(755,root,root) %{_sbindir}/ip6tables-compat
+%attr(755,root,root) %{_sbindir}/ip6tables-compat-restore
+%attr(755,root,root) %{_sbindir}/ip6tables-compat-save
+%attr(755,root,root) %{_sbindir}/ip6tables-restore-translate
+%attr(755,root,root) %{_sbindir}/ip6tables-translate
+%attr(755,root,root) %{_sbindir}/xtables-compat-multi
+%endif
 %{_datadir}/xtables
 %dir %{_libdir}/xtables
 %attr(755,root,root) %{_libdir}/xtables/libarpt_mangle.so
@@ -471,7 +484,7 @@ fi
 %attr(755,root,root) %{_libdir}/libipq.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libipq.so.0
 %attr(755,root,root) %{_libdir}/libxtables.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libxtables.so.11
+%attr(755,root,root) %ghost %{_libdir}/libxtables.so.12
 
 %files devel
 %defattr(644,root,root,755)
