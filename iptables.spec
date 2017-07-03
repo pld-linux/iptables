@@ -3,6 +3,8 @@
 # - update BR to real required llh version
 # - check if kernel-headers are still required to properly build iptabels for dist kernel
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
+# - think what to do with the useless 'ebtables' wrapper. The original old
+#   ebtables is still needed e.g. for libvirt's nwfilter
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX
@@ -34,7 +36,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
 Version:	1.6.1
-Release:	2
+Release:	2.1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
@@ -47,6 +49,7 @@ Source6:	%{orgname}-config
 Source7:	%{name6}-config
 Source8:	%{orgname}.service
 Source9:	%{name6}.service
+# these are not compatible with this package! there are no ebtables-save and ebtables-restore here
 Source10:	ebtables.init
 Source11:	ebtables-config
 Source12:	ebtables.service
@@ -107,10 +110,8 @@ Requires:	libnetfilter_conntrack >= 1.0.6
 Requires:	libnfnetlink >= 1.0
 %{?with_nftables:Requires:	libnftnl >= 1.0.5}
 Provides:	arptables
-Provides:	ebtables
 Provides:	firewall-userspace-tool
 Obsoletes:	arptables
-Obsoletes:	ebtables
 Obsoletes:	ipchains
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
@@ -201,6 +202,28 @@ Iptables-init ma na celu udostępnienie alternatywnego w stosunku do
 firewall-init sposobu włączania i wyłączania filtrów IP jądra poprzez
 iptables(8).
 
+%package ebtables
+Summary:	Ethernet Bridge Tables - xtables compatibility wrapper
+Summary(pl.UTF-8):	Ethernet Bridge Tables – nakładka kompatybilności na xtables
+Group:		Networking/Admin
+Requires(post,preun):	/sbin/chkconfig
+Requires(post,preun,postun):	systemd-units >= 38
+Requires:	%{name}
+Requires:	rc-scripts >= 0.4.3.0
+Requires:	systemd-units >= 38
+# do not 'provide' something this is not really compatible with
+#Provides:	ebtables
+Obsoletes:	ebtables
+
+%description ebtables
+ebtables is a tool for managing Linux 2.5.x (and above) Link Layer firewalling
+subsystem.
+
+This package contains a compatibility wrapper over xtables providing some
+functionality of the original ebtables tool.
+
+Note: this is not really a fully-compatible drop-in replacement!
+
 %prep
 %setup -q -n iptables-%{version} -a1
 %patch0 -p1
@@ -274,9 +297,10 @@ install -p %{SOURCE7} $RPM_BUILD_ROOT/etc/sysconfig/%{name6}-config
 install -p %{SOURCE8} $RPM_BUILD_ROOT%{systemdunitdir}/%{orgname}.service
 install -p %{SOURCE9} $RPM_BUILD_ROOT%{systemdunitdir}/%{name6}.service
 
-install -p %{SOURCE10} $RPM_BUILD_ROOT/etc/rc.d/init.d/ebtables
-install -p %{SOURCE11} $RPM_BUILD_ROOT/etc/sysconfig/ebtables-config
-install -p %{SOURCE12} $RPM_BUILD_ROOT%{systemdunitdir}/ebtables.service
+# these won't work as they are now
+#install -p %{SOURCE10} $RPM_BUILD_ROOT/etc/rc.d/init.d/ebtables
+#install -p %{SOURCE11} $RPM_BUILD_ROOT/etc/sysconfig/ebtables-config
+#install -p %{SOURCE12} $RPM_BUILD_ROOT%{systemdunitdir}/ebtables.service
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -285,18 +309,16 @@ rm -rf $RPM_BUILD_ROOT
 %postun	libs -p /sbin/ldconfig
 
 %post init
-/sbin/chkconfig --add ebtables
 /sbin/chkconfig --add %{orgname}
 /sbin/chkconfig --add %{name6}
-%systemd_post %{orgname}.service %{name6}.service ebtables.service
+%systemd_post %{orgname}.service %{name6}.service
 
 %preun init
 if [ "$1" = "0" ]; then
-	/sbin/chkconfig --del ebtables
 	/sbin/chkconfig --del %{orgname}
 	/sbin/chkconfig --del %{name6}
 fi
-%systemd_preun %{orgname}.service %{name6}.service ebtables.service
+%systemd_preun %{orgname}.service %{name6}.service
 
 %postun init
 %systemd_reload
@@ -304,15 +326,11 @@ fi
 %triggerpostun init -- %{orgname}-init < 1.4.13-2
 %systemd_trigger %{orgname}.service %{name6}.service
 
-%triggerpostun init -- %{orgname}-init < 1.6.0-1
-%systemd_trigger ebtables.service
-
 %files
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_bindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/arptables
-%attr(755,root,root) %{_sbindir}/ebtables
 %attr(755,root,root) %{_sbindir}/iptables
 %attr(755,root,root) %{_sbindir}/iptables-restore
 %attr(755,root,root) %{_sbindir}/iptables-save
@@ -523,12 +541,13 @@ fi
 
 %files init
 %defattr(644,root,root,755)
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/ebtables-config
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{orgname}-config
 %config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name6}-config
-%attr(754,root,root) /etc/rc.d/init.d/ebtables
 %attr(754,root,root) /etc/rc.d/init.d/iptables
 %attr(754,root,root) /etc/rc.d/init.d/ip6tables
-%{systemdunitdir}/ebtables.service
 %{systemdunitdir}/%{orgname}.service
 %{systemdunitdir}/%{name6}.service
+
+%files ebtables
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_sbindir}/ebtables
