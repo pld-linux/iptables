@@ -34,7 +34,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
 Version:	1.6.1
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
@@ -57,6 +57,7 @@ Patch1:		%{orgname}-batch.patch
 Patch2:		no-libiptc.patch
 Patch3:		%{orgname}-aligned_u64.patch
 Patch4:		%{orgname}-ebtables.patch
+Patch5:		ebtables-X.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
 Patch10:	%{orgname}-20070806.patch
@@ -209,6 +210,7 @@ iptables(8).
 %patch2 -p1
 %patch3 -p1
 %patch4 -p1
+%patch5 -p1
 
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}

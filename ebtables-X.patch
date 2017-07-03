@@ -1,0 +1,12 @@
+diff -dur iptables-1.6.1.orig/iptables/xtables-eb.c iptables-1.6.1/iptables/xtables-eb.c
+--- iptables-1.6.1.orig/iptables/xtables-eb.c	2017-01-26 17:11:58.000000000 +0100
++++ iptables-1.6.1/iptables/xtables-eb.c	2017-07-03 12:06:20.000000000 +0200
+@@ -776,7 +776,7 @@
+ 
+ 	/* Getopt saves the day */
+ 	while ((c = getopt_long(argc, argv,
+-	   "-A:D:C:I:N:E:X::L::Z::F::P:Vhi:o:j:c:p:s:d:t:M:", opts, NULL)) != -1) {
++	   "-A:D:C:I:N:E:X:L::Z::F::P:Vhi:o:j:c:p:s:d:t:M:", opts, NULL)) != -1) {
+ 		cs.c = c;
+ 		cs.invert = ebt_invert;
+ 		switch (c) {
