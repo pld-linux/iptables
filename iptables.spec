@@ -193,7 +193,7 @@ Requires:	systemd-units >= 38
 Obsoletes:	firewall-init
 Obsoletes:	firewall-init-ipchains
 Obsoletes:	iptables24-init
-%{?with_vserver:Provides:	iptables-init = %{version}-%{release}
+%{?with_vserver:Provides:	iptables-init = %{version}-%{release}}
 
 %description init
 Iptables-init is meant to provide an alternate way than firewall-init
