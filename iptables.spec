@@ -36,7 +36,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
 Version:	1.6.1
-Release:	3
+Release:	4
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
@@ -111,6 +111,7 @@ Requires:	libnfnetlink >= 1.0
 %{?with_nftables:Requires:	libnftnl >= 1.0.5}
 Provides:	arptables
 Provides:	firewall-userspace-tool
+%{?with_vserver:Provides:	iptables = %{version}-%{release}}
 Obsoletes:	arptables
 Obsoletes:	ipchains
 Obsoletes:	iptables24-compat
@@ -186,12 +187,13 @@ Summary(pl.UTF-8):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,preun,postun):	systemd-units >= 38
-Requires:	%{name}
+Requires:	%{name} = %{version}-%{release}
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	systemd-units >= 38
 Obsoletes:	firewall-init
 Obsoletes:	firewall-init-ipchains
 Obsoletes:	iptables24-init
+%{?with_vserver:Provides:	iptables-init = %{version}-%{release}
 
 %description init
 Iptables-init is meant to provide an alternate way than firewall-init
@@ -214,6 +216,7 @@ Requires:	systemd-units >= 38
 # do not 'provide' something this is not really compatible with
 #Provides:	ebtables
 Obsoletes:	ebtables
+%{?with_vserver:Provides:	ebtables = %{version}-%{release}}
 
 %description ebtables
 ebtables is a tool for managing Linux 2.5.x (and above) Link Layer firewalling
