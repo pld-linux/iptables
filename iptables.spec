@@ -36,7 +36,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
 Version:	1.6.1
-Release:	4
+Release:	5
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
