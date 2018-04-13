@@ -35,12 +35,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.6.1
-Release:	5
+Version:	1.6.2
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
-# Source0-md5:	ab38a33806b6182c6f53d6afb4619add
+# Source0-md5:	7d2b7847e4aa8832a18437b8a4c1873d
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{orgname}.init
@@ -410,6 +410,7 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libip6t_REDIRECT.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_SNAT.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_SNPT.so
+%attr(755,root,root) %{_libdir}/xtables/libip6t_srh.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_AUDIT.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CHECKSUM.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_CLASSIFY.so
@@ -497,6 +498,7 @@ fi
 %{_mandir}/man8/iptables-extensions.8*
 %{_mandir}/man8/iptables-restore.8*
 %{_mandir}/man8/iptables-save.8*
+%{_mandir}/man8/nfnl_osf.8*
 
 %files libs
 %defattr(644,root,root,755)
