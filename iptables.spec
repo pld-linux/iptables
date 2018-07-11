@@ -108,7 +108,7 @@ Requires:	%{orgname}-libs = %{version}-%{release}
 %{?with_nftables:Requires:	libmnl >= 1.0}
 Requires:	libnetfilter_conntrack >= 1.0.6
 Requires:	libnfnetlink >= 1.0
-%{?with_nftables:Requires:	libnftnl >= 1.0.5}
+%{?with_nftables:Requires:	libnftnl >= 1.1.1}
 Provides:	arptables
 Provides:	firewall-userspace-tool
 %{?with_vserver:Provides:	iptables = %{version}-%{release}}
@@ -219,13 +219,22 @@ Obsoletes:	ebtables
 %{?with_vserver:Provides:	ebtables = %{version}-%{release}}
 
 %description ebtables
-ebtables is a tool for managing Linux 2.5.x (and above) Link Layer firewalling
-subsystem.
+ebtables is a tool for managing Linux 2.5.x (and above) Link Layer
+firewalling subsystem.
 
-This package contains a compatibility wrapper over xtables providing some
-functionality of the original ebtables tool.
+This package contains a compatibility wrapper over xtables providing
+some functionality of the original ebtables tool.
 
 Note: this is not really a fully-compatible drop-in replacement!
+
+%description ebtables -l pl.UTF-8
+ebtables to narzędzie do zarządzania podsystemem firewalla warstwy
+połączenia (Link Layer) Linuksa 2.5.x (i nowszych).
+
+Ten pakiet zawiera warstwę zgodności dla xtables zapewniającą część
+funkcjonalności oryginalnego narzędzia ebtables.
+
+Uwaga: nie jest to w pełni zgodny zamiennik!
 
 %prep
 %setup -q -n iptables-%{version} -a1
@@ -281,10 +290,6 @@ install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
 	BINDIR=%{_sbindir} \
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
-
-# not installed; provide so we can obsolete arptables and ebtables packages
-ln -sf xtables-compat-multi $RPM_BUILD_ROOT%{_sbindir}/arptables
-ln -sf xtables-compat-multi $RPM_BUILD_ROOT%{_sbindir}/ebtables
 
 # upstream solution with empty library with two DT_NEEDED entries doesn't work
 # with PLD's default LDFLAGS (--as-needed --no-copy-dt-needed-entries);
