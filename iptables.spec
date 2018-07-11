@@ -35,12 +35,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.6.2
+Version:	1.8.0
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
-# Source0-md5:	7d2b7847e4aa8832a18437b8a4c1873d
+# Source0-md5:	3874ca08438be68cd793558283df48d1
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{orgname}.init
@@ -59,7 +59,7 @@ Patch0:		%{orgname}-man.patch
 Patch1:		%{orgname}-batch.patch
 Patch2:		no-libiptc.patch
 Patch3:		%{orgname}-aligned_u64.patch
-Patch4:		%{orgname}-ebtables.patch
+
 Patch5:		ebtables-X.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
@@ -84,7 +84,7 @@ BuildRequires:	groff
 %{?with_nftables:BuildRequires:	libmnl-devel >= 1.0}
 BuildRequires:	libnetfilter_conntrack-devel >= 1.0.6
 BuildRequires:	libnfnetlink-devel >= 1.0
-%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.0.5}
+%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.1.1}
 %{?with_pcap:BuildRequires:	libpcap-devel}
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
@@ -117,7 +117,7 @@ Obsoletes:	ipchains
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
 Conflicts:	xtables-addons < 1.25
-BuildRoot:	%{tmpdir}/%{orgname}-%{version}-root-%(id -u -n)
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 An extensible NAT system, and an extensible packet filtering system.
@@ -235,7 +235,7 @@ Note: this is not really a fully-compatible drop-in replacement!
 %endif
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
+
 %patch5 -p1
 
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
@@ -334,12 +334,19 @@ fi
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_bindir}/iptables-xml
 %attr(755,root,root) %{_sbindir}/arptables
-%attr(755,root,root) %{_sbindir}/iptables
-%attr(755,root,root) %{_sbindir}/iptables-restore
-%attr(755,root,root) %{_sbindir}/iptables-save
 %attr(755,root,root) %{_sbindir}/ip6tables
+%attr(755,root,root) %{_sbindir}/ip6tables-legacy
+%attr(755,root,root) %{_sbindir}/ip6tables-legacy-restore
+%attr(755,root,root) %{_sbindir}/ip6tables-legacy-save
 %attr(755,root,root) %{_sbindir}/ip6tables-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-save
+%attr(755,root,root) %{_sbindir}/iptables
+%attr(755,root,root) %{_sbindir}/iptables-legacy
+%attr(755,root,root) %{_sbindir}/iptables-legacy-restore
+%attr(755,root,root) %{_sbindir}/iptables-legacy-save
+%attr(755,root,root) %{_sbindir}/iptables-restore
+%attr(755,root,root) %{_sbindir}/iptables-save
+%attr(755,root,root) %{_sbindir}/xtables-legacy-multi
 %if %{with batch}
 %attr(755,root,root) %{_sbindir}/iptables-batch
 %attr(755,root,root) %{_sbindir}/ip6tables-batch
@@ -349,32 +356,38 @@ fi
 %attr(755,root,root) %{_sbindir}/nfbpf_compile
 %attr(755,root,root) %{_sbindir}/nfsynproxy
 %endif
-%attr(755,root,root) %{_sbindir}/xtables-multi
 %if %{with nftables}
-%attr(755,root,root) %{_sbindir}/arptables-compat
-%attr(755,root,root) %{_sbindir}/ebtables-compat
-%attr(755,root,root) %{_sbindir}/iptables-compat
-%attr(755,root,root) %{_sbindir}/iptables-compat-restore
-%attr(755,root,root) %{_sbindir}/iptables-compat-save
+%attr(755,root,root) %{_sbindir}/ip6tables-nft
+%attr(755,root,root) %{_sbindir}/ip6tables-nft-restore
+%attr(755,root,root) %{_sbindir}/ip6tables-nft-save
+%attr(755,root,root) %{_sbindir}/iptables-nft
+%attr(755,root,root) %{_sbindir}/iptables-nft-restore
+%attr(755,root,root) %{_sbindir}/iptables-nft-save
+%attr(755,root,root) %{_sbindir}/xtables-monitor
+%attr(755,root,root) %{_sbindir}/xtables-nft-multi
 %attr(755,root,root) %{_sbindir}/iptables-restore-translate
 %attr(755,root,root) %{_sbindir}/iptables-translate
-%attr(755,root,root) %{_sbindir}/ip6tables-compat
-%attr(755,root,root) %{_sbindir}/ip6tables-compat-restore
-%attr(755,root,root) %{_sbindir}/ip6tables-compat-save
 %attr(755,root,root) %{_sbindir}/ip6tables-restore-translate
 %attr(755,root,root) %{_sbindir}/ip6tables-translate
-%attr(755,root,root) %{_sbindir}/xtables-compat-multi
+%attr(755,root,root) %{_libdir}/xtables/libarpt_mangle.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_limit.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_mark.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_nflog.so
 %endif
 %{_datadir}/xtables
 %dir %{_libdir}/xtables
-%attr(755,root,root) %{_libdir}/xtables/libarpt_mangle.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_802_3.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_arp.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_dnat.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_ip6.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_ip.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_limit.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_log.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_mark.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_mark_m.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_nflog.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_pkttype.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_redirect.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_snat.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_stp.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_vlan.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_HL.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_LOG.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_REJECT.so
@@ -489,7 +502,7 @@ fi
 %{?with_ipt_IPV4OPTSSTRIP:%attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so}
 %{?with_ipt_rpc:%attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so}
 %{?with_xt_layer7:%attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so}
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ethertypes
+%{?with_nftables:%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ethertypes}
 %{_mandir}/man1/iptables-xml.1*
 %{_mandir}/man8/ip6tables.8*
 %{_mandir}/man8/ip6tables-restore.8*
@@ -499,6 +512,10 @@ fi
 %{_mandir}/man8/iptables-restore.8*
 %{_mandir}/man8/iptables-save.8*
 %{_mandir}/man8/nfnl_osf.8*
+%{_mandir}/man8/xtables-legacy.8*
+%{_mandir}/man8/xtables-monitor.8*
+%{_mandir}/man8/xtables-nft.8*
+%{_mandir}/man8/xtables-translate.8*
 
 %files libs
 %defattr(644,root,root,755)
