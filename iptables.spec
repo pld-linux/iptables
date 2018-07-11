@@ -39,7 +39,7 @@ Version:	1.8.0
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
-Source0:	ftp://ftp.netfilter.org/pub/iptables/%{orgname}-%{version}.tar.bz2
+Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.bz2
 # Source0-md5:	3874ca08438be68cd793558283df48d1
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
@@ -75,7 +75,7 @@ Patch13:	%{orgname}-imq.patch
 Patch14:	%{orgname}-owner-xid.patch
 # adjusts xt_owner for vserver-enabled kernel
 Patch15:	%{orgname}-owner-struct-size-vs.patch
-URL:		http://www.netfilter.org/
+URL:		https://netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
 %{?with_nftables:BuildRequires:	bison}
