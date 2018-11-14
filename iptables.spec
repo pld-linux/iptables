@@ -35,12 +35,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.8.1
+Version:	1.8.2
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.bz2
-# Source0-md5:	b5b0b43afc245176c36a14c4fca6e661
+# Source0-md5:	944558e88ddcc3b9b0d9550070fa3599
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{orgname}.init
@@ -61,6 +61,7 @@ Patch2:		no-libiptc.patch
 Patch3:		%{orgname}-aligned_u64.patch
 
 Patch5:		ebtables-X.patch
+Patch6:		0001-extensions-format-security-fixes-in-libip-6-t_icmp.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
 Patch10:	%{orgname}-20070806.patch
@@ -246,6 +247,7 @@ Uwaga: nie jest to w pełni zgodny zamiennik!
 %patch3 -p1
 
 %patch5 -p1
+%patch6 -p1
 
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}
@@ -387,6 +389,7 @@ fi
 %dir %{_libdir}/xtables
 %attr(755,root,root) %{_libdir}/xtables/libebt_802_3.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_arp.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_arpreply.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_dnat.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_ip6.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_ip.so
