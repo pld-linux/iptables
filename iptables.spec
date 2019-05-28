@@ -35,12 +35,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.8.2
-Release:	2
+Version:	1.8.3
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.bz2
-# Source0-md5:	944558e88ddcc3b9b0d9550070fa3599
+# Source0-md5:	29de711d15c040c402cf3038c69ff513
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	%{orgname}.init
@@ -61,7 +61,6 @@ Patch2:		no-libiptc.patch
 Patch3:		%{orgname}-aligned_u64.patch
 
 Patch5:		ebtables-X.patch
-Patch6:		0001-extensions-format-security-fixes-in-libip-6-t_icmp.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
 Patch10:	%{orgname}-20070806.patch
@@ -247,7 +246,6 @@ Uwaga: nie jest to w pełni zgodny zamiennik!
 %patch3 -p1
 
 %patch5 -p1
-%patch6 -p1
 
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}
@@ -525,15 +523,26 @@ fi
 %{_mandir}/man8/nfnl_osf.8*
 %{_mandir}/man8/xtables-legacy.8*
 %{_mandir}/man8/xtables-monitor.8*
+%if %{with nftables}
+%{_mandir}/man8/arptables-nft.8*
+%{_mandir}/man8/arptables-nft-restore.8*
+%{_mandir}/man8/arptables-nft-save.8*
+%{_mandir}/man8/ebtables-nft.8*
+%{_mandir}/man8/ip6tables-translate.8*
+%{_mandir}/man8/iptables-translate.8*
 %{_mandir}/man8/xtables-nft.8*
 %{_mandir}/man8/xtables-translate.8*
+%endif
+%if %{with pcap}
+%{_mandir}/man8/nfbpf_compile.8*
+%endif
 
 %files libs
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libip4tc.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libip4tc.so.0
+%attr(755,root,root) %ghost %{_libdir}/libip4tc.so.2
 %attr(755,root,root) %{_libdir}/libip6tc.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libip6tc.so.0
+%attr(755,root,root) %ghost %{_libdir}/libip6tc.so.2
 %attr(755,root,root) %{_libdir}/libipq.so.*.*.*
 %attr(755,root,root) %ghost %{_libdir}/libipq.so.0
 %attr(755,root,root) %{_libdir}/libxtables.so.*.*.*
