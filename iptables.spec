@@ -36,7 +36,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
 Version:	1.8.3
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.bz2
@@ -59,6 +59,7 @@ Patch0:		%{orgname}-man.patch
 Patch1:		%{orgname}-batch.patch
 Patch2:		no-libiptc.patch
 Patch3:		%{orgname}-aligned_u64.patch
+Patch4:		%{orgname}-link.patch
 
 Patch5:		ebtables-X.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
@@ -244,7 +245,7 @@ Uwaga: nie jest to w pełni zgodny zamiennik!
 %endif
 %patch2 -p1
 %patch3 -p1
-
+%patch4 -p1
 %patch5 -p1
 
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
