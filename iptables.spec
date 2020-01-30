@@ -300,7 +300,7 @@ install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
 %else
 	-e 's,@BITS@,32,' \
 %endif
-	-e 's,@LIBDIR@,%{_libdir},' \
+	-e 's,@LIBDIR@,%{_libdir},g' \
 	-e "s,@ARCH@,$(echo "%{_build_arch}" | tr _ -)," libiptc/libiptc.ld.in >$RPM_BUILD_ROOT%{_libdir}/libiptc.so
 
 install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/iptables
