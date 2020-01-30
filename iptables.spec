@@ -294,7 +294,14 @@ install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
 # upstream solution with empty library with two DT_NEEDED entries doesn't work
 # with PLD's default LDFLAGS (--as-needed --no-copy-dt-needed-entries);
 # use ld script instead (see no-libiptc.patch for source)
-cp -p libiptc/libiptc.ld $RPM_BUILD_ROOT%{_libdir}/libiptc.so
+%{__sed} \
+%ifarch %{x8664} alpha aarch64 hppa64 mips64 ppc64 s390x sparc64
+	-e 's,@BITS@,64,' \
+%else
+	-e 's,@BITS@,32,' \
+%endif
+	-e 's,@LIBDIR@,%{_libdir},' \
+	-e "s,@ARCH@,$(echo "%{_build_arch}" | tr _ -)," libiptc/libiptc.ld.in >$RPM_BUILD_ROOT%{_libdir}/libiptc.so
 
 install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/iptables
 install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/ip6tables

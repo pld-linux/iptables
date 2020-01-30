@@ -13,10 +13,10 @@
  libip4tc_la_LDFLAGS = -version-info 0:0:0
  libip6tc_la_SOURCES = libip6tc.c
 
---- iptables-1.4.16.2/libiptc/libiptc.ld.orig	1970-01-01 01:00:00.000000000 +0100
-+++ iptables-1.4.16.2/libiptc/libiptc.ld	2012-10-09 17:47:42.606342693 +0200
+--- iptables-1.4.16.2/libiptc/libiptc.ld.in.orig	1970-01-01 01:00:00.000000000 +0100
++++ iptables-1.4.16.2/libiptc/libiptc.ld.in	2012-10-09 17:47:42.606342693 +0200
 @@ -0,0 +1,4 @@
 +/* GNU ld script
 +   Gather both libipt4c and libipt6c, using them only as needed */
-+OUTPUT_FORMAT(elf32-i386)
-+GROUP ( AS_NEEDED ( /usr/lib/libip4tc.so /usr/lib/libip6tc.so ) )
++OUTPUT_FORMAT(elf@BITS@-@ARCH@)
++GROUP ( AS_NEEDED ( @LIBDIR@/libip4tc.so @LIBDIR@/libip6tc.so ) )
