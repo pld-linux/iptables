@@ -34,12 +34,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.8.3
+Version:	1.8.4
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.bz2
-# Source0-md5:	29de711d15c040c402cf3038c69ff513
+# Source0-md5:	9b201107957fbf62709c3d8226239b0d
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	iptables.init
@@ -84,7 +84,7 @@ BuildRequires:	groff
 %{?with_nftables:BuildRequires:	libmnl-devel >= 1.0}
 BuildRequires:	libnetfilter_conntrack-devel >= 1.0.6
 BuildRequires:	libnfnetlink-devel >= 1.0
-%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.1.1}
+%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.1.3}
 %{?with_pcap:BuildRequires:	libpcap-devel}
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
@@ -108,7 +108,7 @@ Requires:	%{orgname}-libs = %{version}-%{release}
 %{?with_nftables:Requires:	libmnl >= 1.0}
 Requires:	libnetfilter_conntrack >= 1.0.6
 Requires:	libnfnetlink >= 1.0
-%{?with_nftables:Requires:	libnftnl >= 1.1.1}
+%{?with_nftables:Requires:	libnftnl >= 1.1.3}
 Provides:	arptables
 Provides:	firewall-userspace-tool
 %{?with_vserver:Provides:	iptables = %{version}-%{release}}
@@ -291,9 +291,7 @@ install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
 	MANDIR=%{_mandir} \
 	LIBDIR=%{_libdir}
 
-# upstream solution with empty library with two DT_NEEDED entries doesn't work
-# with PLD's default LDFLAGS (--as-needed --no-copy-dt-needed-entries);
-# use ld script instead (see no-libiptc.patch for source)
+# use ld script for -liptc backward compat (see no-libiptc.patch for source)
 %{__sed} \
 %ifarch %{x8664} alpha aarch64 hppa64 mips64 ppc64 s390x sparc64
 	-e 's,@BITS@,64,' \
@@ -393,6 +391,7 @@ fi
 %{_datadir}/xtables
 %dir %{_libdir}/xtables
 %attr(755,root,root) %{_libdir}/xtables/libebt_802_3.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_among.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_arp.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_arpreply.so
 %attr(755,root,root) %{_libdir}/xtables/libebt_dnat.so
@@ -535,7 +534,9 @@ fi
 %{_mandir}/man8/arptables-nft-restore.8*
 %{_mandir}/man8/arptables-nft-save.8*
 %{_mandir}/man8/ebtables-nft.8*
+%{_mandir}/man8/ip6tables-restore-translate.8*
 %{_mandir}/man8/ip6tables-translate.8*
+%{_mandir}/man8/iptables-restore-translate.8*
 %{_mandir}/man8/iptables-translate.8*
 %{_mandir}/man8/xtables-nft.8*
 %{_mandir}/man8/xtables-translate.8*
