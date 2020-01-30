@@ -26,7 +26,6 @@
 %endif
 
 %define		orgname	iptables
-%define		name6	ip6tables
 
 Summary:	Extensible packet filtering system && extensible NAT system
 Summary(pl.UTF-8):	System filtrowania pakietów oraz system translacji adresów (NAT)
@@ -36,19 +35,19 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
 Version:	1.8.3
-Release:	2
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.bz2
 # Source0-md5:	29de711d15c040c402cf3038c69ff513
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
-Source2:	%{orgname}.init
-Source3:	%{name6}.init
-Source6:	%{orgname}-config
-Source7:	%{name6}-config
-Source8:	%{orgname}.service
-Source9:	%{name6}.service
+Source2:	iptables.init
+Source3:	ip6tables.init
+Source6:	iptables-config
+Source7:	ip6tables-config
+Source8:	iptables.service
+Source9:	ip6tables.service
 # these are not compatible with this package! there are no ebtables-save and ebtables-restore here
 Source10:	ebtables.init
 Source11:	ebtables-config
@@ -174,7 +173,7 @@ iptables.
 Summary:	Static iptables libraries
 Summary(pl.UTF-8):	Biblioteki statyczne iptables
 Group:		Development/Libraries
-Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
+Requires:	%{orgname}-devel = %{epoch}:%{version}-%{release}
 
 %description static
 Static iptables libraries.
@@ -297,14 +296,14 @@ install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
 # use ld script instead (see no-libiptc.patch for source)
 cp -p libiptc/libiptc.ld $RPM_BUILD_ROOT%{_libdir}/libiptc.so
 
-install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{orgname}
-install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/%{name6}
+install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/iptables
+install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/ip6tables
 
-install -p %{SOURCE6} $RPM_BUILD_ROOT/etc/sysconfig/%{orgname}-config
-install -p %{SOURCE7} $RPM_BUILD_ROOT/etc/sysconfig/%{name6}-config
+install -p %{SOURCE6} $RPM_BUILD_ROOT/etc/sysconfig/iptables-config
+install -p %{SOURCE7} $RPM_BUILD_ROOT/etc/sysconfig/ip6tables-config
 
-install -p %{SOURCE8} $RPM_BUILD_ROOT%{systemdunitdir}/%{orgname}.service
-install -p %{SOURCE9} $RPM_BUILD_ROOT%{systemdunitdir}/%{name6}.service
+install -p %{SOURCE8} $RPM_BUILD_ROOT%{systemdunitdir}/iptables.service
+install -p %{SOURCE9} $RPM_BUILD_ROOT%{systemdunitdir}/ip6tables.service
 
 # these won't work as they are now
 #install -p %{SOURCE10} $RPM_BUILD_ROOT/etc/rc.d/init.d/ebtables
@@ -318,22 +317,22 @@ rm -rf $RPM_BUILD_ROOT
 %postun	libs -p /sbin/ldconfig
 
 %post init
-/sbin/chkconfig --add %{orgname}
-/sbin/chkconfig --add %{name6}
-%systemd_post %{orgname}.service %{name6}.service
+/sbin/chkconfig --add iptables
+/sbin/chkconfig --add ip6tables
+%systemd_post iptables.service ip6tables.service
 
 %preun init
 if [ "$1" = "0" ]; then
-	/sbin/chkconfig --del %{orgname}
-	/sbin/chkconfig --del %{name6}
+	/sbin/chkconfig --del iptables
+	/sbin/chkconfig --del ip6tables
 fi
-%systemd_preun %{orgname}.service %{name6}.service
+%systemd_preun iptables.service ip6tables.service
 
 %postun init
 %systemd_reload
 
-%triggerpostun init -- %{orgname}-init < 1.4.13-2
-%systemd_trigger %{orgname}.service %{name6}.service
+%triggerpostun init -- iptables-init < 1.4.13-2
+%systemd_trigger iptables.service ip6tables.service
 
 %files
 %defattr(644,root,root,755)
@@ -584,12 +583,12 @@ fi
 
 %files init
 %defattr(644,root,root,755)
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{orgname}-config
-%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/%{name6}-config
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/iptables-config
+%config(noreplace) %verify(not md5 mtime size) /etc/sysconfig/ip6tables-config
 %attr(754,root,root) /etc/rc.d/init.d/iptables
 %attr(754,root,root) /etc/rc.d/init.d/ip6tables
-%{systemdunitdir}/%{orgname}.service
-%{systemdunitdir}/%{name6}.service
+%{systemdunitdir}/iptables.service
+%{systemdunitdir}/ip6tables.service
 
 %files ebtables
 %defattr(644,root,root,755)
