@@ -112,7 +112,7 @@ Requires:	libnfnetlink >= 1.0
 Provides:	arptables
 Provides:	firewall-userspace-tool
 %{?with_vserver:Provides:	iptables = %{version}-%{release}}
-Obsoletes:	arptables
+Obsoletes:	arptables < 0.0.5
 Obsoletes:	ipchains
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
@@ -210,13 +210,13 @@ Summary(pl.UTF-8):	Ethernet Bridge Tables – nakładka kompatybilności na xtab
 Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,preun,postun):	systemd-units >= 38
-Requires:	%{name}
+Requires:	%{name} = %{version}-%{release}
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	systemd-units >= 38
 # do not 'provide' something this is not really compatible with
 #Provides:	ebtables
-Obsoletes:	ebtables
-%{?with_vserver:Provides:	ebtables = %{version}-%{release}}
+Conflicts:	ebtables < 2.0.11
+%{?with_vserver:Provides:	iptables-ebtables = %{version}-%{release}}
 
 %description ebtables
 ebtables is a tool for managing Linux 2.5.x (and above) Link Layer
