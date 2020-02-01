@@ -109,10 +109,9 @@ Requires:	%{orgname}-libs = %{version}-%{release}
 Requires:	libnetfilter_conntrack >= 1.0.6
 Requires:	libnfnetlink >= 1.0
 %{?with_nftables:Requires:	libnftnl >= 1.1.3}
-Provides:	arptables
 Provides:	firewall-userspace-tool
 %{?with_vserver:Provides:	iptables = %{version}-%{release}}
-Obsoletes:	arptables < 0.0.5
+Conflicts:	arptables < 0.0.5
 Obsoletes:	ipchains
 Obsoletes:	iptables24-compat
 Obsoletes:	netfilter
