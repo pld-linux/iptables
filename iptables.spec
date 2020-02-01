@@ -1,10 +1,12 @@
 #
 # TODO:
+# - recheck ebtables functionality:
+#   - is it still valid: "The original old ebtables is still needed e.g. for libvirt's nwfilter"?
+#   - is ebtables init script/service usable with iptables ebtables implementation now?
+#     if so, then move them here from legacy ebtables.spec
 # - update BR to real required llh version
 # - check if kernel-headers are still required to properly build iptabels for dist kernel
 # - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
-# - think what to do with the useless 'ebtables' wrapper. The original old
-#   ebtables is still needed e.g. for libvirt's nwfilter
 #
 # Conditional build:
 %bcond_without	doc		# without documentation (HOWTOS) which needed TeX

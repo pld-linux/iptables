@@ -131,7 +131,7 @@ case "$1" in
 	done
 	;;
   *)
-	echo $"Usage $0 {start|stop|restart|condrestart|save|status}"
+	msg_usage "$0 {start|stop|restart|reload|condrestart|save|status}"
 	RETVAL=1
 esac
 
