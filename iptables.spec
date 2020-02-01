@@ -5,20 +5,18 @@
 #   - is ebtables init script/service usable with iptables ebtables implementation now?
 #     if so, then move them here from legacy ebtables.spec
 # - update BR to real required llh version
-# - check if kernel-headers are still required to properly build iptabels for dist kernel
-# - fix makefile (-D_UNKNOWN_KERNEL_POINTER_SIZE issue)
 #
 # Conditional build:
-%bcond_without	doc		# without documentation (HOWTOS) which needed TeX
-%bcond_without	dist_kernel	# without distribution kernel
+%bcond_without	doc		# HOWTOS documentation (which requires TeX)
+%bcond_without	dist_kernel	# distribution (patched) kernel enhancements (alias for with: ipt_IPV4OPTSSTRIP ipt_rpc xt_layer7)
 %bcond_without	nftables	# nftables compatibility
 %bcond_without	pcap		# pcap-dependend utils (nfbpf_compile, nfsynproxy)
-%bcond_with	vserver		# build xt_owner module for non-dist kernel with vserver support
-%bcond_with	batch		# build iptables-batch
-%bcond_with	static		# build static libraries, no dynamic modules (all linked into binaries)
-%bcond_with	ipt_IPV4OPTSSTRIP # enable ipt_IPV4OPTSSTRIP for non-dist kernel
-%bcond_with	ipt_rpc		# enable ipt_rpc for non-dist kernel
-%bcond_with	xt_layer7	# enable xt_layer7 for non-dist kernel
+%bcond_with	vserver		# xt_owner module with vserver support
+%bcond_with	batch		# iptables-batch utils
+%bcond_with	static		# static libraries, no dynamic modules (all linked into binaries)
+%bcond_with	ipt_IPV4OPTSSTRIP # ipt_IPV4OPTSSTRIP module (requires kernel patch to work)
+%bcond_with	ipt_rpc		# ipt_rpc module (requires kernel patch to work)
+%bcond_with	xt_layer7	# xt_layer7 module (requires kernel patch to work)
 %bcond_with	usekernelsrc	# include kernel headers from %{_kernelsrcdir}
 
 %if %{with dist_kernel}
@@ -101,9 +99,6 @@ BuildRequires:	tetex-latex
 BuildRequires:	tetex-tex-babel
 BuildRequires:	texlive-fonts-cmsuper
 BuildRequires:	texlive-fonts-jknappen
-%endif
-%if %{with dist_kernel}
-BuildRequires:	kernel%{_alt_kernel}-headers(netfilter)
 %endif
 BuildRequires:	linux-libc-headers >= 7:2.6.22.1
 Requires:	%{orgname}-libs = %{version}-%{release}
