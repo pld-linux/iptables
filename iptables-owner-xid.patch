@@ -1,9 +1,9 @@
 --- iptables-1.6.0/extensions/libxt_owner.c.orig	2016-04-09 22:02:13.847585590 +0900
 +++ iptables-1.6.0/extensions/libxt_owner.c	2016-04-09 22:24:01.855632355 +0900
 @@ -64,6 +64,8 @@
- 	O_PROCESS,
  	O_SESSION,
  	O_COMM,
+ 	O_SUPPL_GROUPS,
 +	O_NID,
 +	O_XID,
  };
@@ -59,9 +59,9 @@
  	{.name = "uid-owner", .id = O_USER, .type = XTTYPE_STRING,
  	 .flags = XTOPT_INVERT},
 @@ -139,8 +157,15 @@
- 	 .flags = XTOPT_INVERT},
  	{.name = "socket-exists", .id = O_SOCK_EXISTS, .type = XTTYPE_NONE,
  	 .flags = XTOPT_INVERT},
+ 	{.name = "suppl-groups", .id = O_SUPPL_GROUPS, .type = XTTYPE_NONE},
 +	{.name = "nid-owner", .id = O_NID, .type = XTTYPE_UINT32,
 +	 .flags = XTOPT_INVERT | XTOPT_PUT, XTOPT_POINTER(s, nid),
 +	 .max = INT_MAX},
@@ -109,8 +109,8 @@
  }
  
 @@ -283,6 +327,16 @@
- 			info->invert |= XT_OWNER_SOCKET;
- 		info->match |= XT_OWNER_SOCKET;
+ 			xtables_param_act(XTF_BAD_VALUE, "owner", "--suppl-groups", "you need to use --gid-owner first");
+ 		info->match |= XT_OWNER_SUPPL_GROUPS;
  		break;
 +	case O_NID:
 +		if (cb->invert)
@@ -183,11 +183,11 @@
  
  static void owner_mt_print(const void *ip, const struct xt_entry_match *match,
 @@ -466,6 +542,8 @@
- 	owner_mt_print_item(info, "owner socket exists", XT_OWNER_SOCKET, numeric);
- 	owner_mt_print_item(info, "owner UID match",     XT_OWNER_UID,    numeric);
- 	owner_mt_print_item(info, "owner GID match",     XT_OWNER_GID,    numeric);
-+	owner_mt_print_item(info, "owner NID match",     XT_OWNER_NID,    numeric);
-+	owner_mt_print_item(info, "owner XID match",     XT_OWNER_XID,    numeric);
+ 	owner_mt_print_item(info, "owner UID match",     XT_OWNER_UID,          numeric);
+ 	owner_mt_print_item(info, "owner GID match",     XT_OWNER_GID,          numeric);
+ 	owner_mt_print_item(info, "incl. suppl. groups", XT_OWNER_SUPPL_GROUPS, numeric);
++	owner_mt_print_item(info, "owner NID match",     XT_OWNER_NID,          numeric);
++	owner_mt_print_item(info, "owner XID match",     XT_OWNER_XID,          numeric);
  }
  
  static void
@@ -210,11 +210,11 @@
  
  static void owner_mt_save(const void *ip, const struct xt_entry_match *match)
 @@ -498,6 +580,8 @@
- 	owner_mt_print_item(info, "--socket-exists",  XT_OWNER_SOCKET, true);
- 	owner_mt_print_item(info, "--uid-owner",      XT_OWNER_UID,    true);
- 	owner_mt_print_item(info, "--gid-owner",      XT_OWNER_GID,    true);
-+	owner_mt_print_item(info, "--nid-owner",      XT_OWNER_NID,    true);
-+	owner_mt_print_item(info, "--xid-owner",      XT_OWNER_XID,    true);
+ 	owner_mt_print_item(info, "--uid-owner",      XT_OWNER_UID,          true);
+ 	owner_mt_print_item(info, "--gid-owner",      XT_OWNER_GID,          true);
+ 	owner_mt_print_item(info, "--suppl-groups",   XT_OWNER_SUPPL_GROUPS, true);
++	owner_mt_print_item(info, "--nid-owner",      XT_OWNER_NID,          true);
++	owner_mt_print_item(info, "--xid-owner",      XT_OWNER_XID,          true);
  }
  
- static struct xtables_match owner_mt_reg[] = {
+ static int
