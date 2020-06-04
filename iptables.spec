@@ -34,12 +34,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.8.4
-Release:	2
+Version:	1.8.5
+Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.bz2
-# Source0-md5:	9b201107957fbf62709c3d8226239b0d
+# Source0-md5:	42cfa96d4ac5eb93ee7ed8dd85cfe8fb
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	iptables.init
@@ -84,7 +84,7 @@ BuildRequires:	groff
 %{?with_nftables:BuildRequires:	libmnl-devel >= 1.0}
 BuildRequires:	libnetfilter_conntrack-devel >= 1.0.6
 BuildRequires:	libnfnetlink-devel >= 1.0
-%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.1.3}
+%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.1.6}
 %{?with_pcap:BuildRequires:	libpcap-devel}
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
@@ -105,7 +105,7 @@ Requires:	%{orgname}-libs = %{version}-%{release}
 %{?with_nftables:Requires:	libmnl >= 1.0}
 Requires:	libnetfilter_conntrack >= 1.0.6
 Requires:	libnfnetlink >= 1.0
-%{?with_nftables:Requires:	libnftnl >= 1.1.3}
+%{?with_nftables:Requires:	libnftnl >= 1.1.6}
 Provides:	firewall-userspace-tool
 %{?with_vserver:Provides:	iptables = %{version}-%{release}}
 Conflicts:	arptables < 0.0.5
@@ -346,6 +346,7 @@ fi
 %attr(755,root,root) %{_sbindir}/arptables-restore
 %attr(755,root,root) %{_sbindir}/arptables-save
 %attr(755,root,root) %{_sbindir}/ip6tables
+%attr(755,root,root) %{_sbindir}/ip6tables-apply
 %attr(755,root,root) %{_sbindir}/ip6tables-legacy
 %attr(755,root,root) %{_sbindir}/ip6tables-legacy-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-legacy-save
@@ -516,9 +517,11 @@ fi
 %{?with_nftables:%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ethertypes}
 %{_mandir}/man1/iptables-xml.1*
 %{_mandir}/man8/ip6tables.8*
+%{_mandir}/man8/ip6tables-apply.8*
 %{_mandir}/man8/ip6tables-restore.8*
 %{_mandir}/man8/ip6tables-save.8*
 %{_mandir}/man8/iptables.8*
+%{_mandir}/man8/iptables-apply.8*
 %{_mandir}/man8/iptables-extensions.8*
 %{_mandir}/man8/iptables-restore.8*
 %{_mandir}/man8/iptables-save.8*
