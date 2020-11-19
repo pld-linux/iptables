@@ -75,6 +75,7 @@ Patch13:	%{orgname}-imq.patch
 Patch14:	%{orgname}-owner-xid.patch
 # adjusts xt_owner for vserver-enabled kernel
 Patch15:	%{orgname}-owner-struct-size-vs.patch
+Patch16:	%{orgname}-rpc.patch
 URL:		https://netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -86,6 +87,7 @@ BuildRequires:	libnetfilter_conntrack-devel >= 1.0.6
 BuildRequires:	libnfnetlink-devel >= 1.0
 %{?with_nftables:BuildRequires:	libnftnl-devel >= 1.1.6}
 %{?with_pcap:BuildRequires:	libpcap-devel}
+BuildRequires:	libtirpc-devel >= 0.2.0
 BuildRequires:	libtool
 BuildRequires:	pkgconfig >= 1:0.9.0
 BuildRequires:	rpmbuild(macros) >= 1.647
@@ -251,6 +253,7 @@ Uwaga: nie jest to w pełni zgodny zamiennik!
 %patch14 -p1
 %patch15 -p1
 %endif
+%patch16 -p1
 
 %build
 %{__libtoolize}

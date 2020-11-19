@@ -1,0 +1,24 @@
+diff --color -urN iptables-1.8.5.orig/configure.ac iptables-1.8.5/configure.ac
+--- iptables-1.8.5.orig/configure.ac	2020-11-19 13:09:53.499861230 +0100
++++ iptables-1.8.5/configure.ac	2020-11-19 13:19:30.782935726 +0100
+@@ -167,6 +167,8 @@
+ 
+ AM_CONDITIONAL([HAVE_LIBNETFILTER_CONNTRACK], [test "$nfconntrack" = 1])
+ 
++PKG_CHECK_MODULES([TIRPC], [libtirpc])
++
+ AC_SUBST([blacklist_modules])
+ AC_SUBST([blacklist_x_modules])
+ AC_SUBST([blacklist_b_modules])
+diff --color -urN iptables-1.8.5.orig/extensions/GNUmakefile.in iptables-1.8.5/extensions/GNUmakefile.in
+--- iptables-1.8.5.orig/extensions/GNUmakefile.in	2020-06-03 12:32:01.000000000 +0200
++++ iptables-1.8.5/extensions/GNUmakefile.in	2020-11-19 13:24:04.921129448 +0100
+@@ -22,7 +22,7 @@
+ kinclude_CPPFLAGS  = @kinclude_CPPFLAGS@
+ 
+ AM_CFLAGS       = ${regular_CFLAGS}
+-AM_CPPFLAGS     = ${regular_CPPFLAGS} -I${top_builddir}/include -I${top_builddir} -I${top_srcdir}/include -I${top_srcdir} ${kinclude_CPPFLAGS} ${CPPFLAGS} @libnetfilter_conntrack_CFLAGS@ @libnftnl_CFLAGS@
++AM_CPPFLAGS     = ${regular_CPPFLAGS} -I${top_builddir}/include -I${top_builddir} -I${top_srcdir}/include -I${top_srcdir} ${kinclude_CPPFLAGS} ${CPPFLAGS} @libnetfilter_conntrack_CFLAGS@ @libnftnl_CFLAGS@ @TIRPC_CFLAGS@
+ AM_DEPFLAGS     = -Wp,-MMD,$(@D)/.$(@F).d,-MT,$@
+ AM_LDFLAGS      = @noundef_LDFLAGS@
+ 
