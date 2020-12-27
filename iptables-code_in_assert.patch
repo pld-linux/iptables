@@ -1,0 +1,12 @@
+--- iptables-1.8.6/iptables/nft.c.orig	2020-12-27 23:59:42.360558144 +0100
++++ iptables-1.8.6/iptables/nft.c	2020-12-28 00:00:07.059393662 +0100
+@@ -107,7 +107,8 @@
+ 
+ static void mnl_nft_batch_continue(struct nftnl_batch *batch)
+ {
+-	assert(nftnl_batch_update(batch) >= 0);
++	int ret = nftnl_batch_update(batch);
++	assert(ret >= 0);
+ }
+ 
+ static uint32_t mnl_batch_begin(struct nftnl_batch *batch, uint32_t genid, uint32_t seqnum)
