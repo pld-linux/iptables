@@ -1,0 +1,28 @@
+--- iptables-1.8.6/iptables/Makefile.am.orig	2020-12-27 16:59:29.786716795 +0100
++++ iptables-1.8.6/iptables/Makefile.am	2020-12-27 17:00:40.679461709 +0100
+@@ -75,12 +75,10 @@
+ 
+ vx_bin_links   = iptables-xml
+ if ENABLE_IPV4
+-v4_sbin_links  = iptables-legacy iptables-legacy-restore iptables-legacy-save \
+-		 iptables iptables-restore iptables-save
++v4_sbin_links  = iptables-legacy iptables-legacy-restore iptables-legacy-save
+ endif
+ if ENABLE_IPV6
+-v6_sbin_links  = ip6tables-legacy ip6tables-legacy-restore ip6tables-legacy-save \
+-		 ip6tables ip6tables-restore ip6tables-save
++v6_sbin_links  = ip6tables-legacy ip6tables-legacy-restore ip6tables-legacy-save
+ endif
+ if ENABLE_NFTABLES
+ x_sbin_links  = iptables-nft iptables-nft-restore iptables-nft-save \
+@@ -93,7 +91,9 @@
+ 		ebtables-nft ebtables \
+ 		ebtables-nft-restore ebtables-restore \
+ 		ebtables-nft-save ebtables-save \
+-		xtables-monitor
++		xtables-monitor \
++		iptables iptables-restore iptables-save \
++		ip6tables ip6tables-restore ip6tables-save
+ endif
+ 
+ iptables-extensions.8: iptables-extensions.8.tmpl ../extensions/matches.man ../extensions/targets.man

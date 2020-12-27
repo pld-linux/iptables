@@ -18,6 +18,7 @@
 %bcond_with	ipt_rpc		# ipt_rpc module (requires kernel patch to work)
 %bcond_with	xt_layer7	# xt_layer7 module (requires kernel patch to work)
 %bcond_with	usekernelsrc	# include kernel headers from %{_kernelsrcdir}
+%bcond_with	default_nft	# use nftables backend by default
 
 %if %{with dist_kernel}
 %define	with_ipt_IPV4OPTSSTRIP	1
@@ -77,6 +78,7 @@ Patch14:	%{orgname}-owner-xid.patch
 Patch15:	%{orgname}-owner-struct-size-vs.patch
 Patch16:	%{orgname}-rpc.patch
 Patch17:	%{orgname}-code_in_assert.patch
+Patch18:	%{orgname}-default_nft.patch
 URL:		https://netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
@@ -256,6 +258,9 @@ Uwaga: nie jest to w pełni zgodny zamiennik!
 %endif
 %patch16 -p1
 %patch17 -p1
+%if %{with nftables} && %{with default_nft}
+%patch18 -p1
+%endif
 
 %build
 %{__libtoolize}
