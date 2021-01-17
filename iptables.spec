@@ -35,12 +35,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.8.6
+Version:	1.8.7
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.bz2
-# Source0-md5:	bc0f0adccc93c09dc5b7507ccba93148
+# Source0-md5:	602ba7e937c72fbb7b1c2b71c3b0004b
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	iptables.init
@@ -307,6 +307,9 @@ install -d $RPM_BUILD_ROOT/etc/{rc.d/init.d,sysconfig} \
 	-e 's,@LIBDIR@,%{_libdir},g' \
 	-e "s,@ARCH@,$(echo "%{_build_arch}" | tr _ -)," libiptc/libiptc.ld.in >$RPM_BUILD_ROOT%{_libdir}/libiptc.so
 
+# obsoleted by pkg-config
+%{__rm} $RPM_BUILD_ROOT%{_libdir}/lib{ip4tc,ip6tc,ipq,xtables}.la
+
 install -p %{SOURCE2} $RPM_BUILD_ROOT/etc/rc.d/init.d/iptables
 install -p %{SOURCE3} $RPM_BUILD_ROOT/etc/rc.d/init.d/ip6tables
 
@@ -349,12 +352,6 @@ fi
 %defattr(644,root,root,755)
 %{?with_doc:%doc iptables-howtos/{NAT,networking-concepts,packet-filtering}-HOWTO*}
 %attr(755,root,root) %{_bindir}/iptables-xml
-%attr(755,root,root) %{_sbindir}/arptables
-%attr(755,root,root) %{_sbindir}/arptables-nft
-%attr(755,root,root) %{_sbindir}/arptables-nft-restore
-%attr(755,root,root) %{_sbindir}/arptables-nft-save
-%attr(755,root,root) %{_sbindir}/arptables-restore
-%attr(755,root,root) %{_sbindir}/arptables-save
 %attr(755,root,root) %{_sbindir}/ip6tables
 %attr(755,root,root) %{_sbindir}/ip6tables-apply
 %attr(755,root,root) %{_sbindir}/ip6tables-legacy
@@ -379,39 +376,8 @@ fi
 %attr(755,root,root) %{_sbindir}/nfbpf_compile
 %attr(755,root,root) %{_sbindir}/nfsynproxy
 %endif
-%if %{with nftables}
-%attr(755,root,root) %{_sbindir}/ip6tables-nft
-%attr(755,root,root) %{_sbindir}/ip6tables-nft-restore
-%attr(755,root,root) %{_sbindir}/ip6tables-nft-save
-%attr(755,root,root) %{_sbindir}/iptables-nft
-%attr(755,root,root) %{_sbindir}/iptables-nft-restore
-%attr(755,root,root) %{_sbindir}/iptables-nft-save
-%attr(755,root,root) %{_sbindir}/xtables-monitor
-%attr(755,root,root) %{_sbindir}/xtables-nft-multi
-%attr(755,root,root) %{_sbindir}/iptables-restore-translate
-%attr(755,root,root) %{_sbindir}/iptables-translate
-%attr(755,root,root) %{_sbindir}/ip6tables-restore-translate
-%attr(755,root,root) %{_sbindir}/ip6tables-translate
-%attr(755,root,root) %{_libdir}/xtables/libarpt_mangle.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_mark.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_nflog.so
-%endif
 %{_datadir}/xtables
 %dir %{_libdir}/xtables
-%attr(755,root,root) %{_libdir}/xtables/libebt_802_3.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_among.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_arp.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_arpreply.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_dnat.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_ip6.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_ip.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_log.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_mark_m.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_pkttype.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_redirect.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_snat.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_stp.so
-%attr(755,root,root) %{_libdir}/xtables/libebt_vlan.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_HL.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_LOG.so
 %attr(755,root,root) %{_libdir}/xtables/libip6t_REJECT.so
@@ -525,7 +491,6 @@ fi
 %{?with_ipt_IPV4OPTSSTRIP:%attr(755,root,root) %{_libdir}/xtables/libipt_IPV4OPTSSTRIP.so}
 %{?with_ipt_rpc:%attr(755,root,root) %{_libdir}/xtables/libipt_rpc.so}
 %{?with_xt_layer7:%attr(755,root,root) %{_libdir}/xtables/libxt_layer7.so}
-%{?with_nftables:%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ethertypes}
 %{_mandir}/man1/iptables-xml.1*
 %{_mandir}/man8/ip6tables.8*
 %{_mandir}/man8/ip6tables-apply.8*
@@ -537,22 +502,56 @@ fi
 %{_mandir}/man8/iptables-restore.8*
 %{_mandir}/man8/iptables-save.8*
 %{_mandir}/man8/nfnl_osf.8*
-%{_mandir}/man8/xtables-legacy.8*
-%{_mandir}/man8/xtables-monitor.8*
+%if %{with pcap}
+%{_mandir}/man8/nfbpf_compile.8*
+%endif
 %if %{with nftables}
+%attr(755,root,root) %{_sbindir}/arptables
+%attr(755,root,root) %{_sbindir}/arptables-nft
+%attr(755,root,root) %{_sbindir}/arptables-nft-restore
+%attr(755,root,root) %{_sbindir}/arptables-nft-save
+%attr(755,root,root) %{_sbindir}/arptables-restore
+%attr(755,root,root) %{_sbindir}/arptables-save
+%attr(755,root,root) %{_sbindir}/ip6tables-nft
+%attr(755,root,root) %{_sbindir}/ip6tables-nft-restore
+%attr(755,root,root) %{_sbindir}/ip6tables-nft-save
+%attr(755,root,root) %{_sbindir}/iptables-nft
+%attr(755,root,root) %{_sbindir}/iptables-nft-restore
+%attr(755,root,root) %{_sbindir}/iptables-nft-save
+%attr(755,root,root) %{_sbindir}/xtables-monitor
+%attr(755,root,root) %{_sbindir}/xtables-nft-multi
+%attr(755,root,root) %{_sbindir}/iptables-restore-translate
+%attr(755,root,root) %{_sbindir}/iptables-translate
+%attr(755,root,root) %{_sbindir}/ip6tables-restore-translate
+%attr(755,root,root) %{_sbindir}/ip6tables-translate
+%attr(755,root,root) %{_libdir}/xtables/libarpt_mangle.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_802_3.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_among.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_arp.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_arpreply.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_dnat.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_ip.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_ip6.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_log.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_mark.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_mark_m.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_nflog.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_pkttype.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_redirect.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_snat.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_stp.so
+%attr(755,root,root) %{_libdir}/xtables/libebt_vlan.so
 %{_mandir}/man8/arptables-nft.8*
 %{_mandir}/man8/arptables-nft-restore.8*
 %{_mandir}/man8/arptables-nft-save.8*
-%{_mandir}/man8/ebtables-nft.8*
 %{_mandir}/man8/ip6tables-restore-translate.8*
 %{_mandir}/man8/ip6tables-translate.8*
 %{_mandir}/man8/iptables-restore-translate.8*
 %{_mandir}/man8/iptables-translate.8*
+%{_mandir}/man8/xtables-legacy.8*
+%{_mandir}/man8/xtables-monitor.8*
 %{_mandir}/man8/xtables-nft.8*
 %{_mandir}/man8/xtables-translate.8*
-%endif
-%if %{with pcap}
-%{_mandir}/man8/nfbpf_compile.8*
 %endif
 
 %files libs
@@ -574,10 +573,6 @@ fi
 %attr(755,root,root) %{_libdir}/libipq.so
 %attr(755,root,root) %{_libdir}/libiptc.so
 %attr(755,root,root) %{_libdir}/libxtables.so
-%{_libdir}/libip4tc.la
-%{_libdir}/libip6tc.la
-%{_libdir}/libipq.la
-%{_libdir}/libxtables.la
 %{_includedir}/libipq.h
 %{_includedir}/xtables.h
 %{_includedir}/xtables-version.h
@@ -608,6 +603,7 @@ fi
 %{systemdunitdir}/iptables.service
 %{systemdunitdir}/ip6tables.service
 
+%if %{with nftables}
 %files ebtables
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_sbindir}/ebtables
@@ -616,3 +612,6 @@ fi
 %attr(755,root,root) %{_sbindir}/ebtables-nft-save
 %attr(755,root,root) %{_sbindir}/ebtables-restore
 %attr(755,root,root) %{_sbindir}/ebtables-save
+%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/ethertypes
+%{_mandir}/man8/ebtables-nft.8*
+%endif
