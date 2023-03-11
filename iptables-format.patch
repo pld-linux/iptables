@@ -1,0 +1,11 @@
+--- iptables-1.8.9/extensions/libxt_NAT.c.orig	2023-01-12 11:27:35.000000000 +0100
++++ iptables-1.8.9/extensions/libxt_NAT.c	2023-03-11 10:25:28.383853964 +0100
+@@ -424,7 +424,7 @@ __NAT_xlate(struct xt_xlate *xl, const s
+ 	if (r->flags & NF_NAT_RANGE_PROTO_OFFSET)
+ 		return 0;
+ 
+-	xt_xlate_add(xl, tgt);
++	xt_xlate_add(xl, "%s", tgt);
+ 	if (strlen(range_str))
+ 		xt_xlate_add(xl, " to %s", range_str);
+ 	if (r->flags & NF_NAT_RANGE_PROTO_RANDOM) {
