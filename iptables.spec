@@ -35,12 +35,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.8.9
+Version:	1.8.10
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.xz
-# Source0-md5:	ffa00f68d63e723c21b8a091c5c0271b
+# Source0-md5:	5eaa3bb424dd3a13c98c0cb026314029
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	iptables.init
@@ -59,8 +59,6 @@ Patch0:		%{orgname}-man.patch
 Patch1:		%{orgname}-batch.patch
 Patch2:		no-libiptc.patch
 Patch3:		%{orgname}-aligned_u64.patch
-Patch4:		%{orgname}-link.patch
-Patch5:		%{orgname}-format.patch
 # --- ADDITIONAL/CHANGED EXTENSIONS:
 # just ipt_IPV4OPTSSTRIP now
 Patch10:	%{orgname}-20070806.patch
@@ -76,18 +74,15 @@ Patch14:	%{orgname}-owner-xid.patch
 # adjusts xt_owner for vserver-enabled kernel
 Patch15:	%{orgname}-owner-struct-size-vs.patch
 Patch16:	%{orgname}-rpc.patch
-Patch17:	%{orgname}-code_in_assert.patch
 Patch18:	%{orgname}-default_nft.patch
 URL:		https://netfilter.org/
 BuildRequires:	autoconf >= 2.50
 BuildRequires:	automake
-%{?with_nftables:BuildRequires:	bison}
-%{?with_nftables:BuildRequires:	flex}
 BuildRequires:	groff
 %{?with_nftables:BuildRequires:	libmnl-devel >= 1.0}
 BuildRequires:	libnetfilter_conntrack-devel >= 1.0.6
 BuildRequires:	libnfnetlink-devel >= 1.0
-%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.1.6}
+%{?with_nftables:BuildRequires:	libnftnl-devel >= 1.2.6}
 %{?with_pcap:BuildRequires:	libpcap-devel}
 BuildRequires:	libtirpc-devel >= 0.2.0
 BuildRequires:	libtool >= 2:2
@@ -111,7 +106,7 @@ Requires:	%{orgname}-libs = %{version}-%{release}
 %{?with_nftables:Requires:	libmnl >= 1.0}
 Requires:	libnetfilter_conntrack >= 1.0.6
 Requires:	libnfnetlink >= 1.0
-%{?with_nftables:Requires:	libnftnl >= 1.1.6}
+%{?with_nftables:Requires:	libnftnl >= 1.2.6}
 Provides:	firewall-userspace-tool
 %{?with_vserver:Provides:	iptables = %{version}-%{release}}
 Conflicts:	arptables < 0.0.5
@@ -246,8 +241,6 @@ Uwaga: nie jest to w pełni zgodny zamiennik!
 %endif
 %patch2 -p1
 %patch3 -p1
-%patch4 -p1
-%patch5 -p1
 
 %{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
 %{?with_xt_layer7:%patch11 -p1}
@@ -258,7 +251,6 @@ Uwaga: nie jest to w pełni zgodny zamiennik!
 %patch15 -p1
 %endif
 %patch16 -p1
-%patch17 -p1
 %if %{with nftables} && %{with default_nft}
 %patch18 -p1
 %endif
@@ -488,7 +480,6 @@ fi
 %attr(755,root,root) %{_libdir}/xtables/libxt_tos.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_u32.so
 %attr(755,root,root) %{_libdir}/xtables/libxt_udp.so
-%config(noreplace) %verify(not md5 mtime size) %{_sysconfdir}/xtables.conf
 %{_mandir}/man1/iptables-xml.1*
 %{_mandir}/man8/ip6tables.8*
 %{_mandir}/man8/ip6tables-apply.8*
