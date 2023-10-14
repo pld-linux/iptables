@@ -115,8 +115,8 @@ Requires:	libnfnetlink >= 1.0
 Provides:	firewall-userspace-tool
 %{?with_vserver:Provides:	iptables = %{version}-%{release}}
 Conflicts:	arptables < 0.0.5
-Obsoletes:	ipchains
-Obsoletes:	iptables24-compat
+Obsoletes:	ipchains < 1.4
+Obsoletes:	iptables24-compat < 1.3
 Obsoletes:	netfilter
 Conflicts:	xtables-addons < 1.25
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -162,7 +162,7 @@ Summary:	Libraries and headers for developing iptables extensions
 Summary(pl.UTF-8):	Biblioteki i nagłówki do tworzenia rozszerzeń iptables
 Group:		Development/Libraries
 Requires:	%{orgname}-libs = %{epoch}:%{version}-%{release}
-Obsoletes:	iptables24-devel
+Obsoletes:	iptables24-devel < 1.3
 
 %description devel
 Libraries and headers for developing iptables extensions.
@@ -192,9 +192,9 @@ Requires(post,preun,postun):	systemd-units >= 38
 Requires:	%{name} = %{version}-%{release}
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	systemd-units >= 38
-Obsoletes:	firewall-init
-Obsoletes:	firewall-init-ipchains
-Obsoletes:	iptables24-init
+Obsoletes:	firewall-init < 3
+Obsoletes:	firewall-init-ipchains < 2.2
+Obsoletes:	iptables24-init < 1.3
 %{?with_vserver:Provides:	iptables-init = %{version}-%{release}}
 
 %description init
