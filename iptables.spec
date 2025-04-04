@@ -235,24 +235,24 @@ Uwaga: nie jest to w pełni zgodny zamiennik!
 
 %prep
 %setup -q -n iptables-%{version} -a1
-%patch0 -p1
+%patch -P0 -p1
 %if %{with batch}
-%patch1 -p1
+%patch -P1 -p1
 %endif
-%patch2 -p1
-%patch3 -p1
+%patch -P2 -p1
+%patch -P3 -p1
 
-%{?with_ipt_IPV4OPTSSTRIP:%patch10 -p1}
-%{?with_xt_layer7:%patch11 -p1}
-%{?with_ipt_rpc:%patch12 -p1}
-%patch13 -p1
+%{?with_ipt_IPV4OPTSSTRIP:%patch -P10 -p1}
+%{?with_xt_layer7:%patch -P11 -p1}
+%{?with_ipt_rpc:%patch -P12 -p1}
+%patch -P13 -p1
 %if %{with vserver}
-%patch14 -p1
-%patch15 -p1
+%patch -P14 -p1
+%patch -P15 -p1
 %endif
-%patch16 -p1
+%patch -P16 -p1
 %if %{with nftables} && %{with default_nft}
-%patch18 -p1
+%patch -P18 -p1
 %endif
 
 %build
