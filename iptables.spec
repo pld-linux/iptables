@@ -35,12 +35,12 @@ Summary(ru.UTF-8):	Утилиты для управления пакетными
 Summary(uk.UTF-8):	Утиліти для керування пакетними фільтрами ядра Linux
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
-Version:	1.8.10
+Version:	1.8.11
 Release:	1
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.xz
-# Source0-md5:	5eaa3bb424dd3a13c98c0cb026314029
+# Source0-md5:	44191ce12055da9790a92429c771ba50
 Source1:	cvs://cvs.samba.org/netfilter/%{orgname}-howtos.tar.bz2
 # Source1-md5:	2ed2b452daefe70ededd75dc0061fd07
 Source2:	iptables.init
@@ -501,6 +501,7 @@ fi
 %attr(755,root,root) %{_sbindir}/arptables-nft-save
 %attr(755,root,root) %{_sbindir}/arptables-restore
 %attr(755,root,root) %{_sbindir}/arptables-save
+%attr(755,root,root) %{_sbindir}/arptables-translate
 %attr(755,root,root) %{_sbindir}/ip6tables-nft
 %attr(755,root,root) %{_sbindir}/ip6tables-nft-restore
 %attr(755,root,root) %{_sbindir}/ip6tables-nft-save
@@ -533,6 +534,7 @@ fi
 %{_mandir}/man8/arptables-nft.8*
 %{_mandir}/man8/arptables-nft-restore.8*
 %{_mandir}/man8/arptables-nft-save.8*
+%{_mandir}/man8/arptables-translate.8*
 %{_mandir}/man8/ip6tables-restore-translate.8*
 %{_mandir}/man8/ip6tables-translate.8*
 %{_mandir}/man8/iptables-restore-translate.8*
