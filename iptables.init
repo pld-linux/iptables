@@ -52,7 +52,7 @@ if [ "$1" = "--quiet" ]; then
 fi
 
 iftable() {
-	if fgrep -qsx $1 /proc/net/ip_tables_names; then
+	if grep -Fqsx $1 /proc/net/ip_tables_names; then
 		iptables -t "$@"
 	fi
 }
