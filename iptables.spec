@@ -36,7 +36,7 @@ Summary(uk.UTF-8):	Утиліти для керування пакетними �
 Summary(zh_CN.UTF-8):	Linux内核包过滤管理工具
 Name:		iptables%{?with_vserver:-vserver}
 Version:	1.8.13
-Release:	1
+Release:	2
 License:	GPL v2
 Group:		Networking/Admin
 Source0:	https://netfilter.org/projects/iptables/files/%{orgname}-%{version}.tar.xz
@@ -102,7 +102,7 @@ BuildRequires:	tetex-tex-babel
 BuildRequires:	texlive-fonts-cmsuper
 BuildRequires:	texlive-fonts-jknappen
 %endif
-Requires:	%{orgname}-libs = %{version}-%{release}
+Requires:	%{orgname}-libs%{?_isa} = %{version}-%{release}
 %{?with_nftables:Requires:	libmnl >= 1.0}
 Requires:	libnetfilter_conntrack >= 1.0.6
 Requires:	libnfnetlink >= 1.0
@@ -156,7 +156,7 @@ Biblioteki iptables.
 Summary:	Libraries and headers for developing iptables extensions
 Summary(pl.UTF-8):	Biblioteki i nagłówki do tworzenia rozszerzeń iptables
 Group:		Development/Libraries
-Requires:	%{orgname}-libs = %{epoch}:%{version}-%{release}
+Requires:	%{orgname}-libs%{?_isa} = %{epoch}:%{version}-%{release}
 Obsoletes:	iptables24-devel < 1.3
 
 %description devel
@@ -170,7 +170,7 @@ iptables.
 Summary:	Static iptables libraries
 Summary(pl.UTF-8):	Biblioteki statyczne iptables
 Group:		Development/Libraries
-Requires:	%{orgname}-devel = %{epoch}:%{version}-%{release}
+Requires:	%{orgname}-devel%{?_isa} = %{epoch}:%{version}-%{release}
 
 %description static
 Static iptables libraries.
@@ -184,7 +184,7 @@ Summary(pl.UTF-8):	Iptables init (w stylu RedHata)
 Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,preun,postun):	systemd-units >= 38
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	systemd-units >= 38
 Obsoletes:	firewall-init < 3
@@ -207,7 +207,7 @@ Summary(pl.UTF-8):	Ethernet Bridge Tables – nakładka kompatybilności na xtab
 Group:		Networking/Admin
 Requires(post,preun):	/sbin/chkconfig
 Requires(post,preun,postun):	systemd-units >= 38
-Requires:	%{name} = %{version}-%{release}
+Requires:	%{name}%{?_isa} = %{version}-%{release}
 Requires:	rc-scripts >= 0.4.3.0
 Requires:	systemd-units >= 38
 # do not 'provide' something this is not really compatible with
